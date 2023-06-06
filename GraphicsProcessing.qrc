@@ -1,4 +1,8 @@
 <RCC>
-    <qresource prefix="GraphicsProcessing">
+    <qresource prefix="/menu">
+        <file>images/close.png</file>
+        <file>images/maxSize.png</file>
+        <file>images/minSize.png</file>
+        <file>images/narrow.png</file>
     </qresource>
 </RCC>

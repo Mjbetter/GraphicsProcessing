@@ -1,7 +1,8 @@
 #pragma once
 
-#include <QtWidgets/QMainWindow>
-#include "ui_GraphicsProcessing.h"
+#include <opencv2\opencv.hpp>
+#include "UI.h"
+
 
 class GraphicsProcessing : public QMainWindow
 {

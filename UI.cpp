@@ -11,6 +11,6 @@ using namespace std;
 void UI::InitializesMenuBar(QMainWindow* mainWindow) {
 	
 	/*设置界面大小*/
-	mainWindow->resize(1920, 1200);
-
+	mainWindow->resize(1920, 1200);	
+	
 }

@@ -4,6 +4,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <vector>
+#include "macro.h"
 
 using namespace cv;
 using namespace std;
@@ -13,32 +14,37 @@ class ImageAlgorithm
 public:
 	/*基础功能*/
 
-
+	/*图像的去噪*/
+	Mat imageDenoising(Mat img, int kernel_size=3, int channels=3, int option=AVERAGE_FILTER);
+	/*均值滤波*/
+	Mat imageAverageFilter(Mat img, int kernel_size, int channels);
+	/*中值滤波*/
+	Mat imageMedianFilter(Mat img, int kernel_size, int channels);
+	/*高斯滤波*/
+	Mat imageGaussianFilter(Mat img, int kernel_size, int channels);
+	/*双边滤波*/
+	Mat imageBilateralFilter(Mat img, int kernel_size, int channels);
+	/*小波滤波*/
+	Mat imageWaveletFilter(Mat img);
 
 	/*中级功能*/
 
 	/*图像的边缘提取*/
-	Mat imageEdgeDetection(Mat img,int order,int option);
+	Mat imageEdgeDetection(Mat img,int order,int option,int denoising,int threshold=20);
 	/*一阶边缘检测算子Roberts*/
-	Mat imageRoberts(Mat img);
+	Mat imageRoberts(Mat img, int denoising, int threshold);
 	/*一阶边缘检测算子Sobel*/
-	Mat imageSobel(Mat img);
+	Mat imageSobel(Mat img, int denoising);
 	/*一阶边缘检测算子Prewitt*/
-	Mat imagePrewitt(Mat img);
+	Mat imagePrewitt(Mat img, int denoising);
 	/*一阶边缘检测算子Kirsch*/
-	Mat imageKirsch(Mat img);
+	Mat imageKirsch(Mat img, int denoising);
 	/*一阶边缘检测算子Robinson*/
-	Mat imageRobinson(Mat img);
+	Mat imageRobinson(Mat img, int denoising);
 	/*二阶边缘检测算子Laplacian算子*/
-	Mat imageLaplacian(Mat img);
+	Mat imageLaplacian(Mat img, int denoising);
 	/*二阶边缘检测算子Canny*/
-	Mat imageCanny(Mat img);
-
-	/*图像去噪进阶*/
-	/*双边滤波*/
-	Mat imageBilateralFiltering(Mat img);
-	/*小波滤波*/
-	Mat imageWaveletFiltering(Mat img);
+	Mat imageCanny(Mat img, int denoising);
 
 	/*图像的增强*/
 	Mat imageEnhance(Mat img,int option);
@@ -69,6 +75,9 @@ public:
 	/*高级功能*/
 	Mat imageDigitalIdentify(Mat img);
 
+
+
+	/*辅助函数*/
 
 };
 

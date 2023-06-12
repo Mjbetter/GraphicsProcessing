@@ -3,6 +3,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <iostream>
+#include <string>
 #include <vector>
 #include "macro.h"
 
@@ -14,6 +17,8 @@ class ImageAlgorithm
 public:
 	/*基础功能*/
 
+	/*图像加载*/
+	Mat Loading_Show();
 	/*图像的去噪*/
 	Mat imageDenoising(Mat img, int kernel_size=3, int channels=3, int option=AVERAGE_FILTER);
 	/*均值滤波*/

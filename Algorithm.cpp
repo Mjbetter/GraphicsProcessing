@@ -1,5 +1,33 @@
 #include "Algorithm.h"
 
+/*
+函数作用：图像加载函数，将传入的图片进行加载
+函数参数：1、img：传入的需要处理的图像的像素矩阵
+		 2、kernel_size：卷积核大小，默认为3
+		 3、channels：图片通道数，默认为3
+		 4、option：默认为AVERGE_FILTER均值滤波器,
+					MEDIAN_FILTER中值滤波器,
+					GAUSSIAN_FILTER高斯滤波器,
+					BILATERAL_FILTER双边滤波器,
+					SMALLWAVE_FILTER小波滤波器
+返回值：返回加载过后的像素矩阵
+*/
+Mat Loading_Show()
+{
+	string imageName = "D:/engineering practice_4/source/Mjbetter/cat.png";   //图片的路径名
+	Mat image = imread(imageName);          //将图片加载后赋值到图像变量image中,读入图像方式默认为彩色图像
+	//检查文件是否打开（或是否为空数据），没打开时执行打印语句
+	if (image.empty())
+		cout << "Could not open or find the image" << std::endl;
+
+	namedWindow("Display window", WINDOW_AUTOSIZE); // 创建图像显示窗口
+	imshow("Image", image);                // 创建一个窗口显示图像
+	waitKey(0); // 图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）
+	waitKey(0);//不断刷新图像
+
+	return image;
+}
+
 
 /*
 函数作用：滤波处理函数，根据option的不同，我们选择不同的滤波方法

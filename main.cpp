@@ -37,13 +37,63 @@ int main(int argc, char *argv[])
     ImageAlgorithm s;
     Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
-    img0 = s.imageRoberts(img, NO_FILTER, 20);
-    img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
-    img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
-    img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);
-    //img4 = s.imageRoberts(img, BILATERAL_FILTER);
-    //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
-
-
+    // Roberts边缘检测测试
+    //img0 = s.imageRoberts(img, NO_FILTER, 20);
+    //img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
+    //img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
+    //img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);
+    //img4 = s.imageRoberts(img, BILATERAL_FILTER,20);
+    //img5 = s.imageRoberts(img, SMALLWAVE_FILTER,20);
+    // 彩色图像的图像增强测试
+    //img0 = s.imageAverageFilter(img, 3, 3);
+    //img1 = s.imageMedianFilter(img, 3, 3);
+    //img2 = s.imageGaussianFilter(img, 3, 3);
+    //img3 = s.imageBilateralFilter(img, 3, 3);
+    //img4 = s.imageWaveletFilter(img, 3);
+    //Prewitt边缘检测测试
+    //img0 = s.imagePrewitt(img, NO_FILTER);
+    //img1 = s.imagePrewitt(img, AVERAGE_FILTER);
+    //img2 = s.imagePrewitt(img, MEDIAN_FILTER);
+    //img3 = s.imagePrewitt(img, GAUSSIAN_FILTER);
+    //img4 = s.imagePrewitt(img, BILATERAL_FILTER);
+    //img5 = s.imagePrewitt(img, SMALLWAVE_FILTER);
+    //Sobel边缘检测测试-核大小为3
+    //img0 = s.imageSobel(img, NO_FILTER);
+    //img1 = s.imageSobel(img, AVERAGE_FILTER);
+    //img2 = s.imageSobel(img, MEDIAN_FILTER);
+    //img3 = s.imageSobel(img, GAUSSIAN_FILTER);
+    //img4 = s.imageSobel(img, BILATERAL_FILTER);
+    //img5 = s.imageSobel(img, SMALLWAVE_FILTER);
+    //Sobel边缘检测测试-核大小为5   
+    //img0 = s.imageSobel(img, NO_FILTER,5);
+    //img1 = s.imageSobel(img, AVERAGE_FILTER, 5);
+    //img2 = s.imageSobel(img, MEDIAN_FILTER, 5);
+    //img3 = s.imageSobel(img, GAUSSIAN_FILTER, 5);
+    //img4 = s.imageSobel(img, BILATERAL_FILTER, 5);
+    //img5 = s.imageSobel(img, SMALLWAVE_FILTER, 5);
+    //Kirsch边缘检测测试
+    //img0 = s.imageKirsch(img, NO_FILTER);
+    //img1 = s.imageKirsch(img, AVERAGE_FILTER);
+    //img2 = s.imageKirsch(img, MEDIAN_FILTER);
+    //img3 = s.imageKirsch(img, GAUSSIAN_FILTER);
+    //img4 = s.imageKirsch(img, BILATERAL_FILTER);
+    //img5 = s.imageKirsch(img, SMALLWAVE_FILTER);
+    //Rbinson边缘检测测试
+    //img0 = s.imageRobinson(img, NO_FILTER);
+    //img1 = s.imageRobinson(img, AVERAGE_FILTER);
+    //img2 = s.imageRobinson(img, MEDIAN_FILTER);
+    //img3 = s.imageRobinson(img, GAUSSIAN_FILTER);
+    //img4 = s.imageRobinson(img, BILATERAL_FILTER);
+    //img5 = s.imageRobinson(img, SMALLWAVE_FILTER);
+    //Laplacian边缘检测测试
+    //img0 = s.imageLaplacian(img, NO_FILTER);
+    //img1 = s.imageLaplacian(img, AVERAGE_FILTER);
+    //img2 = s.imageLaplacian(img, MEDIAN_FILTER);
+    //img3 = s.imageLaplacian(img, GAUSSIAN_FILTER);
+    //img4 = s.imageLaplacian(img, BILATERAL_FILTER);
+    //img5 = s.imageLaplacian(img, SMALLWAVE_FILTER);
+    //Canny边缘检测测试
+    img0 = s.imageCanny(img);
+    
     return a.exec();
 }

@@ -1,81 +1,95 @@
 #include "GraphicsProcessing.h"
-
-#include <QMenu>
-#include <QAction>
-#include <QMenuBar>
 #include <QVBoxLayout>
-/*
-    主要界面设置
-*/
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QImageReader>
+#include <QImageWriter>
+#include <QApplication>
+#include <QPixmap>
+
 GraphicsProcessing::GraphicsProcessing(QWidget* parent)
-    : QMainWindow(parent)
+    : QWidget(parent)
 {
-    //ui.setupUi(this);
-    //UI* ui = new UI();
-    ///*将屏幕设置为自适应全屏同时初始化菜单栏*/
-    //ui->InitializesMenuBar(this);
-    setWindowTitle("Image Editor");
-    setupUi();
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+
+    QLabel* imageLabel = new QLabel(this);
+    imageLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(imageLabel);
+
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+
+    QPushButton* openButton = new QPushButton(tr("Open"), this);
+    connect(openButton, &QPushButton::clicked, this, &GraphicsProcessing::openImage);
+    buttonLayout->addWidget(openButton);
+
+    QPushButton* saveButton = new QPushButton(tr("Save"), this);
+    connect(saveButton, &QPushButton::clicked, this, &GraphicsProcessing::saveImage);
+    buttonLayout->addWidget(saveButton);
+
+    QPushButton* filterButton = new QPushButton(tr("Apply Filter"), this);
+    connect(filterButton, &QPushButton::clicked, this, &GraphicsProcessing::applyFilter);
+    buttonLayout->addWidget(filterButton);
+
+    mainLayout->addLayout(buttonLayout);
 }
 
-void GraphicsProcessing::setupUi()
+GraphicsProcessing::~GraphicsProcessing()
 {
-    // 创建主窗口布局
-    mainLayout = new QHBoxLayout();
-    QWidget* mainWidget = new QWidget();
-    mainWidget->setLayout(mainLayout);
-    setCentralWidget(mainWidget);
+}
 
-    // 创建左侧工具栏
-    toolbarLayout = new QVBoxLayout();
-    toolbarWidget = new QWidget();
-    toolbarWidget->setLayout(toolbarLayout);
-    mainLayout->addWidget(toolbarWidget);
+void GraphicsProcessing::openImage()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), QString(), tr("Images (*.png *.xpm *.jpg)"));
+    if (!fileName.isEmpty())
+        loadImage(fileName);
+}
 
-    toolLabel = new QLabel("Tools:");
-    toolbarLayout->addWidget(toolLabel);
+void GraphicsProcessing::saveImage()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image"), QString(), tr("Images (*.png *.xpm *.jpg)"));
+    if (!fileName.isEmpty()) {
+        QImageWriter writer(fileName);
+        if (!writer.write(m_image))
+            QMessageBox::information(this, tr("Error"), tr("Could not save image."));
+    }
+}
 
-    selectButton = new QPushButton(QIcon(":/icons/select.png"), "Select");
-    toolbarLayout->addWidget(selectButton);
+void GraphicsProcessing::applyFilter()
+{
+    applySepiaFilter();
+}
 
-    drawButton = new QPushButton(QIcon(":/icons/draw.png"), "Draw");
-    toolbarLayout->addWidget(drawButton);
+void GraphicsProcessing::loadImage(const QString& fileName)
+{
+    QImageReader reader(fileName);
+    reader.setAutoTransform(true);
+    const QImage newImage = reader.read();
+    if (newImage.isNull()) {
+        QMessageBox::information(this, tr("Error"), tr("Could not load image."));
+        return;
+    }
 
-    eraseButton = new QPushButton(QIcon(":/icons/erase.png"), "Erase");
-    toolbarLayout->addWidget(eraseButton);
+    m_image = newImage;
+    QLabel* imageLabel = findChild<QLabel*>();
+    imageLabel->setPixmap(QPixmap::fromImage(m_image));
+}
 
-    fillButton = new QPushButton(QIcon(":/icons/fill.png"), "Fill");
-    toolbarLayout->addWidget(fillButton);
+void GraphicsProcessing::applySepiaFilter()
+{
+    for (int y = 0; y < m_image.height(); ++y) {
+        for (int x = 0; x < m_image.width(); ++x) {
+            QRgb pixel = m_image.pixel(x, y);
+            int gray = qGray(pixel);
+            int sepiaR = qBound(0, gray + 100, 255);
+            int sepiaG = qBound(0, gray + 50, 255);
+            int sepiaB = qBound(0, gray, 255);
+            m_image.setPixel(x, y, qRgb(sepiaR, sepiaG, sepiaB));
+        }
+    }
 
-    brushLabel = new QLabel("Brush Size:");
-    toolbarLayout->addWidget(brushLabel);
-
-    brushSizeSpinBox = new QSpinBox();
-    brushSizeSpinBox->setRange(1, 100);
-    brushSizeSpinBox->setValue(10);
-    toolbarLayout->addWidget(brushSizeSpinBox);
-
-    opacityLabel = new QLabel("Opacity:");
-    toolbarLayout->addWidget(opacityLabel);
-
-    opacitySlider = new QSlider(Qt::Horizontal);
-    opacitySlider->setRange(0, 100);
-    opacitySlider->setValue(100);
-    toolbarLayout->addWidget(opacitySlider);
-
-    colorLabel = new QLabel("Color:");
-    toolbarLayout->addWidget(colorLabel);
-
-    colorComboBox = new QComboBox();
-    colorComboBox->addItem(QIcon(":/icons/color_black.png"), "Black");
-    colorComboBox->addItem(QIcon(":/icons/color_red.png"), "Red");
-    colorComboBox->addItem(QIcon(":/icons/color_green.png"), "Green");
-    colorComboBox->addItem(QIcon(":/icons/color_blue.png"), "Blue");
-    toolbarLayout->addWidget(colorComboBox);
-
-    // 创建右侧图像显示区域
-    imageLabel = new QLabel();
-    QPixmap pixmap(":/images/example.png");
-    imageLabel->setPixmap(pixmap);
-    mainLayout->addWidget(imageLabel);
+    QLabel* imageLabel = findChild<QLabel*>();
+    imageLabel->setPixmap(QPixmap::fromImage(m_image));
 }

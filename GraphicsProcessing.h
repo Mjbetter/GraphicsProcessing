@@ -17,35 +17,26 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QImage>
 #include <QtGui/QIcon>
+#include <QWidget>
+#include <QImage>
 
-class GraphicsProcessing : public QMainWindow
+class GraphicsProcessing : public QWidget
 {
     Q_OBJECT
 
 public:
     GraphicsProcessing(QWidget *parent = nullptr);
-
-private:
-    Ui::GraphicsProcessingClass ui;
-    QHBoxLayout* mainLayout;
-    QVBoxLayout* toolbarLayout;
-    QWidget* toolbarWidget;
-    QLabel* toolLabel;
-    QPushButton* selectButton;
-    QPushButton* drawButton;
-    QPushButton* eraseButton;
-    QPushButton* fillButton;
-    QLabel* brushLabel;
-    QSpinBox* brushSizeSpinBox;
-    QLabel* opacityLabel;
-    QSlider* opacitySlider;
-    QLabel* colorLabel;
-    QComboBox* colorComboBox;
-    QLabel* imageLabel;
-
-    void setupUi();
+    ~GraphicsProcessing();
 
 private slots:
-    ;
+    void openImage();
+    void saveImage();
+    void applyFilter();
+
+private:
+    QImage m_image;
+
+    void loadImage(const QString& fileName);
+    void applySepiaFilter();
 };
 #endif // GRAPHICSPROCESSING_H

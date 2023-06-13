@@ -93,7 +93,33 @@ int main(int argc, char *argv[])
     //img4 = s.imageLaplacian(img, BILATERAL_FILTER);
     //img5 = s.imageLaplacian(img, SMALLWAVE_FILTER);
     //Canny边缘检测测试
-    img0 = s.imageCanny(img);
+    //img0 = s.imageCanny(img);
+    //图像对比度增强的测试
+    //img0 = s.imageContrastEnhance(img,255);
+    //图像亮度增强测试
+    //img0 = s.imageBrightness(img, 20);
+    //直方图均衡化测试
+    //img0 = s.imageHistogramEqualization(img);
+    //指数增强测试
+    //img0 = s.imageExponentialTransform(img);
+    /*图像打马赛克*/
+    //img0 = s.imageMasaic(img, 5);
+    /*图像卷积*/
+    int kernel_size = 3;
+    int** laplacian_kernel = new int* [kernel_size];
+    for (int i = 0; i < kernel_size; ++i) {
+        laplacian_kernel[i] = new int[kernel_size];
+    }
+    laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
+    laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
+    laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
+    img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
+
+    for (int i = 0; i < kernel_size; ++i) {
+        delete[] laplacian_kernel[i];
+    }
+    delete[] laplacian_kernel;
+   
     
     return a.exec();
 }

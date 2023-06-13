@@ -59,21 +59,23 @@ public:
 
 
 	/*图像的增强*/
-	Mat imageEnhance(Mat img,int option);
+	Mat imageEnhance(Mat img,int option,double L);
 	/*对比度增强*/
-	Mat imageContrastEnhance(Mat img);
+	Mat imageContrastEnhance(Mat img, double L);
 	/*亮度增强*/
-	Mat imageBrightness(Mat img);
+	Mat imageBrightness(Mat img, double L);
+	/*统计直方图*/
+	void imgageStatisticalHistogram(Mat img, int **hist);
 	/*直方图均衡化*/
 	Mat imageHistogramEqualization(Mat img);
 	/*指数变换增强*/
 	Mat imageExponentialTransform(Mat img);
 
 	/*图像加马赛克*/
-	Mat imageMasaic(Mat img);
+	Mat imageMasaic(Mat img, int blockSize=5);
 	
 	/*图像的卷积*/
-	Mat imageCovolution(Mat img);
+	Mat imageCovolution(Mat img, int kernel_size, int** kernel);
 
 	/*图像的傅里叶变换*/
 	Mat imageFourierTransform(Mat img);

@@ -907,16 +907,17 @@ Mat ImageAlgorithm::imageCanny(Mat img)
 函数作用：图像增强，根据option选择对应的算法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、option：1:对比度增强，2:亮度增强，3:直方图均衡化，4:指数变换增强
+		 3、L：对比度增强，亮度增强，指数增强的参数。
 返回值：返回经过对应算法处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageEnhance(Mat img,int option)
+Mat ImageAlgorithm::imageEnhance(Mat img,int option,double L)
 {
 	switch (option)
 	{
 	case 1:
-		return imageContrastEnhance(img);
+		return imageContrastEnhance(img, L);
 	case 2:
-		return imageBrightness(img);
+		return imageBrightness(img,L);
 	case 3:
 		return imageHistogramEqualization(img);
 	case 4:
@@ -929,20 +930,114 @@ Mat ImageAlgorithm::imageEnhance(Mat img,int option)
 /*
 函数作用：对比度增强，增强图像中不同灰度级之间的差异程度，使图像更加清晰明亮。
 函数参数：1、img：传入的需要处理的图像的像素矩阵
+		 2、L：新的灰度值范围
 返回值：返回对比度增强过后的像素矩阵
 */
-Mat ImageAlgorithm::imageContrastEnhance(Mat img)
+Mat ImageAlgorithm::imageContrastEnhance(Mat img, double L)
 {
-	return Mat();
+	Mat imgRes;
+	imgRes.create(img.size(), img.type());
+	int channels = img.channels();
+	/*开辟对应通道数量的空间*/
+	double* p_min = new double[channels];
+	double* p_max = new double[channels];
+	for (int i = 0; i < channels; ++i) {
+		p_min[i] = 0;
+		p_max[i] = 0;
+	}
+	/*计算像素的最大值和最小值*/
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				double tmp=0;
+				if (channels == 1)tmp = img.at<uchar>(i, j);
+				else if (channels > 1) tmp = img.at<Vec3b>(i, j)[m];
+				if (p_min[m] > tmp) p_min[m] = tmp;
+				else if (p_max[m] < tmp) p_max[m] = tmp;
+			}
+		}
+	}
+	/*旧的像素值范围*/
+	double* old_range = new double[channels];
+	for (int i = 0; i < channels; ++i) {
+		old_range[i] = p_max[i] - p_min[i];
+	}
+	/*对像素进行线性变换*/
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				double value;
+				if (channels == 1) {
+					value = (img.at<uchar>(i, j) - p_min[m]) / old_range[m] * L;
+				}
+				else if (channels > 1) {
+					value = (img.at<Vec3b>(i, j)[m] - p_min[m]) / old_range[m] * L;
+				}
+				if (value < 0)value = 0;
+				else if (value > 255) value = 255;
+				if (channels == 1) {
+					imgRes.at<uchar>(i, j) = value;
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(i, j)[m] = value;
+				}
+			}
+		}
+	}
+	delete []p_min;
+	delete []p_max;
+	delete []old_range;
+	return imgRes;
 }
 /*
 函数作用：亮度增强，提高图像的整体亮度水平，使图像更加明亮
 函数参数：1、img：传入的需要处理的图像的像素矩阵
+		 2、L：需要增强的亮度
 返回值：返回亮度增强过后的像素矩阵
 */
-Mat ImageAlgorithm::imageBrightness(Mat img)
+Mat ImageAlgorithm::imageBrightness(Mat img, double L)
 {
-	return Mat();
+	Mat imgRes;
+	imgRes.create(img.size(), img.type());
+	int channels = img.channels();
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				double tmp = 0;
+				if (channels == 1) {
+					double tmp = img.at<uchar>(i, j) + L;
+					tmp = tmp > 255 ? 255 : (tmp < 0 ? 0 : tmp);
+					imgRes.at<uchar>(i, j) = tmp;
+				}
+				else if (channels > 1) {
+					double tmp = img.at<Vec3b>(i, j)[m] + L;
+					tmp = tmp > 255 ? 255 : (tmp < 0 ? 0 : tmp);
+					imgRes.at<Vec3b>(i, j)[m] = tmp;
+				}
+
+			}
+		}
+	}
+	return imgRes;
+}
+/*
+函数作用：统计直方图。
+函数参数：1、img：需要进行统计的图像
+		 2、hist：统计结果的存储数组
+*/
+void ImageAlgorithm::imgageStatisticalHistogram(Mat img, int** hist)
+{
+	int channels = img.channels();
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				int pos = 0;
+				if (channels == 1)pos = img.at<uchar>(i, j);
+				else pos = img.at<Vec3b>(i, j)[m];
+				hist[m][pos]++;
+			}
+		}
+	}
 }
 /*
 函数作用：直方图均衡化，可以增强图像的对比度，使图像更加清晰明亮
@@ -951,7 +1046,72 @@ Mat ImageAlgorithm::imageBrightness(Mat img)
 */
 Mat ImageAlgorithm::imageHistogramEqualization(Mat img)
 {
-	return Mat();
+	Mat imgRes;
+	imgRes.create(img.size(), img.type());
+	int channels = img.channels();
+	int max_size = 256;
+	int** hist = new int* [channels];
+	int** cdf = new int* [channels];
+	int** map = new int* [channels];
+	for (int i = 0; i < channels; ++i) {
+		hist[i] = new int[max_size];
+		cdf[i] = new int[max_size];
+		map[i] = new int[max_size];
+		for (int j = 0; j < max_size; ++j) {
+			hist[i][j] = 0;
+			cdf[i][j] = 0;
+			map[i][j] = 0;
+		}
+	}
+
+	/*统计直方图*/
+	imgageStatisticalHistogram(img,hist);
+
+	/*计算累计概率分布函数CDF*/
+	for (int i = 1; i < max_size; ++i) {
+		for (int m = 0; m < channels; ++m) {
+			cdf[m][i] = cdf[m][i - 1] + hist[m][i];
+		}
+	}
+
+	/*计算缩放因子*/
+	double scale = (max_size-1.0) / (img.rows * img.cols);
+
+	/*计算映射表*/
+	for (int i = 0; i < max_size; ++i) {
+		for (int m = 0; m < channels; ++m) {
+			/*为了避免浮点数的产生，使用cvRound进行取整*/
+			map[m][i] = cvRound(cdf[m][i] * scale);
+		}
+	}
+
+	/*映射像素值*/
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				int pos = 0;
+				if (channels == 1) {
+					pos = img.at<uchar>(i, j);
+					imgRes.at<uchar>(i, j) = map[m][pos];
+				}
+				else {
+					pos = img.at<Vec3b>(i, j)[m];
+					imgRes.at<Vec3b>(i, j)[m] = map[m][pos];
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < channels; ++i) {
+		delete[] hist[i];
+		delete[] cdf[i];
+		delete[] map[i];
+	}
+	delete[] hist;
+	delete[] map;
+	delete[] cdf;
+
+	return imgRes;
 }
 /*
 函数作用：指数变换增强，对图像的灰度级进行非线性变换的方法，可以用于增强图像的局部对比度，使图像更加清晰明亮
@@ -960,25 +1120,117 @@ Mat ImageAlgorithm::imageHistogramEqualization(Mat img)
 */
 Mat ImageAlgorithm::imageExponentialTransform(Mat img)
 {
-	return Mat();
+	Mat imgRes;
+	imgRes.create(img.size(), img.type());
+	int channels = img.channels();
+
+	double c = 1.1;
+	double r = 1.05;
+
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					double tmp = c * pow(img.at<uchar>(i, j), r);
+					tmp = tmp > 255 ? 255 : (tmp < 0 ? 0 : tmp);
+					imgRes.at<uchar>(i, j) = tmp;
+				}
+				else if (channels > 1) {
+					double tmp = c * pow(img.at<Vec3b>(i, j)[m], r);
+					tmp = tmp > 255 ? 255 : (tmp < 0 ? 0 : tmp);
+					imgRes.at<Vec3b>(i, j)[m] = tmp;
+				}
+			}
+		}
+	}
+	return imgRes;
 }
 /*
 函数作用：给图像打上马赛克
 函数参数：1、img：传入的需要处理的图像的像素矩阵
+		 2、blockSize：马赛克的大小,矩阵边长
 返回值：返回打上马赛克以后的图像的像素矩阵
 */
-Mat ImageAlgorithm::imageMasaic(Mat img)
+Mat ImageAlgorithm::imageMasaic(Mat img,int blockSize)
 {
-	return Mat();
+	Mat imgRes;
+	imgRes.create(img.size(), img.type());
+	int channels = img.channels();
+
+	double* sum = new double[channels];
+
+	/*遍历图像像素*/
+	for (int i = 0; i < img.rows; i+=blockSize) {
+		for (int j = 0; j < img.cols; j+=blockSize) {
+			/*遍历马赛克大小*/
+			for (int x = i; x < i + blockSize; ++x) {
+				if (x >= img.rows) break;
+				for (int y = j; y < j + blockSize; ++y) {
+					if (y >= img.cols) break;
+					/*遍历通道大小*/
+					for (int m = 0; m < channels; ++m) {
+						if (channels == 1)sum[m] += img.at<uchar>(x, y);
+						else sum[m] += img.at<Vec3b>(x, y)[m];
+					}
+				}
+			}
+			/*求得均值*/
+			for (int m = 0; m < channels; ++m) {
+				sum[m] /= blockSize * blockSize;
+			}
+			/*将马赛克方块内的灰度值存到结果矩阵*/
+			for (int x = 0; x <  blockSize; ++x) {
+				if ((i + x) >= img.rows) break;
+				for (int y = 0; y <  blockSize; ++y) {
+					if ((j + y) >= img.cols) break;
+					for (int m = 0; m < channels; ++m) {
+						if (channels == 1)imgRes.at<uchar>(x + i, y + j) = sum[m];
+						else imgRes.at<Vec3b>(x + i, y + j)[m] = sum[m];
+					}
+				}
+			}
+			for (int i = 0; i < channels; ++i) {
+				sum[i] = 0;
+			}
+		}
+	}
+
+	delete[] sum;
+	return imgRes;
 }
 /*
 函数作用：图像卷积，可以用于图像处理中的平滑，锐化，边缘检测等任务
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过双边滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageCovolution(Mat img)
+Mat ImageAlgorithm::imageCovolution(Mat img, int kernel_size, int **kernel)
 {
-	return Mat();
+	Mat imgRes;
+	int crow = img.rows - kernel_size + 1;
+	int ccol = img.cols - kernel_size + 1;
+	imgRes.create(crow,ccol, img.type());
+	int channels = img.channels();
+	double* sum = new double[channels];
+	for (int x = 0; x < crow; ++x) {
+		for (int y = 0; y < ccol; ++y) {
+			for (int i = 0; i < kernel_size; ++i) {
+				for (int j = 0; j < kernel_size; ++j) {
+					for (int m = 0; m < channels; ++m) {
+						if (channels == 1)sum[m] += img.at<uchar>(x + i, y + j) * kernel[i][j];
+						else sum[m] += img.at<Vec3b>(x + i, y + j)[m] * kernel[i][j];
+					}
+				}
+			}
+			for (int m = 0; m < channels; ++m) {
+				sum[m] = sum[m] > 255 ? 255 : (sum[m] < 0 ? 0 : sum[m]);
+				if (channels == 1)imgRes.at<uchar>(x, y) = sum[m];
+				else imgRes.at<Vec3b>(x, y)[m] = sum[m];
+				sum[m] = 0;
+			}
+		}
+	}
+	delete[] sum;
+	return imgRes;
 }
 /*
 函数作用：傅里叶变换可以将图像从空间域转化成频率域

@@ -35,7 +35,9 @@ int main(int argc, char *argv[])
     //w.show();
 
     ImageAlgorithm s;
-    Mat img = imread("E:\\lena.jpg");
+    Mat img = imread("E:\\数字识别.png");
+    //Mat imgx = imread("E:\\3.jpg");
+    //Mat imgy = imread("E:\\2.jpg");
     Mat img0,img1, img2, img3, img4, img5;
     // Roberts边缘检测测试
     //img0 = s.imageRoberts(img, NO_FILTER, 20);
@@ -105,21 +107,30 @@ int main(int argc, char *argv[])
     /*图像打马赛克*/
     //img0 = s.imageMasaic(img, 5);
     /*图像卷积*/
-    int kernel_size = 3;
-    int** laplacian_kernel = new int* [kernel_size];
-    for (int i = 0; i < kernel_size; ++i) {
-        laplacian_kernel[i] = new int[kernel_size];
-    }
-    laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
-    laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
-    laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
-    img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
+    //int kernel_size = 3;
+    //int** laplacian_kernel = new int* [kernel_size];
+    //for (int i = 0; i < kernel_size; ++i) {
+    //    laplacian_kernel[i] = new int[kernel_size];
+    //}
+    //laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
+    //laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
+    //laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
+    //img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
 
-    for (int i = 0; i < kernel_size; ++i) {
-        delete[] laplacian_kernel[i];
-    }
-    delete[] laplacian_kernel;
+    //for (int i = 0; i < kernel_size; ++i) {
+    //    delete[] laplacian_kernel[i];
+    //}
+    //delete[] laplacian_kernel;
    
-    
+    /*图像拼接测试*/
+    //img0 = s.imageSynthesis(imgx, imgy);
+    /*图像分割测试*/
+    //img0 = s.imageSegmentation(img);
+    //图像傅里叶变换测试
+    //img0 = s.imageFourierTransform(img);
+    //imshow("img0",img0);
+    /*数字识别进行检测*/
+    //img0=s.imageDigitalIdentify(img);
+    //imshow("test", img0);
     return a.exec();
 }

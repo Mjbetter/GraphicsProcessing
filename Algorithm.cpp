@@ -5,7 +5,7 @@
 函数参数：1、imageName：传入需要处理的图像路径
 返回值：返回加载过后的像素矩阵
 */
-Mat ImageAlgorithm::imageLoading_Show(String imageName)
+Mat ImageAlgorithm::imageLoading_Show(string imageName)
 {
 	/*将图片加载后赋值到图像变量image中, 读入图像方式默认为彩色图像*/
 	Mat image = imread(imageName);  

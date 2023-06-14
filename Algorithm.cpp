@@ -5,7 +5,7 @@
 函数参数：1、imageName：传入需要处理的图像路径
 返回值：返回加载过后的像素矩阵
 */
-Mat ImageAlgorithm::imageLoading_Show(String imageName)
+Mat ImageAlgorithm::imageLoading_Show(string imageName)
 {
 	/*将图片加载后赋值到图像变量image中, 读入图像方式默认为彩色图像*/
 	Mat image = imread(imageName);  
@@ -38,13 +38,13 @@ Mat ImageAlgorithm::imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, 
     /*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
     switch (option)
 	{
-	case 1:
+	case IMAGE_TRANSLATION :
 		return imageTranslation(img, dx, dy); /*图像平移*/
-	case 2:
+	case IMAGE_RESIZING:
 		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
-	case 3:
+	case IMAGE_ROTATING:
 		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
-	case 4:
+	case IMAGE_REFLECTION:
 		return imageReflection(img, choice); /*图像镜像*/
 	default:
 		break;
@@ -149,7 +149,7 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 			flip(img, reflectionImage, 1);
 	}
 	/*创建一个窗口显示图像*/
-	imshow("rotatingImage", reflectionImage);
+	imshow("reflectionImage", reflectionImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
 	waitKey(0);
 
@@ -159,32 +159,142 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 /*
 函数作用：图像变灰度处理函数，根据option的不同，选择不同的变换方法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
-		  2、dx，dy：x轴和y轴方向上的偏移量
-		  3、Scale_x，Scale_y：横向及纵向缩放的比例大小
-		  4、angle：旋转角度
-		  5、choice：镜像变换的选择数
-		  5、option：表示基本变换的选择：1：图像平移，2：图像缩放，3：图像旋转，4：图像镜像
-返回值：返回经过基本变换后的像素矩阵
+		  2、option：1：输出灰度图像，2：输出2值图像
+返回值：返回经过图像变灰度后的像素矩阵
 */
-//Mat ImageAlgorithm::imageGrayscale(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
-//{
-//	/*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
-//	switch (option)
-//	{
-//	case 1:
-//		return imageTranslation(img, dx, dy); /*图像平移*/
-//	case 2:
-//		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
-//	case 3:
-//		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
-//	case 4:
-//		return imageReflection(img, choice); /*图像镜像*/
-//	default:
-//		break;
-//	}
-//	return img;
-//}
+Mat ImageAlgorithm::imageGray(Mat img, int option)
+{
+	/*处理逻辑：根据选择变灰度函数，返回处理后的像素矩阵*/
+	switch (option)
+	{
+	case IMAGE_GRAYSCALE:
+		return imageGrayScale(img); /*图像变为灰度图像*/
+	case IMAGE_GRAYBINARY:
+		return imageGrayBinary(img);/*图像变为2值图像*/
+	default:
+		break;
+	}
+	return img;
+}
 
+/*
+函数作用：灰度图像函数，实现将彩色图像变为灰度图像
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像变灰度后的像素矩阵
+*/
+Mat ImageAlgorithm::imageGrayScale(Mat img)
+{
+	/*创建用于存储图像变灰度后的像素矩阵*/
+	Mat grayScaleImage;
+	/*图像变灰度图像*/
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+	/*创建一个窗口显示图像*/
+	imshow("grayScaleImage", grayScaleImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return grayScaleImage;
+}
+
+/*
+函数作用：2值图像函数，实现将彩色图像变为2值图像
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像变2值图像后的像素矩阵
+*/
+Mat ImageAlgorithm::imageGrayBinary(Mat img)
+{
+	/*创建用于存储图像变灰度后的像素矩阵*/
+	Mat grayBinaryImage;
+	/*灰度像素矩阵*/
+	Mat grayScaleImage;
+	/*图像变2值图像*/
+	/*先将其变为灰度矩阵*/
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+	/*再将灰度矩阵变为2值矩阵，将图像中的像素值与阈值（此处为128）进行比较，
+	并根据比较结果将像素值设置为两个给定的输出值（此处为0和255）*/
+	threshold(grayScaleImage, grayBinaryImage, 128, 255, THRESH_BINARY);
+	/*创建一个窗口显示图像*/
+	imshow("grayBinaryImage", grayBinaryImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return grayBinaryImage;
+}
+
+/*
+函数作用：钝化边缘函数，实现图像的边缘钝化
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像的边缘钝化后的像素矩阵
+*/
+Mat ImageAlgorithm::imageBlurring(Mat img)
+{
+	/*图像变灰度图像*/
+	Mat grayScaleImage;
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+
+	/*对灰度图像进行高斯模糊处理，以减少噪声*/
+	Mat blurredImage;
+	/*Size内的参数为高斯核的大小，参数0表示默认高斯核在X和Y方向上的标准差相同*/
+	GaussianBlur(grayScaleImage, blurredImage, Size(5, 5), 0);
+
+	/*进行拉普拉斯边缘检测，以检测图像中的边缘信息*/
+	Mat laplacianImage;
+	/*CV_8U表示输出图像的深度，3表示拉普拉斯核的大小*/
+	Laplacian(blurredImage, laplacianImage, CV_8U, 3);
+
+	/*创建用于存储图像的边缘钝化后的像素矩阵*/
+	Mat blurringImage;
+	/*将原始灰度图像减去拉普拉斯边缘图像，实现图像的边缘钝化*/
+	blurringImage = grayScaleImage - laplacianImage;
+
+	/*创建一个窗口显示图像*/
+	imshow("blurringImage", blurringImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return blurringImage;
+}
+
+/*
+函数作用：锐化边缘函数，实现图像的边缘锐化
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像的边缘锐化后的像素矩阵
+*/
+Mat ImageAlgorithm::imageSharpening(Mat img)
+{
+	/*图像变灰度图像*/
+	Mat grayScaleImage;
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+
+	/*对灰度图像进行高斯模糊处理，以减少噪声*/
+	Mat blurredImage;
+	/*Size内的参数为高斯核的大小，参数0表示默认高斯核在X和Y方向上的标准差相同*/
+	GaussianBlur(grayScaleImage, blurredImage, Size(5, 5), 0);
+
+	/*进行拉普拉斯边缘检测，以检测图像中的边缘信息*/
+	Mat laplacianImage;
+	/*CV_8U表示输出图像的深度，3表示拉普拉斯核的大小*/
+	Laplacian(blurredImage, laplacianImage, CV_8U, 3);
+
+	/*创建用于存储图像的边缘锐化后的像素矩阵*/
+	Mat sharpeningImage;
+	/*将原始灰度图像与拉普拉斯边缘图像进行加权相加，实现图像的边缘锐化*/
+	/*参数1.5表示第一个图像（即灰度图像）的权重，参数-0.5表示第二个图像（即拉普拉斯边缘检测后的图像）的权重，
+	  参数0用于调整结果图像的亮度*/
+	addWeighted(grayScaleImage, 1.5, laplacianImage, -0.5, 0, sharpeningImage);
+
+	///*创建用于存储图像的边缘钝化后的像素矩阵*/
+	//Mat blurringImage;
+	///*将原始灰度图像减去拉普拉斯边缘图像，实现图像的边缘钝化*/
+	//blurringImage = grayScaleImage - laplacianImage;
+
+	/*创建一个窗口显示图像*/
+	imshow("sharpeningImage", sharpeningImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return sharpeningImage;
+}
 
 /*
 函数作用：滤波处理函数，根据option的不同，我们选择不同的滤波方法

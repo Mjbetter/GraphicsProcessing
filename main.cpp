@@ -42,7 +42,12 @@ int main(int argc, char *argv[])
     //s.imageResizing(img, 10, 0.5);
     //s.imageRotating(img, 20, 10, -45.0);
     //s.imageReflection(img, 1);
-    s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 3);
+    //s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 1);
+    //s.imageGrayScale(img);
+    //s.imageGrayBinary(img);
+    //s.imageGray(img, 2);
+    //s.imageBlurring(img);
+    s.imageSharpening(img);
     /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
 
@@ -130,7 +135,7 @@ int main(int argc, char *argv[])
     laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
     laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
     laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
-    img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
+    //img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
 
 
     for (int i = 0; i < kernel_size; ++i) {

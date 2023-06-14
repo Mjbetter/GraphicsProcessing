@@ -45,6 +45,15 @@ int main(int argc, char *argv[])
     s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 3);
     /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
+
+    img0 = s.imageRoberts(img, NO_FILTER, 20);
+    img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
+    img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
+    img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);*/
+    //img4 = s.imageRoberts(img, BILATERAL_FILTER);
+    //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
+
+
     // Roberts边缘检测测试
     //img0 = s.imageRoberts(img, NO_FILTER, 20);
     //img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
@@ -123,19 +132,13 @@ int main(int argc, char *argv[])
     laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
     img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
 
+
     for (int i = 0; i < kernel_size; ++i) {
         delete[] laplacian_kernel[i];
     }
     delete[] laplacian_kernel;
    
     
-    img0 = s.imageRoberts(img, NO_FILTER, 20);
-    img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
-    img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
-    img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);*/
-    //img4 = s.imageRoberts(img, BILATERAL_FILTER);
-    //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
-
 
     return a.exec();
 }

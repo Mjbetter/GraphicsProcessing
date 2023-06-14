@@ -846,7 +846,6 @@ Mat ImageAlgorithm::imagePrewitt(Mat img, int denoising)
 */
 Mat ImageAlgorithm::imageKirsch(Mat img, int denoising)
 {
-
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
 	/*图像平滑去噪*/

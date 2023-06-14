@@ -21,4 +21,3 @@ public:
 	/*主界面自适应全屏,同时添加自定义最小化，最大化，退出按钮*/
 	void InitializesMenuBar(QMainWindow *mainWindow);
 };
-

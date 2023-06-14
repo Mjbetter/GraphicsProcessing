@@ -26,34 +26,31 @@ Mat ImageAlgorithm::imageLoading_Show(String imageName)
 /*
 函数作用：图像基本变换处理函数，根据option的不同，选择不同的变换方法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
-		 2、kernel_size：卷积核大小，默认为3
-		 3、channels：图片通道数，默认为3
-		 4、option：默认为AVERGE_FILTER均值滤波器,
-					MEDIAN_FILTER中值滤波器,
-					GAUSSIAN_FILTER高斯滤波器,
-					BILATERAL_FILTER双边滤波器,
-					SMALLWAVE_FILTER小波滤波器
-返回值：返回经过均值滤波处理过后的像素矩阵
+		  2、dx，dy：x轴和y轴方向上的偏移量
+          3、Scale_x，Scale_y：横向及纵向缩放的比例大小
+		  4、angle：旋转角度
+		  5、choice：镜像变换的选择数
+		  5、option：表示基本变换的选择：1：图像平移，2：图像缩放，3：图像旋转，4：图像镜像
+返回值：返回经过基本变换后的像素矩阵
 */
-//Mat ImageAlgorithm::imageNoiseAddition(Mat img, int kernel_size, int channels, int option)
-//{
-//	switch (option)
-//	{
-//	case AVERAGE_FILTER:
-//		return imageAverageFilter(img, kernel_size, channels);
-//	case MEDIAN_FILTER:
-//		return imageMedianFilter(img, kernel_size, channels);
-//	case GAUSSIAN_FILTER:
-//		return imageGaussianFilter(img, kernel_size, channels);
-//	case BILATERAL_FILTER:
-//		return imageBilateralFilter(img, kernel_size, channels);
-//	case SMALLWAVE_FILTER:
-//		return imageWaveletFilter(img);
-//	default:
-//		break;
-//	}
-//	return img;
-//}
+Mat ImageAlgorithm::imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
+{
+    /*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
+    switch (option)
+	{
+	case 1:
+		return imageTranslation(img, dx, dy); /*图像平移*/
+	case 2:
+		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
+	case 3:
+		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
+	case 4:
+		return imageReflection(img, choice); /*图像镜像*/
+	default:
+		break;
+	}
+	return img;
+}
 
 /*
 函数作用：图像平移函数，将图像按照输入的x方向和y方向上的偏移量进行平移，规定向右、向下时值为正数
@@ -110,7 +107,7 @@ Mat ImageAlgorithm::imageResizing(Mat img, double Scale_x, double Scale_y)
 		  4、angle：输入的旋转角度（以逆时针方向为正）
 返回值：返回旋转过后的像素矩阵
 */
-Mat ImageAlgorithm::imageRotating(Mat img, double img_cols, double img_rows, double angle)
+Mat ImageAlgorithm::imageRotating(Mat img/*, double img_cols, double img_rows*/, double angle)
 {
 	/*创建用于存储旋转后的像素矩阵*/
 	Mat rotatingImage;
@@ -158,6 +155,36 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 
 	return reflectionImage;
 }
+
+/*
+函数作用：图像变灰度处理函数，根据option的不同，选择不同的变换方法
+函数参数：1、img：传入的需要处理的图像的像素矩阵
+		  2、dx，dy：x轴和y轴方向上的偏移量
+		  3、Scale_x，Scale_y：横向及纵向缩放的比例大小
+		  4、angle：旋转角度
+		  5、choice：镜像变换的选择数
+		  5、option：表示基本变换的选择：1：图像平移，2：图像缩放，3：图像旋转，4：图像镜像
+返回值：返回经过基本变换后的像素矩阵
+*/
+//Mat ImageAlgorithm::imageGrayscale(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
+//{
+//	/*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
+//	switch (option)
+//	{
+//	case 1:
+//		return imageTranslation(img, dx, dy); /*图像平移*/
+//	case 2:
+//		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
+//	case 3:
+//		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
+//	case 4:
+//		return imageReflection(img, choice); /*图像镜像*/
+//	default:
+//		break;
+//	}
+//	return img;
+//}
+
 
 /*
 函数作用：滤波处理函数，根据option的不同，我们选择不同的滤波方法

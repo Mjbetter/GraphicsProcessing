@@ -41,7 +41,8 @@ int main(int argc, char *argv[])
     //s.imageTranslation(img, 50, 50);
     //s.imageResizing(img, 10, 0.5);
     //s.imageRotating(img, 20, 10, -45.0);
-    s.imageReflection(img, 1);
+    //s.imageReflection(img, 1);
+    s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 3);
     /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
     img0 = s.imageRoberts(img, NO_FILTER, 20);

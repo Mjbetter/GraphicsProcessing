@@ -21,13 +21,13 @@ public:
 	Mat imageLoading_Show(string imageName);
 
 	/*图像的四种基本变换*/
-
+	Mat imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option);
 	/*图像平移*/
 	Mat imageTranslation(Mat img, int dx, int dy);
 	/*图像缩放*/
 	Mat imageResizing(Mat img, double Scale_x, double Scale_y);
 	/*图像旋转*/
-	Mat imageRotating(Mat img, double img_cols, double img_rows, double angle);
+	Mat imageRotating(Mat img/*, double img_cols, double img_rows*/, double angle);
 	/*图像镜像*/
 	Mat imageReflection(Mat img, int choice);
 

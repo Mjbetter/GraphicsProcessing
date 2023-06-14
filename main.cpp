@@ -35,12 +35,19 @@ int main(int argc, char *argv[])
     //w.show();
 
     ImageAlgorithm s;
-    Mat img = imread("E:\\lena.jpg");
+    Mat img,img1;
+    string imageName = "D:/engineering practice_4/cat.png";   //图片的路径名
+    img = s.imageLoading_Show(imageName);
+    //s.imageTranslation(img, 50, 50);
+    //s.imageResizing(img, 10, 0.5);
+    //s.imageRotating(img, 20, 10, -45.0);
+    s.imageReflection(img, 1);
+    /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
     img0 = s.imageRoberts(img, NO_FILTER, 20);
     img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
     img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
-    img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);
+    img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);*/
     //img4 = s.imageRoberts(img, BILATERAL_FILTER);
     //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
 

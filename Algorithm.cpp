@@ -2,6 +2,29 @@
 
 /*
 函数作用：图像加载函数，将传入的图片进行加载
+函数参数：1、imageName：传入需要处理的图像路径
+返回值：返回加载过后的像素矩阵
+*/
+Mat ImageAlgorithm::imageLoading_Show(String imageName)
+{
+	/*将图片加载后赋值到图像变量image中, 读入图像方式默认为彩色图像*/
+	Mat image = imread(imageName);  
+	/*检查文件是否打开（或是否为空数据），没打开时执行打印语句*/
+	if (image.empty())
+		cout << "Could not open or find the image" << std::endl;
+	/*显示图片*/
+    /*创建一个名为Image的可调节的窗口*/
+	//namedWindow("Image", WINDOW_AUTOSIZE);
+    /*创建一个窗口显示图像*/
+	imshow("Image", image);
+    /*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);    
+
+	return image;
+}
+
+/*
+函数作用：图像基本变换处理函数，根据option的不同，选择不同的变换方法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、kernel_size：卷积核大小，默认为3
 		 3、channels：图片通道数，默认为3
@@ -10,24 +33,131 @@
 					GAUSSIAN_FILTER高斯滤波器,
 					BILATERAL_FILTER双边滤波器,
 					SMALLWAVE_FILTER小波滤波器
-返回值：返回加载过后的像素矩阵
+返回值：返回经过均值滤波处理过后的像素矩阵
 */
-Mat Loading_Show()
+//Mat ImageAlgorithm::imageNoiseAddition(Mat img, int kernel_size, int channels, int option)
+//{
+//	switch (option)
+//	{
+//	case AVERAGE_FILTER:
+//		return imageAverageFilter(img, kernel_size, channels);
+//	case MEDIAN_FILTER:
+//		return imageMedianFilter(img, kernel_size, channels);
+//	case GAUSSIAN_FILTER:
+//		return imageGaussianFilter(img, kernel_size, channels);
+//	case BILATERAL_FILTER:
+//		return imageBilateralFilter(img, kernel_size, channels);
+//	case SMALLWAVE_FILTER:
+//		return imageWaveletFilter(img);
+//	default:
+//		break;
+//	}
+//	return img;
+//}
+
+/*
+函数作用：图像平移函数，将图像按照输入的x方向和y方向上的偏移量进行平移，规定向右、向下时值为正数
+函数参数：1、img：传入的像素矩阵
+		  2、dx：在x轴方向上的位移，dx>0时，向右平移X个单位
+		  3、dy：在y轴方向上的位移，dy>0时，向下平移Y个单位
+返回值：返回平移过后的像素矩阵
+*/
+Mat ImageAlgorithm::imageTranslation(Mat img, int dx, int dy)
 {
-	string imageName = "D:/engineering practice_4/source/Mjbetter/cat.png";   //图片的路径名
-	Mat image = imread(imageName);          //将图片加载后赋值到图像变量image中,读入图像方式默认为彩色图像
-	//检查文件是否打开（或是否为空数据），没打开时执行打印语句
-	if (image.empty())
-		cout << "Could not open or find the image" << std::endl;
+	/*获取图像的形状信息*/
+	Size imageSize = img.size();
+	/*创建一个2X3的浮点型仿射变换矩阵以及一个存储平移后的像素矩阵*/
+	Mat translationMatrix = (Mat_<float>(2, 3) << 1, 0, dx, 0, 1, dy);
+	Mat translatedImage;
+	warpAffine(img, translatedImage,translationMatrix, img.size());
+	//translatedImage = warpAffine(img, translationMatrix, img.size());
+	/*创建一个名为Image的可调节的窗口*/
+	//namedWindow("translatedImage", WINDOW_AUTOSIZE);
+	/*创建一个窗口显示图像*/
+	imshow("translatedImage", translatedImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
 
-	namedWindow("Display window", WINDOW_AUTOSIZE); // 创建图像显示窗口
-	imshow("Image", image);                // 创建一个窗口显示图像
-	waitKey(0); // 图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）
-	waitKey(0);//不断刷新图像
-
-	return image;
+	return translatedImage;
 }
 
+/*
+函数作用：图像缩放函数，将图像按照输入的比例进行缩放操作
+函数参数：1、img：传入的像素矩阵
+		  2、Scale_x：横向缩放的比例大小
+		  3、Scale_y：纵向缩放的比例大小
+返回值：返回缩放过后的像素矩阵
+*/
+Mat ImageAlgorithm::imageResizing(Mat img, double Scale_x, double Scale_y)
+{
+
+	Mat resizingImage;
+	/*按横向和纵向比例缩放图像*/
+	resize(img, resizingImage, Size(), Scale_x, Scale_y);
+	/*创建一个窗口显示图像*/
+	imshow("resizingImage", resizingImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return resizingImage;
+}
+
+/*
+函数作用：图像旋转函数，将图像按照输入的旋转角度
+函数参数：1、img：传入的像素矩阵
+          2、img_x：旋转点的x坐标
+		  3、img_y：旋转点的y坐标
+		  4、angle：输入的旋转角度（以逆时针方向为正）
+返回值：返回旋转过后的像素矩阵
+*/
+Mat ImageAlgorithm::imageRotating(Mat img, double img_cols, double img_rows, double angle)
+{
+	/*创建用于存储旋转后的像素矩阵*/
+	Mat rotatingImage;
+	/*图像中心点*/
+	//Point2f center(img_cols / 2.0, img_rows / 2.0);
+	/*创建旋转矩阵，参数分别为旋转点坐标，旋转角度，缩放因子（设置为1.0，表示不进行缩放）*/
+	Mat rotatingMatrix = getRotationMatrix2D(Point2f(img.cols / 2.0, img.rows / 2.0), angle, 1.0);
+	/*将旋转矩阵应用于图像实现图像旋转*/
+	warpAffine(img, rotatingImage, rotatingMatrix, img.size());
+	/*创建一个窗口显示图像*/
+	imshow("rotatingImage", rotatingImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return rotatingImage;
+}
+
+/*
+函数作用：镜像变换函数，通过0 1实现图像水平和垂直镜像
+函数参数：1、img：传入的像素矩阵
+		  2、choice：数字0或1用于判断实现哪种镜像
+返回值：返回镜像变换过后的像素矩阵
+*/
+Mat ImageAlgorithm::imageReflection(Mat img, int choice)
+{
+	/*创建用于存储镜像变换后的像素矩阵*/
+	Mat reflectionImage;
+    /*判断choice值是否合法*/
+	if (choice != 1 && choice != 0) {
+		return reflectionImage;
+	}
+	/*若choice值合法*/
+	else {
+		/*垂直镜像翻转图像*/
+		if (choice == 0)
+			flip(img, reflectionImage, 0);
+		/*水平镜像翻转图像*/
+		else if (choice == 1)
+			flip(img, reflectionImage, 1);
+	}
+	/*创建一个窗口显示图像*/
+	imshow("rotatingImage", reflectionImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return reflectionImage;
+}
 
 /*
 函数作用：滤波处理函数，根据option的不同，我们选择不同的滤波方法
@@ -275,6 +405,7 @@ Mat ImageAlgorithm::imagePrewitt(Mat img, int denoising)
 */
 Mat ImageAlgorithm::imageKirsch(Mat img, int denoising)
 {
+
 	return Mat();
 }
 

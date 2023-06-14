@@ -18,7 +18,44 @@ public:
 	/*基础功能*/
 
 	/*图像加载*/
-	Mat Loading_Show();
+	Mat imageLoading_Show(string imageName);
+
+	/*图像的四种基本变换*/
+
+	/*图像平移*/
+	Mat imageTranslation(Mat img, int dx, int dy);
+	/*图像缩放*/
+	Mat imageResizing(Mat img, double Scale_x, double Scale_y);
+	/*图像旋转*/
+	Mat imageRotating(Mat img, double img_cols, double img_rows, double angle);
+	/*图像镜像*/
+	Mat imageReflection(Mat img, int choice);
+
+	/*图像变灰度*/
+
+	/*灰度图像*/
+
+	/*2值图像*/
+
+
+	/*图像钝化*/
+
+
+	/*图像锐化*/
+
+
+	/*图像的加噪*/
+
+	/*高斯噪声*/
+
+	/*椒盐噪声*/
+
+	/*泊松噪声*/
+
+
+	/*图像的直方图绘制*/
+
+
 	/*图像的去噪*/
 	Mat imageDenoising(Mat img, int kernel_size=3, int channels=3, int option=AVERAGE_FILTER);
 	/*均值滤波*/

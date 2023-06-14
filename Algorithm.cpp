@@ -1421,18 +1421,98 @@ Mat ImageAlgorithm::imageCovolution(Mat img, int kernel_size, int **kernel)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过傅里叶变换处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageFourierTransform(Mat img)
+Mat ImageAlgorithm::imageFourierTransform(Mat image)
 {
-	return Mat();
+	cvtColor(image, image, COLOR_BGR2GRAY);
+	Mat padded;                            // 傅里叶变换需要进行边界填充
+	int m = getOptimalDFTSize(image.rows);
+	int n = getOptimalDFTSize(image.cols);
+	copyMakeBorder(image, padded, 0, m - image.rows, 0, n - image.cols, BORDER_CONSTANT, Scalar::all(0));
+
+	Mat planes[] = { Mat_<float>(padded), Mat::zeros(padded.size(), CV_32F) };
+	Mat complexImage;
+	merge(planes, 2, complexImage);
+
+	dft(complexImage, complexImage);
+
+	split(complexImage, planes);
+	magnitude(planes[0], planes[1], planes[0]);
+	Mat magnitudeImage = planes[0];
+
+	magnitudeImage += Scalar::all(1);
+	log(magnitudeImage, magnitudeImage);
+
+	magnitudeImage = magnitudeImage(Rect(0, 0, magnitudeImage.cols & -2, magnitudeImage.rows & -2));
+	int cx = magnitudeImage.cols / 2;
+	int cy = magnitudeImage.rows / 2;
+
+	Mat q0(magnitudeImage, Rect(0, 0, cx, cy));
+	Mat q1(magnitudeImage, Rect(cx, 0, cx, cy));
+	Mat q2(magnitudeImage, Rect(0, cy, cx, cy));
+	Mat q3(magnitudeImage, Rect(cx, cy, cx, cy));
+
+	Mat tmp;
+	q0.copyTo(tmp);
+	q3.copyTo(q0);
+	tmp.copyTo(q3);
+
+	q1.copyTo(tmp);
+	q2.copyTo(q1);
+	tmp.copyTo(q2);
+
+	normalize(magnitudeImage, magnitudeImage, 0, 1, NORM_MINMAX);
+
+	return magnitudeImage;
 }
 /*
 函数作用：图像融合
-函数参数：1、img：传入的需要处理的图像的像素矩阵
+函数参数：1、img1：需要进行拼接的图片
+		 2、img2：需要进行拼接的图片
 返回值：返回融合后图像的像素矩阵
 */
-Mat ImageAlgorithm::imageSynthesis(Mat img)
+Mat ImageAlgorithm::imageSynthesis(Mat img1, Mat img2) 
 {
-	return Mat();
+	/*创建ORB对象*/
+	Ptr<ORB> orb = ORB::create();
+	/*用于存储图像的关键点和描述符*/
+	vector<KeyPoint>keyPoints1, keyPoints2;
+	Mat descriptors1, descriptors2;
+
+	/*使用orb算法检测和计算图像的特征点*/
+	orb->detectAndCompute(img1,cv::noArray(), keyPoints1, descriptors1);
+	orb->detectAndCompute(img2, cv::noArray(), keyPoints2, descriptors2);
+
+	/*匹配特征点*/
+	BFMatcher matcher(NORM_HAMMING);
+	vector<DMatch> matches;
+	matcher.match(descriptors1, descriptors2, matches);
+
+	/*根据匹配结果筛选出好的匹配点*/
+	double min_dist = min_element(matches.begin(), matches.end(), [](const DMatch &m1, const DMatch& m2) {
+		return m1.distance < m2.distance;
+		})->distance;
+	vector<DMatch> good_matches;
+	for (const DMatch& match : matches) {
+		if (match.distance <= max(2 * min_dist, 30.0)) {
+			good_matches.push_back(match);
+		}
+	}
+	/*使用筛选出来的匹配点进行图像拼接*/
+	vector<Point2f> src_pts;
+	vector<Point2f> dst_pts;
+
+	for (const DMatch& match : good_matches) {
+		src_pts.push_back(keyPoints1[match.queryIdx].pt);
+		dst_pts.push_back(keyPoints2[match.trainIdx].pt);
+	}
+
+	Mat H = findHomography(src_pts, dst_pts, RANSAC);
+	Mat result;
+	warpPerspective(img1, result, H, Size(img1.cols + img2.cols, img1.rows));
+	Mat roi(result, Rect(0, 0, img2.cols, img2.rows));
+	img2.copyTo(roi);
+
+	return result;
 }
 
 /*
@@ -1440,9 +1520,69 @@ Mat ImageAlgorithm::imageSynthesis(Mat img)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回分割后的图像
 */
-Mat ImageAlgorithm::imageSegmentation(Mat img)
+Mat ImageAlgorithm::imageSegmentation(Mat src)
 {
-	return Mat();
+	int row = src.rows;
+	int col = src.cols;
+	//1. 将RGB图像灰度化
+	Mat grayImage;
+	cvtColor(src, grayImage, COLOR_BGR2GRAY);
+	//2. 使用大津法转为二值图，并做形态学闭合操作
+	threshold(grayImage, grayImage, 0, 255, THRESH_BINARY | THRESH_OTSU);
+	//3. 形态学闭操作
+	Mat kernel = getStructuringElement(MORPH_RECT, Size(9, 9), Point(-1, -1));
+	morphologyEx(grayImage, grayImage, MORPH_CLOSE, kernel);
+	//4. 距离变换
+	distanceTransform(grayImage, grayImage, DIST_L2, DIST_MASK_3, 5);
+	//5. 将图像归一化到[0, 1]范围
+	normalize(grayImage, grayImage, 0, 1, NORM_MINMAX);
+	//6. 将图像取值范围变为8位(0-255)
+	grayImage.convertTo(grayImage, CV_8UC1);
+	//7. 再使用大津法转为二值图，并做形态学闭合操作
+	threshold(grayImage, grayImage, 0, 255, THRESH_BINARY | THRESH_OTSU);
+	morphologyEx(grayImage, grayImage, MORPH_CLOSE, kernel);
+	//8. 使用findContours寻找marks
+	vector<vector<Point>> contours;
+	findContours(grayImage, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(-1, -1));
+	Mat marks = Mat::zeros(grayImage.size(), CV_32SC1);
+	for (size_t i = 0; i < contours.size(); i++)
+	{
+		//static_cast<int>(i+1)是为了分水岭的标记不同，区域1、2、3...这样才能分割
+		drawContours(marks, contours, static_cast<int>(i), Scalar::all(static_cast<int>(i + 1)), 2);
+	}
+	//9. 对原图做形态学的腐蚀操作
+	Mat k = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
+	morphologyEx(src, src, MORPH_ERODE, k);
+	//10. 调用opencv的分水岭算法
+	watershed(src, marks);
+	//11. 随机分配颜色
+	vector<Vec3b> colors;
+	for (size_t i = 0; i < contours.size(); i++) {
+		int r = theRNG().uniform(0, 255);
+		int g = theRNG().uniform(0, 255);
+		int b = theRNG().uniform(0, 255);
+		colors.push_back(Vec3b((uchar)b, (uchar)g, (uchar)r));
+	}
+
+	// 12. 显示
+	Mat dst = Mat::zeros(marks.size(), CV_8UC3);
+	int index = 0;
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			index = marks.at<int>(i, j);
+			if (index > 0 && index <= contours.size()) {
+				dst.at<Vec3b>(i, j) = colors[index - 1];
+			}
+			else if (index == -1)
+			{
+				dst.at<Vec3b>(i, j) = Vec3b(255, 255, 255);
+			}
+			else {
+				dst.at<Vec3b>(i, j) = Vec3b(0, 0, 0);
+			}
+		}
+	}
+	return dst;
 }
 
 /*
@@ -1450,7 +1590,90 @@ Mat ImageAlgorithm::imageSegmentation(Mat img)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回处理过后的像素矩阵，图像能够呈现被识别出来的数字
 */
-Mat ImageAlgorithm::imageDigitalIdentify(Mat img)
+Mat ImageAlgorithm::imageDigitalIdentify(Mat src)
 {
-	return Mat();
+	Mat gray;
+	cvtColor(src, gray, COLOR_BGR2GRAY);
+
+	const int classNum = 10;  //总共有0~9个数字类别
+	const int picNum = 20;//每个类别共20张图片
+	const int pic_w = 28;//图片宽
+	const int pic_h = 28;//图片高
+
+	//将数据集分为训练集、测试集
+	double totalNum = classNum * picNum;//图片总数
+	double per = 0.8;   //百分比--修改百分比可改变训练集、测试集比重
+	double trainNum = totalNum * per;//训练图片数量
+	double testNum = totalNum * (1.0 - per);//测试图片数量
+
+	Mat Train_Data, Train_Label;//用于训练
+	vector<MyNum>TestData;//用于测试
+	for (int i = 0; i < picNum; i++)
+	{
+		for (int j = 0; j < classNum; j++)
+		{
+			//将所有图片数据都拷贝到Mat矩阵里
+			Mat temp;
+			gray(Range(j * pic_w, j * pic_w + pic_w), Range(i * pic_h, i * pic_h + pic_h)).copyTo(temp);
+			Train_Data.push_back(temp.reshape(0, 1)); //将temp数字图像reshape成一行数据，然后一一追加到Train_Data矩阵中
+			Train_Label.push_back(j);
+
+			//额外用于测试
+			if (i * classNum + j >= trainNum)
+			{
+				TestData.push_back({ temp,Rect(i * pic_w,j * pic_h,pic_w,pic_h),j });
+			}
+		}
+	}
+
+	//准备训练数据集
+	Train_Data.convertTo(Train_Data, CV_32FC1); //转化为CV_32FC1类型
+	Train_Label.convertTo(Train_Label, CV_32FC1);
+	Mat TrainDataMat = Train_Data(Range(0, trainNum), Range::all()); //只取trainNum行训练
+	Mat TrainLabelMat = Train_Label(Range(0, trainNum), Range::all());
+
+	//KNN训练
+	const int k = 3;  //k值，取奇数，影响最终识别率
+	Ptr<KNearest>knn = KNearest::create();  //构造KNN模型
+	knn->setDefaultK(k);//设定k值
+	knn->setIsClassifier(true);//KNN算法可用于分类、回归。
+	knn->setAlgorithmType(KNearest::BRUTE_FORCE);//字符匹配算法
+	knn->train(TrainDataMat, ROW_SAMPLE, TrainLabelMat);//模型训练
+
+	//预测及结果显示
+	double count = 0.0;
+	Scalar color;
+	for (int i = 0; i < TestData.size(); i++)
+	{
+		//将测试图片转成CV_32FC1，单行形式
+		Mat data = TestData[i].mat.reshape(0, 1);
+		data.convertTo(data, CV_32FC1);
+		Mat sample = data(Range(0, data.rows), Range::all());
+
+		float f = knn->predict(sample); //预测
+		if (f == TestData[i].label)
+		{
+			color = Scalar(0, 255, 0); //如果预测正确，绘制绿色，并且结果+1
+			count++;
+		}
+		else
+		{
+			color = Scalar(0, 0, 255);//如果预测错误，绘制红色
+		}
+
+		rectangle(src, TestData[i].rect, color, 2);
+	}
+
+	//将绘制结果拷贝到一张新图上
+	Mat result(Size(src.cols, src.rows + 50), CV_8UC3, Scalar::all(255));
+	src.copyTo(result(Rect(0, 0, src.cols, src.rows)));
+	//将得分在结果图上显示
+	char text[10];
+	int score = (count / testNum) * 100;
+	sprintf_s(text, "%s%d%s", "Score:", score, "%");
+	putText(result, text, Point((result.cols / 2) - 80, result.rows - 15), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
+	//imshow("test", result);
+	//imwrite("result.jpg", result);
+
+	return result;
 }

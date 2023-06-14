@@ -3,6 +3,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/calib3d.hpp>
+#include<opencv2/ml.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <iostream>
 #include <string>
@@ -12,6 +14,15 @@
 
 using namespace cv;
 using namespace std;
+using namespace cv::ml;
+
+//**自定义结构体
+struct MyNum
+{
+	cv::Mat mat; //数字图片
+	cv::Rect rect;//相对整张图所在矩形
+	int label;//数字标签
+};
 
 class ImageAlgorithm
 {
@@ -123,7 +134,7 @@ public:
 	Mat imageFourierTransform(Mat img);
 
 	/*图像合成*/
-	Mat imageSynthesis(Mat img);
+	Mat imageSynthesis(Mat img1,Mat img2);
 
 	/*图像分割*/
 	Mat imageSegmentation(Mat img);

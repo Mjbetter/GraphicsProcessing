@@ -1,47 +1,71 @@
-#pragma once
-#include <qdesktopwidget.h>
-#include <QtWidgets/QMainWindow>
-#include "ui_GraphicsProcessing.h"
-#include <QtWidgets/QApplication>
-#include <QPushButton.h>
-#include <QPixmap.h>
-#include <QStyle.h>
-#include <qdialog.h>
-#include <QToolButton>
-#include <qwidget.h>
-#include <iostream>
-#include <qaction.h>
-#include <qlayout.h>
-#include "GraphicsProcessing.h"
-#include <qmenu.h>
 
-class UI 
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+#include <QToolBar>
+#include <QLabel>
+#include <QPixmap>
+#include <qmenu.h>
+#include <qmenubar.h>
+#include <QVBoxLayout>
+#include <QSplitter>
+
+class UI : public QMainWindow
 {
+
 public:
-	/* 主界面自适应全屏,同时添加自定义最小化，最大化，退出按钮,同时添加对菜单栏进行初始化 */
-	void InitializesMenuBar(QMainWindow *mainWindow);
-	void Create_upleader();
-	void Create_leftleader(QMainWindow* mainWindow);
-	void Create_mainwin(QMainWindow* mainWindow);
-	void Create_();
-private slots:
-    void On_ClickedMenuActionGroup(QAction* action);
-    void On_ClickedToolBarActionGroup(QAction* action);
+
+
+	//设置主窗口
+	void initmainwin(QMainWindow* mainwin);
+	
+	//设置菜单
+	void createMenu(QMainWindow* mainwin);
+	//设置工具栏
+	void createToolbar(QMainWindow* mainwin);
+	//设置中心窗口
+	void createCenterWin(QMainWindow* mainwin);
+
+	//上方菜单
+	QMenuBar* menu;
+	QMenu* fileOP;
+	QMenu* ImaAdjust;
+	QMenu* ImaDetail;
+	QMenu* ImaEdge;
+	QMenu* ImaPro;
+	QMenu* ImaCom;
+	QMenu* ImaSeg;
+	QMenu* ImaNumRec;
+	QMenu* ElseFunc;
+	//fileOP
+	QAction* openAction;
+	QAction* saveAction;
+	QAction* vImaInfoAction;
+	//ImaAdjust
+	QAction* ImaPanAction;
+	QAction* ImaZoomAction;
+	QAction* ImaRotAction;
+	QAction* ImaMirrAction;
+
+
+	QToolBar* toolBar;
+
+	QLabel* imageLabel = nullptr;
+
+	QString imagePath;
+	QString savePath;
+
+	QWidget* centralWidget;
+	QVBoxLayout* layout;
 
 private:
-    QVBoxLayout* mainLayout;
-    //    QVBoxLayout *mainWidgetLayout;
 
-    //    QWidget *mainWidget;
-
-    QPushButton* m_PushButton;
-    QMenu* m_Menu;
-    QToolBar* m_ToolBar;
-    QActionGroup* m_MenuActionGroup;
-    QActionGroup* m_ToolBarActionGroup;
-    QAction* m_ActionMenu1;
-    QAction* m_ActionMenu2;
-    QAction* m_ActionToolBar1;
-    QAction* m_ActionToolBar2;
-
+public	slots:
+	//打开图像文件
+	void openImage();
+	//保存图像文件
+	void saveImage();
+	//查看图像信息
+	void showImageInfo();
 };

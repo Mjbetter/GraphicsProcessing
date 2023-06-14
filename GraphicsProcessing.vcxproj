@@ -93,7 +93,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="UI.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <QtRcc Include="GraphicsProcessing.qrc" />
     <QtUic Include="GraphicsProcessing.ui" />

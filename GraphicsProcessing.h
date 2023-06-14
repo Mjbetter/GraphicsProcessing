@@ -1,42 +1,24 @@
-#pragma once
-
 #ifndef GRAPHICSPROCESSING_H
 #define GRAPHICSPROCESSING_H
+// 通过结合使用这两个预处理指令，可以保证在同一个编译单元中
+//（通常是一个源文件）只包含一次头文件，避免了重复定义和编译错误。
 
-#include <opencv2\opencv.hpp>
+#include <qwindow.h>
+#include <qpushbutton.h>
+#include <qmainwindow.h>
+#include "ui_GraphicsProcessing.h"
 #include "UI.h"
 
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QSpinBox>
-#include <QtWidgets/QSlider>
-#include <QtGui/QPixmap>
-#include <QtGui/QImage>
-#include <QtGui/QIcon>
-#include <QWidget>
-#include <QImage>
-
-class GraphicsProcessing : public QWidget
+class GraphicsProcessing : public QMainWindow
 {
-    Q_OBJECT
-
+	Q_OBJECT
 public:
-    GraphicsProcessing(QWidget *parent = nullptr);
-    ~GraphicsProcessing();
-
+	GraphicsProcessing(QWidget* parent = nullptr);
+	~GraphicsProcessing();
 private slots:
-    void openImage();
-    void saveImage();
-    void applyFilter();
 
 private:
-    QImage m_image;
-
-    void loadImage(const QString& fileName);
-    void applySepiaFilter();
+	
 };
-#endif // GRAPHICSPROCESSING_H
+
+#endif // !GRAPHICSPROCESSING.H

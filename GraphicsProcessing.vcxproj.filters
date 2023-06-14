@@ -29,9 +29,6 @@
     <QtUic Include="GraphicsProcessing.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtMoc Include="GraphicsProcessing.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <ClCompile Include="GraphicsProcessing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -57,5 +54,10 @@
     <ClInclude Include="macro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="GraphicsProcessing.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

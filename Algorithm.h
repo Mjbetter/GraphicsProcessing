@@ -45,17 +45,16 @@ public:
 	Mat imageSharpening(Mat img);
 
 	/*图像的加噪*/
-
+	Mat imageAddNoise(Mat img, int option);
 	/*高斯噪声*/
-
+	Mat imageGaussianNoise(Mat img);
 	/*椒盐噪声*/
-
+	Mat imageSaltPepperNoise(Mat img);
 	/*泊松噪声*/
-
+	Mat imagePoissonNoise(Mat img);
 
 	/*图像的直方图绘制*/
-
-
+	Mat imageHistogram(Mat img);
 
 	/*图像的去噪*/
 	Mat imageDenoising(Mat img, int kernel_size=3, int channels=3, int option=AVERAGE_FILTER,int level=3);

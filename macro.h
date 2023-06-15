@@ -34,7 +34,8 @@
 
 /*图像的加噪*/
 /*加高斯噪声*/
-
+#define GAUSSIANNOISE 1
 /*加椒盐噪声*/
-
+#define SALTPEPPERNOISE 2
 /*加泊松噪声*/
+#define POISSONNOISE 3

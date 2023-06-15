@@ -47,7 +47,12 @@ int main(int argc, char *argv[])
     //s.imageGrayBinary(img);
     //s.imageGray(img, 2);
     //s.imageBlurring(img);
-    s.imageSharpening(img);
+    //s.imageSharpening(img);
+    //s.imageHistogram(img);
+    //s.imageGaussianNoise(img);
+    //s.imagePoissonNoise(img);
+    s.imageAddNoise(img, 3);
+    //s.imageSaltPepperNoise(img);
     /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
 

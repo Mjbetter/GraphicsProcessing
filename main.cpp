@@ -33,20 +33,25 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     GraphicsProcessing w;
-    //w.show();
+    w.show();
 
 
     //ImageAlgorithm s;
     //Mat img = imread("E:\\lena.jpg");
-    Mat img0,img1, img2, img3, img4, img5;
+    //Mat img0,img1, img2, img3, img4, img5;
     //img0 = s.imageRoberts(img, NO_FILTER, 20);
     //img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
     //img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
     //img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);
     // 
 
+
     Mat img = imread("E:\\lena.jpg");
     ImageAlgorithm s;
+
+    //Mat img = imread("E:\\5.jpg");
+    //ImageAlgorithm s;
+
     //Mat imgx = imread("E:\\3.jpg");
     //Mat imgy = imread("E:\\2.jpg");
     //Mat img0,img1;

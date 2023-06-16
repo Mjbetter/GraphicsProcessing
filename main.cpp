@@ -1,6 +1,7 @@
 #include "GraphicsProcessing.h"
 #include <QtWidgets/QApplication>
 #include "Algorithm.h"
+#include "Algorithm.cpp"
 #include "macro.h"
 
 /*
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
 
     //ImageAlgorithm s;
     //Mat img = imread("E:\\lena.jpg");
-    //Mat img0,img1, img2, img3, img4, img5;
+    Mat img0,img1, img2, img3, img4, img5;
     //img0 = s.imageRoberts(img, NO_FILTER, 20);
     //img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
     //img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
@@ -45,14 +46,14 @@ int main(int argc, char *argv[])
     // 
 
     Mat img = imread("E:\\5.jpg");
-    ImageAlgorithm s(img);
+    ImageAlgorithm s;
     //Mat imgx = imread("E:\\3.jpg");
     //Mat imgy = imread("E:\\2.jpg");
-    Mat img0,img1;
-    //img0 = s.imageAverageFilter(img, 3);
+    //Mat img0,img1;
+    img0 = s.imageAverageFilter(img, 3);
     //cv::Size kernelSize(3, 3);
     //blur(img, img1, kernelSize);
-    img0 = s.imageMedianFilter(img, 5);
+    //img0 = s.imageMedianFilter(img, 5);
     
     //img = s.imageLoading_Show(imageName);
     //s.imageTranslation(img, 50, 50);
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
     //img4 = s.imageRoberts(img, BILATERAL_FILTER);
     //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
 
-    w.showMaximized();
+    //w.showMaximized();
 
     // Roberts边缘检测测试
     //img0 = s.imageRoberts(img, NO_FILTER, 20);

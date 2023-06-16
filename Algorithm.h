@@ -28,12 +28,8 @@ class ImageAlgorithm
 {
 public:
 
-	/*构造函数*/
-	ImageAlgorithm(Mat image);
-	ImageAlgorithm() {
-	}
-	/*构造函数要调用的初始化函数*/
-	void GetIntegralImage(Mat img);
+	/*构造积分图*/
+	void GetIntegralImage(Mat img, double **integralImage);
 
 
 	/*基础功能*/
@@ -149,19 +145,4 @@ public:
 	Mat imageDigitalIdentify(Mat img);
 
 
-
-	/*辅助函数*/
-
-	/*每个图片类的属性*/
-	/*图像的积分图*/
-	double** integralImage = NULL;
-	/*图像的行数*/
-	int imageRows;
-	/*图像的列数*/
-	int imageCols;
-	/*图像的通道数*/
-	int channels;
-	/*析构函数，处理释放函数内部手动开辟的内存*/
-	~ImageAlgorithm();
 };
-

@@ -27,6 +27,15 @@ struct MyNum
 class ImageAlgorithm
 {
 public:
+
+	/*构造函数*/
+	ImageAlgorithm(Mat image);
+	ImageAlgorithm() {
+	}
+	/*构造函数要调用的初始化函数*/
+	void GetIntegralImage(Mat img);
+
+
 	/*基础功能*/
 
 
@@ -71,15 +80,15 @@ public:
 
 
 	/*图像的去噪*/
-	Mat imageDenoising(Mat img, int kernel_size=3, int channels=3, int option=AVERAGE_FILTER,int level=3);
+	Mat imageDenoising(Mat img, int kernel_size=3, int option=AVERAGE_FILTER,int level=3);
 	/*均值滤波*/
-	Mat imageAverageFilter(Mat img, int kernel_size, int channels);
+	Mat imageAverageFilter(Mat img, int kernel_size);
 	/*中值滤波*/
-	Mat imageMedianFilter(Mat img, int kernel_size, int channels);
+	Mat imageMedianFilter(Mat img, int kernel_size);
 	/*高斯滤波*/
-	Mat imageGaussianFilter(Mat img, int kernel_size, int channels);
+	Mat imageGaussianFilter(Mat img, int kernel_size);
 	/*双边滤波*/
-	Mat imageBilateralFilter(Mat img, int kernel_size, int channels);
+	Mat imageBilateralFilter(Mat img, int kernel_size);
 	/*小波变换*/
 	void waveLetTransform(double** data, double** lowPass, double** highPass,int rows, int cols);
 	/*求阈值*/
@@ -146,5 +155,16 @@ public:
 
 	/*辅助函数*/
 
+	/*每个图片类的属性*/
+	/*图像的积分图*/
+	double** integralImage = NULL;
+	/*图像的行数*/
+	int imageRows;
+	/*图像的列数*/
+	int imageCols;
+	/*图像的通道数*/
+	int channels;
+	/*析构函数，处理释放函数内部手动开辟的内存*/
+	~ImageAlgorithm();
 };
 

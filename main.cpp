@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     //img4 = s.imageRoberts(img, BILATERAL_FILTER);
     //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
 
-    w.show();
+    w.showMaximized();
 
     return a.exec();
 }

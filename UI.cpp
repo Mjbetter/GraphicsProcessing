@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 #include "UI.h"
 #include <QFileDialog>
 #include <QMessageBox>

@@ -34,12 +34,16 @@ int main(int argc, char *argv[])
     GraphicsProcessing w;
     //w.show();
 
-    ImageAlgorithm s;
-    Mat img = imread("E:\\数字识别.png");
+    Mat img = imread("E:\\5.jpg");
+    ImageAlgorithm s(img);
     //Mat imgx = imread("E:\\3.jpg");
     //Mat imgy = imread("E:\\2.jpg");
-    Mat img,img1;
-    string imageName = "D:/engineering practice_4/cat.png";   //图片的路径名
+    Mat img0,img1;
+    //img0 = s.imageAverageFilter(img, 3);
+    //cv::Size kernelSize(3, 3);
+    //blur(img, img1, kernelSize);
+    img0 = s.imageMedianFilter(img, 5);
+    
     //img = s.imageLoading_Show(imageName);
     //s.imageTranslation(img, 50, 50);
     //s.imageResizing(img, 10, 0.5);

@@ -1,5 +1,59 @@
 #include "Algorithm.h"
 
+ImageAlgorithm::ImageAlgorithm(Mat image)
+{
+	/*获取图片的行数，列数，通道数*/
+	imageRows = image.rows;
+	imageCols = image.cols;
+	channels = image.channels();
+	int data_num = imageRows * imageCols;
+	/*为积分图分配内存空间，在析构函数中释放*/
+	integralImage = new double* [channels];
+	for (int i = 0; i < channels; ++i) {
+		integralImage[i] = new double[data_num];
+		for (int j = 0; j < data_num; ++j) {
+			integralImage[i][j] = 0;
+		}
+	}
+}
+
+void ImageAlgorithm::GetIntegralImage(Mat img)
+{
+	/*积分图的第一行和第一列都等于原始图像第一行，第一列的累加*/
+	/*遍历每一列的第一个元素*/
+	for (int i = 0; i < imageCols; ++i) {
+		for (int m = 0; m < channels; ++m) {
+			if(channels==1)integralImage[m][i] = (double)img.at<uchar>(0, i);
+			else if(channels > 1)integralImage[m][i] = (double)img.at<Vec3b>(0, i)[m];
+			if (i >= 1) {
+				integralImage[m][i] += integralImage[m][i-1];
+			}
+			cout << "m:" << m << "," << "i:" << i << "," << integralImage[m][i] << endl;
+		}
+	}
+	/*遍历每一行的第一个元素*/
+	for (int i = 1; i < imageRows; ++i) {
+		for (int m = 0; m < channels; ++m) {
+			if(channels==1)integralImage[m][ i * imageCols] = img.at<uchar>(i, 0) + integralImage[m][(i - 1) * imageCols];
+			else if(channels>1)integralImage[m][i * imageCols] = img.at<Vec3b>(i, 0)[m] + integralImage[m][(i - 1) * imageCols];
+		}
+	}
+	/*其他位置的积分图*/
+	for (int i = 1; i < imageRows; ++i) {
+		for (int j = 1; j < imageCols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					integralImage[m][j + i * imageCols] = img.at<uchar>(i, j) + integralImage[m][(j-1) + i * imageCols] + integralImage[m][j + (i-1) * imageCols] - integralImage[m][(j-1) + (i-1) * imageCols];
+				}
+				else if (channels > 1) {
+					integralImage[m][j + i * imageCols] = img.at<Vec3b>(i, j)[m] + integralImage[m][(j-1) + i * imageCols] + integralImage[m][j + (i-1) * imageCols] - integralImage[m][(j-1) + (i-1) * imageCols];
+				}
+			}
+		}
+	}
+
+}
+
 /*
 函数作用：图像加载函数，将传入的图片进行加载
 函数参数：1、imageName：传入需要处理的图像路径
@@ -199,18 +253,18 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 		5、level：小波去噪的分解层数，默认为3
 返回值：返回经过均值滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size, int channels,int option,int level)
+Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size,int option,int level)
 {
 	switch (option)
 	{
 	case AVERAGE_FILTER:
-		return imageAverageFilter(img, kernel_size, channels);
+		return imageAverageFilter(img, kernel_size);
 	case MEDIAN_FILTER:
-		return imageMedianFilter(img, kernel_size, channels);
+		return imageMedianFilter(img, kernel_size);
 	case GAUSSIAN_FILTER:
-		return imageGaussianFilter(img, kernel_size, channels);
+		return imageGaussianFilter(img, kernel_size);
 	case BILATERAL_FILTER:
-		return imageBilateralFilter(img, kernel_size, channels);
+		return imageBilateralFilter(img, kernel_size);
 	case SMALLWAVE_FILTER:
 		return imageWaveletFilter(img,level);
 	default:
@@ -223,46 +277,46 @@ Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size, int channels,int op
 函数作用：均值滤波处理图像，让图片达到平滑效果
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、kernel_size：窗口大小
-		 3、channels：图片通道数
 返回值：返回经过均值滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size, int channels)
-{
+Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
+{	
 	Mat imgRes;
+	/*初始化图像结果图*/
 	imgRes.create(img.size(), img.type());
-	/*窗口的半径*/
-	int r = kernel_size / 2;
-	/*根据通道数量，动态的开辟存储求和的空间*/
-	double* sum = new double[channels];
-
-	/*x，y这两层循环用于遍历图像的所有像素*/
-	for (int x = r; x < img.rows - r; ++x) {
-		for (int y = r; y < img.cols - r; ++y) {
-			/*初始化sum*/
-			for (int i = 0; i < channels; ++i)sum[i] = 0;
-			/*i，j这两层循环用于遍历窗口中的元素*/
-			for (int i = -r; i < r; ++i) {
-				for (int j = -r; j < r; ++ j) {
-					/*m这层循环是用于遍历通道数，一般彩色图片都是RGB3通道，如果传进来的是灰度图像，那么channels=1*/
-					for (int m = 0; m < channels; ++m) {
-						/*单通道使用单通道的读取方式，多通道使用多通道的读取方式*/
-						if (channels == 1)sum[m] += img.at<uchar>(x + i, y + j);
-						else if (channels > 1) sum[m] += img.at<Vec3b>(x + i, y + j)[m];
-					}
+	/*动态分配sum数组的空间大小*/
+	double*sum = new double[channels];
+	for (int i = 0; i < channels; ++i) {
+		sum[i] = 0;
+	}
+	/*获取积分图*/
+	GetIntegralImage(img);
+	/*遍历图像所有像素，通过积分图进行均值处理*/
+	for (int i = 0; i < imageRows; ++i) {
+		for (int j = 0; j < imageCols; ++j) {
+			/*计算滤波窗口左上角和右下角的坐标*/
+			int top = max(0, i - kernel_size / 2);
+			int left = max(0, j - kernel_size / 2);
+			int bottom = min(imageRows - 1, i + kernel_size / 2);
+			int right = min(imageCols - 1, j + kernel_size / 2);
+			int count = (bottom - top + 1) * (right - left + 1);
+			for (int m = 0; m < channels; ++m) {
+				/*窗口内的和就等于，右下角+左上角(x-1,y-1)-右上角(x-1)-左下角(y-1)*/
+				sum[m] = integralImage[m][bottom * imageCols + right];
+				if (top > 0) sum[m] -= integralImage[m][(top - 1) * imageCols + right];
+				if (left > 0) sum[m] -= integralImage[m][bottom * imageCols +left-1];
+				if (top > 0 && left > 0) sum[m] += integralImage[m][(top - 1) * imageCols + (left - 1)];
+				if (channels == 1) {
+					imgRes.at<uchar>(i, j) = saturate_cast<uchar>(sum[m] / count);
 				}
-			}
-			/*窗口中的各个通道求和已经完毕，除以窗口内总数得到均值，赋给结果Mat--imgRes*/
-			for (int i = 0; i < channels; ++i) {
-				if(channels>1)imgRes.at<Vec3b>(x, y)[i] = saturate_cast<uchar>(sum[i] / (kernel_size * kernel_size));
-				else if (channels == 1)imgRes.at<uchar>(x, y) = saturate_cast<uchar>(sum[i] / (kernel_size * kernel_size));
+				else {
+					imgRes.at<Vec3b>(i, j)[m] = saturate_cast<uchar>(sum[m] / count);
+				}
 			}
 		}
 	}
-
-	/*释放资源*/
-	delete [] sum;
+	delete []sum;
 	return imgRes;
-
 }
 
 /*
@@ -272,43 +326,57 @@ Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size, int channels)
 		 3、channels：图片通道数
 返回值：返回经过中值滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size, int channels)
+Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*窗口的半径*/
 	int r = kernel_size / 2;
-	/*根据通道数量，动态的开辟存储求和的空间*/
-	double* sum = new double[channels*kernel_size];
-
+	/*根据通道数量，窗口大小，动态的开辟存储窗口灰度的Mat，用于进行灰度统计和中值选取*/
+	Mat window;
+	window.create(kernel_size, kernel_size, img.type());
+	/*动态开辟内存空间，存储灰度直方图*/
+	int** hist = new int* [channels];
+	for (int i = 0; i < channels; ++i) {
+		hist[i] = new int[256];
+	}
 	/*x，y这两层循环用于遍历图像的所有像素*/
-	for (int x = r; x < img.rows - r; ++x) {
-		for (int y = r; y < img.cols - r; ++y) {
-			/*初始化sum*/
-			for (int i = 0; i < channels; ++i)sum[i] = 0;
+	for (int x = r; x < imageRows - r; ++x) {
+		for (int y = r; y < imageCols - r; ++y) {
 			/*i，j这两层循环用于遍历窗口中的元素*/
-			for (int i = -r; i < r; ++i) {
-				for (int j = -r; j < r; ++j) {
+			for (int i = -r; i <= r; ++i) {
+				for (int j = -r; j <= r; ++j) {
 					/*m这层循环是用于遍历通道数，一般彩色图片都是RGB3通道，如果传进来的是灰度图像，那么channels=1*/
 					for (int m = 0; m < channels; ++m) {
 						/*单通道使用单通道的读取方式，多通道使用多通道的读取方式*/
-						int op_y = abs(i) + abs(j);
-						if (channels == 1)sum[m*kernel_size+op_y] = img.at<uchar>(x+i, y+j);
-						else if (channels > 1) sum[m * kernel_size + op_y] = img.at<Vec3b>(x+i, y+j)[m];
-					}
+						if (channels == 1)window.at<uchar>(i+r,j+r) = img.at<uchar>(x+i, y+j);
+						else if (channels > 1) window.at<Vec3b>(i + r, j + r)[m] = img.at<Vec3b>(x+i, y+j)[m];
+					} 
 				}
 			}
-			/*窗口中各个通道中的灰度值都读取完毕，我们将其进行排序，然后选择居中的进行赋值*/
-			for (int i = 0; i < channels; ++i) {
-				sort(sum+(i*kernel_size), sum + ((i+1)*kernel_size));
-				if (channels > 1)imgRes.at<Vec3b>(x, y)[i] = saturate_cast<uchar>(sum[i * kernel_size+kernel_size/2]);
-				else if (channels == 1)imgRes.at<uchar>(x, y) = saturate_cast<uchar>(sum[i * kernel_size + kernel_size / 2]);
+			/*灰度统计*/
+			imgageStatisticalHistogram(window, hist);
+			/*计算灰度图像中的中值*/
+			for (int m = 0; m < channels; ++m) {
+				int sum = 0;
+				for (int i = 0; i < 256; ++i) {
+					sum += hist[m][i];
+					/*此时这个灰度值i就是所有灰度值的中间值*/
+					if (sum >= kernel_size * kernel_size / 2) {
+						if (channels == 1)imgRes.at<uchar>(x, y) = saturate_cast<uchar>(i);
+						else if (channels > 1) imgRes.at<Vec3b>(x, y)[m] = saturate_cast<uchar>(i);
+						break;
+					}
+				}
 			}
 		}
 	}
 
 	/*释放资源*/
-	delete[] sum;
+	for (int i = 0; i < channels; ++i) {
+		delete[] hist[i];
+	}
+	delete[] hist;
 	return imgRes;
 }
 
@@ -319,12 +387,14 @@ Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size, int channels)
 		 3、channels：图片通道数
 返回值：返回经过高斯滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size, int channels)
+Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*窗口半径*/
 	int r = kernel_size / 2;
+	/*图片通道数*/
+	int channels = img.channels();
 	/*根据窗口大小和通道数量动态分配窗口内存空间*/
 	double** kernel = new double* [kernel_size];
 	double sum = 0;
@@ -391,7 +461,7 @@ Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size, int channels)
 		 3、channels：图片通道数
 返回值：返回经过双边滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size, int channels)
+Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
@@ -399,7 +469,8 @@ Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size, int channels)
 	/*窗口半径*/
 	int r = kernel_size / 2;
 	double sigma = kernel_size / 6.0;
-
+	/*图片通道数*/
+	int channels = img.channels();
 	/*通道灰度值的求和*/
 	double* sum = new double[channels];
 	/*通道权重的求和*/
@@ -986,7 +1057,7 @@ Mat ImageAlgorithm::imageCanny(Mat img)
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*Gaussian滤波进行图像平滑去噪*/
-	img = imageGaussianFilter(img, 3, 1);
+	img = imageGaussianFilter(img, 3);
 	double** mag = new double* [img.rows];
 	double** dir = new double* [img.rows];
 	for (int i = 0; i < img.rows; ++i) {
@@ -1211,10 +1282,14 @@ Mat ImageAlgorithm::imageBrightness(Mat img, double L)
 */
 void ImageAlgorithm::imgageStatisticalHistogram(Mat img, int** hist)
 {
-	int channels = img.channels();
+	for (int i = 0; i < img.channels(); ++i) {
+		for (int j = 0; j < 256; ++j) {
+			hist[i][j] = 0;
+		}
+	}
 	for (int i = 0; i < img.rows; ++i) {
 		for (int j = 0; j < img.cols; ++j) {
-			for (int m = 0; m < channels; ++m) {
+			for (int m = 0; m < img.channels(); ++m) {
 				int pos = 0;
 				if (channels == 1)pos = img.at<uchar>(i, j);
 				else pos = img.at<Vec3b>(i, j)[m];
@@ -1676,4 +1751,17 @@ Mat ImageAlgorithm::imageDigitalIdentify(Mat src)
 	//imwrite("result.jpg", result);
 
 	return result;
+}
+
+ImageAlgorithm::~ImageAlgorithm()
+{
+	/*释放积分图*/
+	if (integralImage != NULL) {
+		for (int i = 0; i < channels; ++i) {
+			delete[] integralImage[i];
+			integralImage[i] = NULL;
+		}
+		delete[] integralImage;
+		integralImage = NULL;
+	}
 }

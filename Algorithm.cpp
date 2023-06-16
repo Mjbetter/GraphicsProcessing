@@ -1,24 +1,11 @@
 #include "Algorithm.h"
 
-ImageAlgorithm::ImageAlgorithm(Mat image)
-{
-	/*获取图片的行数，列数，通道数*/
-	imageRows = image.rows;
-	imageCols = image.cols;
-	channels = image.channels();
-	int data_num = imageRows * imageCols;
-	/*为积分图分配内存空间，在析构函数中释放*/
-	integralImage = new double* [channels];
-	for (int i = 0; i < channels; ++i) {
-		integralImage[i] = new double[data_num];
-		for (int j = 0; j < data_num; ++j) {
-			integralImage[i][j] = 0;
-		}
-	}
-}
 
-void ImageAlgorithm::GetIntegralImage(Mat img)
+void ImageAlgorithm::GetIntegralImage(Mat img,double **integralImage)
 {
+	int channels = img.channels();
+	int imageCols = img.cols;
+	int imageRows = img.rows;
 	/*积分图的第一行和第一列都等于原始图像第一行，第一列的累加*/
 	/*遍历每一列的第一个元素*/
 	for (int i = 0; i < imageCols; ++i) {
@@ -625,6 +612,9 @@ Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size,int option,int level
 */
 Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
 {	
+	int channels = img.channels();
+	int imageRows = img.rows;
+	int imageCols = img.cols;
 	Mat imgRes;
 	/*初始化图像结果图*/
 	imgRes.create(img.size(), img.type());
@@ -633,8 +623,14 @@ Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
 	for (int i = 0; i < channels; ++i) {
 		sum[i] = 0;
 	}
+	/*定义积分图*/
+	double** integralImage = new double* [channels];
+	int data_num = imageRows * imageCols;
+	for (int i = 0; i < channels; ++i) {
+		integralImage[i] = new double[data_num];
+	}
 	/*获取积分图*/
-	GetIntegralImage(img);
+	GetIntegralImage(img,integralImage);
 	/*遍历图像所有像素，通过积分图进行均值处理*/
 	for (int i = 0; i < imageRows; ++i) {
 		for (int j = 0; j < imageCols; ++j) {
@@ -660,6 +656,12 @@ Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
 		}
 	}
 	delete []sum;
+	for (int i = 0; i < channels; ++i) {
+		delete[] integralImage[i];
+		integralImage[i] = NULL;
+	}
+	delete[] integralImage;
+	integralImage = NULL;
 	return imgRes;
 }
 
@@ -672,6 +674,9 @@ Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
 */
 Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size)
 {
+	int channels = img.channels();
+	int imageRows = img.rows;
+	int imageCols = img.cols;
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*窗口的半径*/
@@ -1626,6 +1631,7 @@ Mat ImageAlgorithm::imageBrightness(Mat img, double L)
 */
 void ImageAlgorithm::imgageStatisticalHistogram(Mat img, int** hist)
 {
+	int channels = img.channels();
 	for (int i = 0; i < img.channels(); ++i) {
 		for (int j = 0; j < 256; ++j) {
 			hist[i][j] = 0;
@@ -2097,15 +2103,3 @@ Mat ImageAlgorithm::imageDigitalIdentify(Mat src)
 	return result;
 }
 
-ImageAlgorithm::~ImageAlgorithm()
-{
-	/*释放积分图*/
-	if (integralImage != NULL) {
-		for (int i = 0; i < channels; ++i) {
-			delete[] integralImage[i];
-			integralImage[i] = NULL;
-		}
-		delete[] integralImage;
-		integralImage = NULL;
-	}
-}

@@ -34,10 +34,17 @@ int main(int argc, char *argv[])
     GraphicsProcessing w;
     //w.show();
 
-    ImageAlgorithm s;
-    Mat img,img1;
-    string imageName = "D:/engineering practice_4/cat.png";   //图片的路径名
-    img = s.imageLoading_Show(imageName);
+    Mat img = imread("E:\\5.jpg");
+    ImageAlgorithm s(img);
+    //Mat imgx = imread("E:\\3.jpg");
+    //Mat imgy = imread("E:\\2.jpg");
+    Mat img0,img1;
+    //img0 = s.imageAverageFilter(img, 3);
+    //cv::Size kernelSize(3, 3);
+    //blur(img, img1, kernelSize);
+    img0 = s.imageMedianFilter(img, 5);
+    
+    //img = s.imageLoading_Show(imageName);
     //s.imageTranslation(img, 50, 50);
     //s.imageResizing(img, 10, 0.5);
     //s.imageRotating(img, 20, 10, -45.0);
@@ -51,8 +58,10 @@ int main(int argc, char *argv[])
     //s.imageHistogram(img);
     //s.imageGaussianNoise(img);
     //s.imagePoissonNoise(img);
-    s.imageAddNoise(img, 3);
+    //s.imageAddNoise(img, 3);
     //s.imageSaltPepperNoise(img);
+    //s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 3);
+
     /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
 
@@ -132,23 +141,50 @@ int main(int argc, char *argv[])
     /*图像打马赛克*/
     //img0 = s.imageMasaic(img, 5);
     /*图像卷积*/
-    int kernel_size = 3;
-    int** laplacian_kernel = new int* [kernel_size];
-    for (int i = 0; i < kernel_size; ++i) {
-        laplacian_kernel[i] = new int[kernel_size];
-    }
-    laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
-    laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
-    laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
+
+    //int kernel_size = 3;
+    //int** laplacian_kernel = new int* [kernel_size];
+    //for (int i = 0; i < kernel_size; ++i) {
+    //    laplacian_kernel[i] = new int[kernel_size];
+    //}
+    //laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
+    //laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
+    //laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
+    //img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
+
+    //int kernel_size = 3;
+    //int** laplacian_kernel = new int* [kernel_size];
+    //for (int i = 0; i < kernel_size; ++i) {
+    //    laplacian_kernel[i] = new int[kernel_size];
+    //}
+    //laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
+    //laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
+    //laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
     //img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
 
 
-    for (int i = 0; i < kernel_size; ++i) {
-        delete[] laplacian_kernel[i];
-    }
-    delete[] laplacian_kernel;
+    //for (int i = 0; i < kernel_size; ++i) {
+    //    delete[] laplacian_kernel[i];
+    //}
+    //delete[] laplacian_kernel;
+
+
+    //for (int i = 0; i < kernel_size; ++i) {
+    //   delete[] laplacian_kernel[i];
+    //}
+    //delete[] laplacian_kernel;
+
    
-    
+    /*图像拼接测试*/
+    //img0 = s.imageSynthesis(imgx, imgy);
+    /*图像分割测试*/
+    //img0 = s.imageSegmentation(img);
+    //图像傅里叶变换测试
+    //img0 = s.imageFourierTransform(img);
+    //imshow("img0",img0);
+    /*数字识别进行检测*/
+    //img0=s.imageDigitalIdentify(img);
+    //imshow("test", img0);
 
     return a.exec();
 }

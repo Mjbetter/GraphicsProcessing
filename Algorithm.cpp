@@ -1,5 +1,59 @@
 #include "Algorithm.h"
 
+ImageAlgorithm::ImageAlgorithm(Mat image)
+{
+	/*获取图片的行数，列数，通道数*/
+	imageRows = image.rows;
+	imageCols = image.cols;
+	channels = image.channels();
+	int data_num = imageRows * imageCols;
+	/*为积分图分配内存空间，在析构函数中释放*/
+	integralImage = new double* [channels];
+	for (int i = 0; i < channels; ++i) {
+		integralImage[i] = new double[data_num];
+		for (int j = 0; j < data_num; ++j) {
+			integralImage[i][j] = 0;
+		}
+	}
+}
+
+void ImageAlgorithm::GetIntegralImage(Mat img)
+{
+	/*积分图的第一行和第一列都等于原始图像第一行，第一列的累加*/
+	/*遍历每一列的第一个元素*/
+	for (int i = 0; i < imageCols; ++i) {
+		for (int m = 0; m < channels; ++m) {
+			if(channels==1)integralImage[m][i] = (double)img.at<uchar>(0, i);
+			else if(channels > 1)integralImage[m][i] = (double)img.at<Vec3b>(0, i)[m];
+			if (i >= 1) {
+				integralImage[m][i] += integralImage[m][i-1];
+			}
+			cout << "m:" << m << "," << "i:" << i << "," << integralImage[m][i] << endl;
+		}
+	}
+	/*遍历每一行的第一个元素*/
+	for (int i = 1; i < imageRows; ++i) {
+		for (int m = 0; m < channels; ++m) {
+			if(channels==1)integralImage[m][ i * imageCols] = img.at<uchar>(i, 0) + integralImage[m][(i - 1) * imageCols];
+			else if(channels>1)integralImage[m][i * imageCols] = img.at<Vec3b>(i, 0)[m] + integralImage[m][(i - 1) * imageCols];
+		}
+	}
+	/*其他位置的积分图*/
+	for (int i = 1; i < imageRows; ++i) {
+		for (int j = 1; j < imageCols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					integralImage[m][j + i * imageCols] = img.at<uchar>(i, j) + integralImage[m][(j-1) + i * imageCols] + integralImage[m][j + (i-1) * imageCols] - integralImage[m][(j-1) + (i-1) * imageCols];
+				}
+				else if (channels > 1) {
+					integralImage[m][j + i * imageCols] = img.at<Vec3b>(i, j)[m] + integralImage[m][(j-1) + i * imageCols] + integralImage[m][j + (i-1) * imageCols] - integralImage[m][(j-1) + (i-1) * imageCols];
+				}
+			}
+		}
+	}
+
+}
+
 /*
 函数作用：图像加载函数，将传入的图片进行加载
 函数参数：1、imageName：传入需要处理的图像路径
@@ -543,18 +597,18 @@ Mat ImageAlgorithm::imageHistogram(Mat img)
 		5、level：小波去噪的分解层数，默认为3
 返回值：返回经过均值滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size, int channels,int option,int level)
+Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size,int option,int level)
 {
 	switch (option)
 	{
 	case AVERAGE_FILTER:
-		return imageAverageFilter(img, kernel_size, channels);
+		return imageAverageFilter(img, kernel_size);
 	case MEDIAN_FILTER:
-		return imageMedianFilter(img, kernel_size, channels);
+		return imageMedianFilter(img, kernel_size);
 	case GAUSSIAN_FILTER:
-		return imageGaussianFilter(img, kernel_size, channels);
+		return imageGaussianFilter(img, kernel_size);
 	case BILATERAL_FILTER:
-		return imageBilateralFilter(img, kernel_size, channels);
+		return imageBilateralFilter(img, kernel_size);
 	case SMALLWAVE_FILTER:
 		return imageWaveletFilter(img,level);
 	default:
@@ -567,46 +621,46 @@ Mat ImageAlgorithm::imageDenoising(Mat img, int kernel_size, int channels,int op
 函数作用：均值滤波处理图像，让图片达到平滑效果
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、kernel_size：窗口大小
-		 3、channels：图片通道数
 返回值：返回经过均值滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size, int channels)
-{
+Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
+{	
 	Mat imgRes;
+	/*初始化图像结果图*/
 	imgRes.create(img.size(), img.type());
-	/*窗口的半径*/
-	int r = kernel_size / 2;
-	/*根据通道数量，动态的开辟存储求和的空间*/
-	double* sum = new double[channels];
-
-	/*x，y这两层循环用于遍历图像的所有像素*/
-	for (int x = r; x < img.rows - r; ++x) {
-		for (int y = r; y < img.cols - r; ++y) {
-			/*初始化sum*/
-			for (int i = 0; i < channels; ++i)sum[i] = 0;
-			/*i，j这两层循环用于遍历窗口中的元素*/
-			for (int i = -r; i < r; ++i) {
-				for (int j = -r; j < r; ++ j) {
-					/*m这层循环是用于遍历通道数，一般彩色图片都是RGB3通道，如果传进来的是灰度图像，那么channels=1*/
-					for (int m = 0; m < channels; ++m) {
-						/*单通道使用单通道的读取方式，多通道使用多通道的读取方式*/
-						if (channels == 1)sum[m] += img.at<uchar>(x + i, y + j);
-						else if (channels > 1) sum[m] += img.at<Vec3b>(x + i, y + j)[m];
-					}
+	/*动态分配sum数组的空间大小*/
+	double*sum = new double[channels];
+	for (int i = 0; i < channels; ++i) {
+		sum[i] = 0;
+	}
+	/*获取积分图*/
+	GetIntegralImage(img);
+	/*遍历图像所有像素，通过积分图进行均值处理*/
+	for (int i = 0; i < imageRows; ++i) {
+		for (int j = 0; j < imageCols; ++j) {
+			/*计算滤波窗口左上角和右下角的坐标*/
+			int top = max(0, i - kernel_size / 2);
+			int left = max(0, j - kernel_size / 2);
+			int bottom = min(imageRows - 1, i + kernel_size / 2);
+			int right = min(imageCols - 1, j + kernel_size / 2);
+			int count = (bottom - top + 1) * (right - left + 1);
+			for (int m = 0; m < channels; ++m) {
+				/*窗口内的和就等于，右下角+左上角(x-1,y-1)-右上角(x-1)-左下角(y-1)*/
+				sum[m] = integralImage[m][bottom * imageCols + right];
+				if (top > 0) sum[m] -= integralImage[m][(top - 1) * imageCols + right];
+				if (left > 0) sum[m] -= integralImage[m][bottom * imageCols +left-1];
+				if (top > 0 && left > 0) sum[m] += integralImage[m][(top - 1) * imageCols + (left - 1)];
+				if (channels == 1) {
+					imgRes.at<uchar>(i, j) = saturate_cast<uchar>(sum[m] / count);
 				}
-			}
-			/*窗口中的各个通道求和已经完毕，除以窗口内总数得到均值，赋给结果Mat--imgRes*/
-			for (int i = 0; i < channels; ++i) {
-				if(channels>1)imgRes.at<Vec3b>(x, y)[i] = saturate_cast<uchar>(sum[i] / (kernel_size * kernel_size));
-				else if (channels == 1)imgRes.at<uchar>(x, y) = saturate_cast<uchar>(sum[i] / (kernel_size * kernel_size));
+				else {
+					imgRes.at<Vec3b>(i, j)[m] = saturate_cast<uchar>(sum[m] / count);
+				}
 			}
 		}
 	}
-
-	/*释放资源*/
-	delete [] sum;
+	delete []sum;
 	return imgRes;
-
 }
 
 /*
@@ -616,43 +670,57 @@ Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size, int channels)
 		 3、channels：图片通道数
 返回值：返回经过中值滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size, int channels)
+Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*窗口的半径*/
 	int r = kernel_size / 2;
-	/*根据通道数量，动态的开辟存储求和的空间*/
-	double* sum = new double[channels*kernel_size];
-
+	/*根据通道数量，窗口大小，动态的开辟存储窗口灰度的Mat，用于进行灰度统计和中值选取*/
+	Mat window;
+	window.create(kernel_size, kernel_size, img.type());
+	/*动态开辟内存空间，存储灰度直方图*/
+	int** hist = new int* [channels];
+	for (int i = 0; i < channels; ++i) {
+		hist[i] = new int[256];
+	}
 	/*x，y这两层循环用于遍历图像的所有像素*/
-	for (int x = r; x < img.rows - r; ++x) {
-		for (int y = r; y < img.cols - r; ++y) {
-			/*初始化sum*/
-			for (int i = 0; i < channels; ++i)sum[i] = 0;
+	for (int x = r; x < imageRows - r; ++x) {
+		for (int y = r; y < imageCols - r; ++y) {
 			/*i，j这两层循环用于遍历窗口中的元素*/
-			for (int i = -r; i < r; ++i) {
-				for (int j = -r; j < r; ++j) {
+			for (int i = -r; i <= r; ++i) {
+				for (int j = -r; j <= r; ++j) {
 					/*m这层循环是用于遍历通道数，一般彩色图片都是RGB3通道，如果传进来的是灰度图像，那么channels=1*/
 					for (int m = 0; m < channels; ++m) {
 						/*单通道使用单通道的读取方式，多通道使用多通道的读取方式*/
-						int op_y = abs(i) + abs(j);
-						if (channels == 1)sum[m*kernel_size+op_y] = img.at<uchar>(x+i, y+j);
-						else if (channels > 1) sum[m * kernel_size + op_y] = img.at<Vec3b>(x+i, y+j)[m];
-					}
+						if (channels == 1)window.at<uchar>(i+r,j+r) = img.at<uchar>(x+i, y+j);
+						else if (channels > 1) window.at<Vec3b>(i + r, j + r)[m] = img.at<Vec3b>(x+i, y+j)[m];
+					} 
 				}
 			}
-			/*窗口中各个通道中的灰度值都读取完毕，我们将其进行排序，然后选择居中的进行赋值*/
-			for (int i = 0; i < channels; ++i) {
-				sort(sum+(i*kernel_size), sum + ((i+1)*kernel_size));
-				if (channels > 1)imgRes.at<Vec3b>(x, y)[i] = saturate_cast<uchar>(sum[i * kernel_size+kernel_size/2]);
-				else if (channels == 1)imgRes.at<uchar>(x, y) = saturate_cast<uchar>(sum[i * kernel_size + kernel_size / 2]);
+			/*灰度统计*/
+			imgageStatisticalHistogram(window, hist);
+			/*计算灰度图像中的中值*/
+			for (int m = 0; m < channels; ++m) {
+				int sum = 0;
+				for (int i = 0; i < 256; ++i) {
+					sum += hist[m][i];
+					/*此时这个灰度值i就是所有灰度值的中间值*/
+					if (sum >= kernel_size * kernel_size / 2) {
+						if (channels == 1)imgRes.at<uchar>(x, y) = saturate_cast<uchar>(i);
+						else if (channels > 1) imgRes.at<Vec3b>(x, y)[m] = saturate_cast<uchar>(i);
+						break;
+					}
+				}
 			}
 		}
 	}
 
 	/*释放资源*/
-	delete[] sum;
+	for (int i = 0; i < channels; ++i) {
+		delete[] hist[i];
+	}
+	delete[] hist;
 	return imgRes;
 }
 
@@ -663,12 +731,14 @@ Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size, int channels)
 		 3、channels：图片通道数
 返回值：返回经过高斯滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size, int channels)
+Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*窗口半径*/
 	int r = kernel_size / 2;
+	/*图片通道数*/
+	int channels = img.channels();
 	/*根据窗口大小和通道数量动态分配窗口内存空间*/
 	double** kernel = new double* [kernel_size];
 	double sum = 0;
@@ -735,7 +805,7 @@ Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size, int channels)
 		 3、channels：图片通道数
 返回值：返回经过双边滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size, int channels)
+Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
@@ -743,7 +813,8 @@ Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size, int channels)
 	/*窗口半径*/
 	int r = kernel_size / 2;
 	double sigma = kernel_size / 6.0;
-
+	/*图片通道数*/
+	int channels = img.channels();
 	/*通道灰度值的求和*/
 	double* sum = new double[channels];
 	/*通道权重的求和*/
@@ -1330,7 +1401,7 @@ Mat ImageAlgorithm::imageCanny(Mat img)
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*Gaussian滤波进行图像平滑去噪*/
-	img = imageGaussianFilter(img, 3, 1);
+	img = imageGaussianFilter(img, 3);
 	double** mag = new double* [img.rows];
 	double** dir = new double* [img.rows];
 	for (int i = 0; i < img.rows; ++i) {
@@ -1555,10 +1626,14 @@ Mat ImageAlgorithm::imageBrightness(Mat img, double L)
 */
 void ImageAlgorithm::imgageStatisticalHistogram(Mat img, int** hist)
 {
-	int channels = img.channels();
+	for (int i = 0; i < img.channels(); ++i) {
+		for (int j = 0; j < 256; ++j) {
+			hist[i][j] = 0;
+		}
+	}
 	for (int i = 0; i < img.rows; ++i) {
 		for (int j = 0; j < img.cols; ++j) {
-			for (int m = 0; m < channels; ++m) {
+			for (int m = 0; m < img.channels(); ++m) {
 				int pos = 0;
 				if (channels == 1)pos = img.at<uchar>(i, j);
 				else pos = img.at<Vec3b>(i, j)[m];
@@ -1765,18 +1840,98 @@ Mat ImageAlgorithm::imageCovolution(Mat img, int kernel_size, int **kernel)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过傅里叶变换处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageFourierTransform(Mat img)
+Mat ImageAlgorithm::imageFourierTransform(Mat image)
 {
-	return Mat();
+	cvtColor(image, image, COLOR_BGR2GRAY);
+	Mat padded;                            // 傅里叶变换需要进行边界填充
+	int m = getOptimalDFTSize(image.rows);
+	int n = getOptimalDFTSize(image.cols);
+	copyMakeBorder(image, padded, 0, m - image.rows, 0, n - image.cols, BORDER_CONSTANT, Scalar::all(0));
+
+	Mat planes[] = { Mat_<float>(padded), Mat::zeros(padded.size(), CV_32F) };
+	Mat complexImage;
+	merge(planes, 2, complexImage);
+
+	dft(complexImage, complexImage);
+
+	split(complexImage, planes);
+	magnitude(planes[0], planes[1], planes[0]);
+	Mat magnitudeImage = planes[0];
+
+	magnitudeImage += Scalar::all(1);
+	log(magnitudeImage, magnitudeImage);
+
+	magnitudeImage = magnitudeImage(Rect(0, 0, magnitudeImage.cols & -2, magnitudeImage.rows & -2));
+	int cx = magnitudeImage.cols / 2;
+	int cy = magnitudeImage.rows / 2;
+
+	Mat q0(magnitudeImage, Rect(0, 0, cx, cy));
+	Mat q1(magnitudeImage, Rect(cx, 0, cx, cy));
+	Mat q2(magnitudeImage, Rect(0, cy, cx, cy));
+	Mat q3(magnitudeImage, Rect(cx, cy, cx, cy));
+
+	Mat tmp;
+	q0.copyTo(tmp);
+	q3.copyTo(q0);
+	tmp.copyTo(q3);
+
+	q1.copyTo(tmp);
+	q2.copyTo(q1);
+	tmp.copyTo(q2);
+
+	normalize(magnitudeImage, magnitudeImage, 0, 1, NORM_MINMAX);
+
+	return magnitudeImage;
 }
 /*
 函数作用：图像融合
-函数参数：1、img：传入的需要处理的图像的像素矩阵
+函数参数：1、img1：需要进行拼接的图片
+		 2、img2：需要进行拼接的图片
 返回值：返回融合后图像的像素矩阵
 */
-Mat ImageAlgorithm::imageSynthesis(Mat img)
+Mat ImageAlgorithm::imageSynthesis(Mat img1, Mat img2) 
 {
-	return Mat();
+	/*创建ORB对象*/
+	Ptr<ORB> orb = ORB::create();
+	/*用于存储图像的关键点和描述符*/
+	vector<KeyPoint>keyPoints1, keyPoints2;
+	Mat descriptors1, descriptors2;
+
+	/*使用orb算法检测和计算图像的特征点*/
+	orb->detectAndCompute(img1,cv::noArray(), keyPoints1, descriptors1);
+	orb->detectAndCompute(img2, cv::noArray(), keyPoints2, descriptors2);
+
+	/*匹配特征点*/
+	BFMatcher matcher(NORM_HAMMING);
+	vector<DMatch> matches;
+	matcher.match(descriptors1, descriptors2, matches);
+
+	/*根据匹配结果筛选出好的匹配点*/
+	double min_dist = min_element(matches.begin(), matches.end(), [](const DMatch &m1, const DMatch& m2) {
+		return m1.distance < m2.distance;
+		})->distance;
+	vector<DMatch> good_matches;
+	for (const DMatch& match : matches) {
+		if (match.distance <= max(2 * min_dist, 30.0)) {
+			good_matches.push_back(match);
+		}
+	}
+	/*使用筛选出来的匹配点进行图像拼接*/
+	vector<Point2f> src_pts;
+	vector<Point2f> dst_pts;
+
+	for (const DMatch& match : good_matches) {
+		src_pts.push_back(keyPoints1[match.queryIdx].pt);
+		dst_pts.push_back(keyPoints2[match.trainIdx].pt);
+	}
+
+	Mat H = findHomography(src_pts, dst_pts, RANSAC);
+	Mat result;
+	warpPerspective(img1, result, H, Size(img1.cols + img2.cols, img1.rows));
+	Mat roi(result, Rect(0, 0, img2.cols, img2.rows));
+	img2.copyTo(roi);
+
+	return result;
 }
 
 /*
@@ -1784,9 +1939,69 @@ Mat ImageAlgorithm::imageSynthesis(Mat img)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回分割后的图像
 */
-Mat ImageAlgorithm::imageSegmentation(Mat img)
+Mat ImageAlgorithm::imageSegmentation(Mat src)
 {
-	return Mat();
+	int row = src.rows;
+	int col = src.cols;
+	//1. 将RGB图像灰度化
+	Mat grayImage;
+	cvtColor(src, grayImage, COLOR_BGR2GRAY);
+	//2. 使用大津法转为二值图，并做形态学闭合操作
+	threshold(grayImage, grayImage, 0, 255, THRESH_BINARY | THRESH_OTSU);
+	//3. 形态学闭操作
+	Mat kernel = getStructuringElement(MORPH_RECT, Size(9, 9), Point(-1, -1));
+	morphologyEx(grayImage, grayImage, MORPH_CLOSE, kernel);
+	//4. 距离变换
+	distanceTransform(grayImage, grayImage, DIST_L2, DIST_MASK_3, 5);
+	//5. 将图像归一化到[0, 1]范围
+	normalize(grayImage, grayImage, 0, 1, NORM_MINMAX);
+	//6. 将图像取值范围变为8位(0-255)
+	grayImage.convertTo(grayImage, CV_8UC1);
+	//7. 再使用大津法转为二值图，并做形态学闭合操作
+	threshold(grayImage, grayImage, 0, 255, THRESH_BINARY | THRESH_OTSU);
+	morphologyEx(grayImage, grayImage, MORPH_CLOSE, kernel);
+	//8. 使用findContours寻找marks
+	vector<vector<Point>> contours;
+	findContours(grayImage, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(-1, -1));
+	Mat marks = Mat::zeros(grayImage.size(), CV_32SC1);
+	for (size_t i = 0; i < contours.size(); i++)
+	{
+		//static_cast<int>(i+1)是为了分水岭的标记不同，区域1、2、3...这样才能分割
+		drawContours(marks, contours, static_cast<int>(i), Scalar::all(static_cast<int>(i + 1)), 2);
+	}
+	//9. 对原图做形态学的腐蚀操作
+	Mat k = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
+	morphologyEx(src, src, MORPH_ERODE, k);
+	//10. 调用opencv的分水岭算法
+	watershed(src, marks);
+	//11. 随机分配颜色
+	vector<Vec3b> colors;
+	for (size_t i = 0; i < contours.size(); i++) {
+		int r = theRNG().uniform(0, 255);
+		int g = theRNG().uniform(0, 255);
+		int b = theRNG().uniform(0, 255);
+		colors.push_back(Vec3b((uchar)b, (uchar)g, (uchar)r));
+	}
+
+	// 12. 显示
+	Mat dst = Mat::zeros(marks.size(), CV_8UC3);
+	int index = 0;
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			index = marks.at<int>(i, j);
+			if (index > 0 && index <= contours.size()) {
+				dst.at<Vec3b>(i, j) = colors[index - 1];
+			}
+			else if (index == -1)
+			{
+				dst.at<Vec3b>(i, j) = Vec3b(255, 255, 255);
+			}
+			else {
+				dst.at<Vec3b>(i, j) = Vec3b(0, 0, 0);
+			}
+		}
+	}
+	return dst;
 }
 
 /*
@@ -1794,7 +2009,103 @@ Mat ImageAlgorithm::imageSegmentation(Mat img)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回处理过后的像素矩阵，图像能够呈现被识别出来的数字
 */
-Mat ImageAlgorithm::imageDigitalIdentify(Mat img)
+Mat ImageAlgorithm::imageDigitalIdentify(Mat src)
 {
-	return Mat();
+	Mat gray;
+	cvtColor(src, gray, COLOR_BGR2GRAY);
+
+	const int classNum = 10;  //总共有0~9个数字类别
+	const int picNum = 20;//每个类别共20张图片
+	const int pic_w = 28;//图片宽
+	const int pic_h = 28;//图片高
+
+	//将数据集分为训练集、测试集
+	double totalNum = classNum * picNum;//图片总数
+	double per = 0.8;   //百分比--修改百分比可改变训练集、测试集比重
+	double trainNum = totalNum * per;//训练图片数量
+	double testNum = totalNum * (1.0 - per);//测试图片数量
+
+	Mat Train_Data, Train_Label;//用于训练
+	vector<MyNum>TestData;//用于测试
+	for (int i = 0; i < picNum; i++)
+	{
+		for (int j = 0; j < classNum; j++)
+		{
+			//将所有图片数据都拷贝到Mat矩阵里
+			Mat temp;
+			gray(Range(j * pic_w, j * pic_w + pic_w), Range(i * pic_h, i * pic_h + pic_h)).copyTo(temp);
+			Train_Data.push_back(temp.reshape(0, 1)); //将temp数字图像reshape成一行数据，然后一一追加到Train_Data矩阵中
+			Train_Label.push_back(j);
+
+			//额外用于测试
+			if (i * classNum + j >= trainNum)
+			{
+				TestData.push_back({ temp,Rect(i * pic_w,j * pic_h,pic_w,pic_h),j });
+			}
+		}
+	}
+
+	//准备训练数据集
+	Train_Data.convertTo(Train_Data, CV_32FC1); //转化为CV_32FC1类型
+	Train_Label.convertTo(Train_Label, CV_32FC1);
+	Mat TrainDataMat = Train_Data(Range(0, trainNum), Range::all()); //只取trainNum行训练
+	Mat TrainLabelMat = Train_Label(Range(0, trainNum), Range::all());
+
+	//KNN训练
+	const int k = 3;  //k值，取奇数，影响最终识别率
+	Ptr<KNearest>knn = KNearest::create();  //构造KNN模型
+	knn->setDefaultK(k);//设定k值
+	knn->setIsClassifier(true);//KNN算法可用于分类、回归。
+	knn->setAlgorithmType(KNearest::BRUTE_FORCE);//字符匹配算法
+	knn->train(TrainDataMat, ROW_SAMPLE, TrainLabelMat);//模型训练
+
+	//预测及结果显示
+	double count = 0.0;
+	Scalar color;
+	for (int i = 0; i < TestData.size(); i++)
+	{
+		//将测试图片转成CV_32FC1，单行形式
+		Mat data = TestData[i].mat.reshape(0, 1);
+		data.convertTo(data, CV_32FC1);
+		Mat sample = data(Range(0, data.rows), Range::all());
+
+		float f = knn->predict(sample); //预测
+		if (f == TestData[i].label)
+		{
+			color = Scalar(0, 255, 0); //如果预测正确，绘制绿色，并且结果+1
+			count++;
+		}
+		else
+		{
+			color = Scalar(0, 0, 255);//如果预测错误，绘制红色
+		}
+
+		rectangle(src, TestData[i].rect, color, 2);
+	}
+
+	//将绘制结果拷贝到一张新图上
+	Mat result(Size(src.cols, src.rows + 50), CV_8UC3, Scalar::all(255));
+	src.copyTo(result(Rect(0, 0, src.cols, src.rows)));
+	//将得分在结果图上显示
+	char text[10];
+	int score = (count / testNum) * 100;
+	sprintf_s(text, "%s%d%s", "Score:", score, "%");
+	putText(result, text, Point((result.cols / 2) - 80, result.rows - 15), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
+	//imshow("test", result);
+	//imwrite("result.jpg", result);
+
+	return result;
+}
+
+ImageAlgorithm::~ImageAlgorithm()
+{
+	/*释放积分图*/
+	if (integralImage != NULL) {
+		for (int i = 0; i < channels; ++i) {
+			delete[] integralImage[i];
+			integralImage[i] = NULL;
+		}
+		delete[] integralImage;
+		integralImage = NULL;
+	}
 }

@@ -3,6 +3,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/calib3d.hpp>
+#include<opencv2/ml.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <iostream>
 #include <string>
@@ -12,10 +14,28 @@
 
 using namespace cv;
 using namespace std;
+using namespace cv::ml;
+
+//**自定义结构体
+struct MyNum
+{
+	cv::Mat mat; //数字图片
+	cv::Rect rect;//相对整张图所在矩形
+	int label;//数字标签
+};
 
 class ImageAlgorithm
 {
 public:
+
+	/*构造函数*/
+	ImageAlgorithm(Mat image);
+	ImageAlgorithm() {
+	}
+	/*构造函数要调用的初始化函数*/
+	void GetIntegralImage(Mat img);
+
+
 	/*基础功能*/
 
 	/*图像加载*/
@@ -57,15 +77,15 @@ public:
 	Mat imageHistogram(Mat img);
 
 	/*图像的去噪*/
-	Mat imageDenoising(Mat img, int kernel_size=3, int channels=3, int option=AVERAGE_FILTER,int level=3);
+	Mat imageDenoising(Mat img, int kernel_size=3, int option=AVERAGE_FILTER,int level=3);
 	/*均值滤波*/
-	Mat imageAverageFilter(Mat img, int kernel_size, int channels);
+	Mat imageAverageFilter(Mat img, int kernel_size);
 	/*中值滤波*/
-	Mat imageMedianFilter(Mat img, int kernel_size, int channels);
+	Mat imageMedianFilter(Mat img, int kernel_size);
 	/*高斯滤波*/
-	Mat imageGaussianFilter(Mat img, int kernel_size, int channels);
+	Mat imageGaussianFilter(Mat img, int kernel_size);
 	/*双边滤波*/
-	Mat imageBilateralFilter(Mat img, int kernel_size, int channels);
+	Mat imageBilateralFilter(Mat img, int kernel_size);
 	/*小波变换*/
 	void waveLetTransform(double** data, double** lowPass, double** highPass,int rows, int cols);
 	/*求阈值*/
@@ -120,7 +140,7 @@ public:
 	Mat imageFourierTransform(Mat img);
 
 	/*图像合成*/
-	Mat imageSynthesis(Mat img);
+	Mat imageSynthesis(Mat img1,Mat img2);
 
 	/*图像分割*/
 	Mat imageSegmentation(Mat img);
@@ -132,5 +152,16 @@ public:
 
 	/*辅助函数*/
 
+	/*每个图片类的属性*/
+	/*图像的积分图*/
+	double** integralImage = NULL;
+	/*图像的行数*/
+	int imageRows;
+	/*图像的列数*/
+	int imageCols;
+	/*图像的通道数*/
+	int channels;
+	/*析构函数，处理释放函数内部手动开辟的内存*/
+	~ImageAlgorithm();
 };
 

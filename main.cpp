@@ -45,8 +45,13 @@ int main(int argc, char *argv[])
     //img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);
     // 
 
+
+    Mat img = imread("E:\\lena.jpg");
+    ImageAlgorithm s;
+
     //Mat img = imread("E:\\5.jpg");
     //ImageAlgorithm s;
+
     //Mat imgx = imread("E:\\3.jpg");
     //Mat imgy = imread("E:\\2.jpg");
     //Mat img0,img1;
@@ -54,7 +59,8 @@ int main(int argc, char *argv[])
     //cv::Size kernelSize(3, 3);
     //blur(img, img1, kernelSize);
     //img0 = s.imageMedianFilter(img, 5);
-    
+    //img0 = s.imageGaussianFilter(img, 5);
+    img0 = s.imageBilateralFilter(img, 23,10,35);
     //img = s.imageLoading_Show(imageName);
     //s.imageTranslation(img, 50, 50);
     //s.imageResizing(img, 10, 0.5);
@@ -198,6 +204,5 @@ int main(int argc, char *argv[])
     /*数字识别进行检测*/
     //img0=s.imageDigitalIdentify(img);
     //imshow("test", img0);
-
     return a.exec();
 }

@@ -42,6 +42,86 @@ void ImageAlgorithm::GetIntegralImage(Mat img,double **integralImage)
 }
 
 /*
+函数作用：对图像进行边缘填充，防止卷积操作造成图像边缘丢失
+函数参数：1、img：需要进行扩充的图像
+		 2、size：要扩充的边缘的大小
+函数返回值：扩充以后的图像
+*/
+Mat ImageAlgorithm::imageEdgeExpand(Mat img, int size)
+{
+	int rows = img.rows;
+	int cols = img.cols;
+	int channels = img.channels();
+
+	/*创建一个新的图像，这个图像的大小为原图像的大小加上扩充的边缘大小*/
+	Mat imgRes;
+	imgRes.create(rows + size * 2, cols + size * 2, img.type());
+
+	/*将原图像复制到新图像的中间部分*/
+	for (int i = 0; i < rows; ++i) {
+		for (int j = 0; j < cols; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels > 1) {
+					imgRes.at<Vec3b>(i + size, j + size)[m] = img.at<Vec3b>(i, j)[m];
+				}
+				else if (channels == 1) {
+					imgRes.at<uchar>(i + size, j + size) = img.at<uchar>(i, j);
+				}
+			}
+		}
+	}
+
+	/*对图像的边缘进行填充*/
+	for (int i = 0; i < size; ++i) {
+		/*填充左边缘*/
+		for (int j = 0; j < rows + 2 * size; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					imgRes.at<uchar>(j, i) = imgRes.at<uchar>(j, size);
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(j, i)[m] = imgRes.at<Vec3b>(j, size)[m];
+				}
+			}
+		}
+		/*填充右边缘*/
+		for (int j = 0; j < rows + 2 * size; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					imgRes.at<uchar>(j, cols+size+i) = imgRes.at<uchar>(j, cols + size -1);
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(j, i+cols+size)[m] = imgRes.at<Vec3b>(j, cols+size-1)[m];
+				}
+			}
+		}
+		/*填充上边缘*/
+		for (int j = 0; j < cols + 2 * size; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					imgRes.at<uchar>(i, j) = imgRes.at<uchar>(size, j);
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(i, j)[m] = imgRes.at<Vec3b>(size, j)[m];
+				}
+			}
+		}
+		/*填充下边缘*/
+		for (int j = 0; j < cols + 2 * size; ++j) {
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					imgRes.at<uchar>(i + rows + size, j) = imgRes.at<uchar>(rows + size - 1,j);
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(i + rows + size, j)[m] = imgRes.at<Vec3b>(rows + size - 1, j)[m];
+				}
+			}
+		}
+	}
+	return imgRes;
+}
+
+/*
 函数作用：图像加载函数，将传入的图片进行加载
 函数参数：1、imageName：传入需要处理的图像路径
 返回值：返回加载过后的像素矩阵
@@ -669,37 +749,39 @@ Mat ImageAlgorithm::imageAverageFilter(Mat img, int kernel_size)
 函数作用：中值滤波处理图像，去除椒盐噪声
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、kernel_size：窗口大小
-		 3、channels：图片通道数
 返回值：返回经过中值滤波处理过后的像素矩阵
 */
 Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size)
 {
+	/*窗口的半径*/
+	int r = kernel_size / 2;
+	/*对原图进行边缘扩充*/
+	Mat newImage;
+	newImage = imageEdgeExpand(img, r);
 	int channels = img.channels();
 	int imageRows = img.rows;
 	int imageCols = img.cols;
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
-	/*窗口的半径*/
-	int r = kernel_size / 2;
 	/*根据通道数量，窗口大小，动态的开辟存储窗口灰度的Mat，用于进行灰度统计和中值选取*/
 	Mat window;
-	window.create(kernel_size, kernel_size, img.type());
+	window.create(kernel_size, kernel_size, newImage.type());
 	/*动态开辟内存空间，存储灰度直方图*/
 	int** hist = new int* [channels];
 	for (int i = 0; i < channels; ++i) {
 		hist[i] = new int[256];
 	}
 	/*x，y这两层循环用于遍历图像的所有像素*/
-	for (int x = r; x < imageRows - r; ++x) {
-		for (int y = r; y < imageCols - r; ++y) {
+	for (int x = 0; x < imageRows; ++x) {
+		for (int y = 0; y < imageCols; ++y) {
 			/*i，j这两层循环用于遍历窗口中的元素*/
 			for (int i = -r; i <= r; ++i) {
 				for (int j = -r; j <= r; ++j) {
 					/*m这层循环是用于遍历通道数，一般彩色图片都是RGB3通道，如果传进来的是灰度图像，那么channels=1*/
 					for (int m = 0; m < channels; ++m) {
 						/*单通道使用单通道的读取方式，多通道使用多通道的读取方式*/
-						if (channels == 1)window.at<uchar>(i+r,j+r) = img.at<uchar>(x+i, y+j);
-						else if (channels > 1) window.at<Vec3b>(i + r, j + r)[m] = img.at<Vec3b>(x+i, y+j)[m];
+						if (channels == 1)window.at<uchar>(i+r,j+r) = newImage.at<uchar>(x+i+r, y+j+r);
+						else if (channels > 1) window.at<Vec3b>(i + r, j + r)[m] = newImage.at<Vec3b>(x+i+r, y+j+r)[m];
 					} 
 				}
 			}
@@ -733,7 +815,6 @@ Mat ImageAlgorithm::imageMedianFilter(Mat img, int kernel_size)
 函数作用：高斯滤波处理图像，对图像平滑处理最好的方法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、kernel_size：卷积核大小
-		 3、channels：图片通道数
 返回值：返回经过高斯滤波处理过后的像素矩阵
 */
 Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size)
@@ -742,64 +823,97 @@ Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size)
 	imgRes.create(img.size(), img.type());
 	/*窗口半径*/
 	int r = kernel_size / 2;
+	Mat newImage;
+	/*对图像进行边缘扩充，防止边缘丢失*/
+	newImage = imageEdgeExpand(img, r);
 	/*图片通道数*/
 	int channels = img.channels();
 	/*根据窗口大小和通道数量动态分配窗口内存空间*/
-	double** kernel = new double* [kernel_size];
-	double sum = 0;
+	double* sum = new double[channels];
+	/*灰度值的数量*/
+	int gray_num = 256;
+	/*生成一维高斯滤波的存储空间*/
+	double* kernel = new double[kernel_size];
+	/*平均差sigma*/
 	double sigma = kernel_size / 6.0;
+	/*计算一维高斯滤波*/
+	double tmp = 0;
 	for (int i = 0; i < kernel_size; ++i) {
-		kernel[i] = new double[kernel_size];
+		double g = exp(-pow(2,i-r) / (2*sigma*sigma));
+		tmp += g;
+		kernel[i] = g;
 	}
-
-	/*根据高斯函数，生成高斯卷积模板*/
+	/*归一化，去除常数*/
 	for (int i = 0; i < kernel_size; ++i) {
-		for (int j = 0; j < kernel_size; ++j) {
-			kernel[i][j] = exp(-(pow(i - r, 2) + pow(j - r, 2)) / (2 * pow(sigma, 2)));
-			sum += kernel[i][j];
+		kernel[i] /= tmp;
+	}
+	/*创建乘法表,一共需要进行kernel_size*256次乘法，求出所有可能性，模板越大，节省时间越多*/
+	double* mulitiplicationTable = new double[gray_num * kernel_size];
+	for (int i = 0; i < kernel_size; ++i) {
+		for (int j = 0; j < gray_num; ++j) {
+			mulitiplicationTable[i * gray_num + j] = kernel[i] * j;
 		}
 	}
-	/*归一化处理，使模板总和=1，控制卷积强度，保留图像细节和特征，避免出现图像的过渡增强或者失真*/
-	for (int i = 0; i < kernel_size; ++i) {
-		for (int j = 0; j < kernel_size; ++j) {
-			kernel[i][j] /= sum;
-		}
-	}
-
-	double* kernel_sum = new double[channels];
-	for (int i = 0; i < channels; ++i) kernel_sum[i] = 0;
-	/*x,y这两层循环遍历图片所有像素*/
-	for (int x = 0; x < img.rows-kernel_size; ++x) {
-		for (int y = 0; y < img.cols - kernel_size; ++y) {
-			/*i,j这两层循环遍历窗口进行求和处理*/
-			for (int i = 0; i < kernel_size; ++i) {
-				for (int j = 0; j < kernel_size; ++j) {
-					/*m这层循环主要考虑通道数量*/
-					for (int m = 0; m < channels; ++m) {
-						if (channels == 1) {
-							kernel_sum[m] += img.at<uchar>(x + i, y + j) * kernel[kernel_size - i -1][kernel_size - j -1];
-						}
-						else if (channels > 1) {
-							kernel_sum[m] += img.at<Vec3b>(x + i, y + j)[m] * kernel[kernel_size - i - 1][kernel_size - j - 1];
-						}
+	
+	/*得到了高斯掩膜和乘法表，现在开始进行高斯滤波*/
+	/*进行水平滤波处理*/
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			for (int m = 0; m < channels; ++m) sum[m] = 0.0;
+			for (int x = -r; x <= r; ++x) {
+				for (int m = 0; m < channels; ++m) {
+					if (channels == 1) {
+						/*kernel中参数的位置*256+这个像素点的灰度值，就是它们在乘法表中的值*/
+						sum[m] += mulitiplicationTable[(x + r) * gray_num + newImage.at<uchar>(i, j + x + r)];
+					}
+					else if (channels > 1) {
+						sum[m] += mulitiplicationTable[(x + r) * gray_num + newImage.at<Vec3b>(i, j + x + r)[m]];
 					}
 				}
 			}
-			/*卷积完成以后，将该和赋给对应点位*/
-			for (int i = 0; i < channels; ++i) {
-				if (channels == 1) imgRes.at<uchar>(x, y) = kernel_sum[i];
-				else if (channels > 1)imgRes.at<Vec3b>(x, y)[i] = kernel_sum[i];
-				kernel_sum[i] = 0;
+			/*将值赋给imgRes，同时进行阈值控制*/
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					imgRes.at<uchar>(i, j) = saturate_cast<uchar>(sum[m] > 255 ? 255 : (sum[m] < 0 ? 0 : sum[m]));
+					newImage.at<uchar>(i, j + r) = imgRes.at<uchar>(i, j);
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(i, j)[m] = saturate_cast<uchar>(sum[m] > 255 ? 255 : (sum[m] < 0 ? 0 : sum[m]));
+					newImage.at<Vec3b>(i, j + r)[m] = imgRes.at<Vec3b>(i, j)[m];
+				}
 			}
 		}
 	}
 
-	/*释放资源*/
-	for (int i = 0; i < kernel_size; ++i) {
-		delete[] kernel[i];
+	/*进行垂直滤波处理*/
+	for (int i = 0; i < img.rows; ++i) {
+		for (int j = 0; j < img.cols; ++j) {
+			/*进行水平滤波处理*/
+			for (int m = 0; m < channels; ++m) sum[m] = 0.0;
+			for (int x = -r; x <= r; ++x) {
+				for (int m = 0; m < channels; ++m) {
+					if (channels == 1) {
+						/*kernel中参数的位置*256+这个像素点的灰度值，就是它们在乘法表中的值*/
+						sum[m] += mulitiplicationTable[(x + r) * gray_num + newImage.at<uchar>(i+x+r, j)];
+					}
+					else if (channels > 1) {
+						sum[m] += mulitiplicationTable[(x + r) * gray_num + newImage.at<Vec3b>(i+x+r,j)[m]];
+					}
+				}
+			}
+			/*将值赋给imgRes，同时进行阈值控制*/
+			for (int m = 0; m < channels; ++m) {
+				if (channels == 1) {
+					imgRes.at<uchar>(i, j) = saturate_cast<uchar>(sum[m] > 255 ? 255 : (sum[m] < 0 ? 0 : sum[m]));
+				}
+				else if (channels > 1) {
+					imgRes.at<Vec3b>(i, j)[m] = saturate_cast<uchar>(sum[m] > 255 ? 255 : (sum[m] < 0 ? 0 : sum[m]));
+				}
+			}
+		}
 	}
+	delete[] sum;
 	delete[] kernel;
-	delete[] kernel_sum;
 	return imgRes;
 }
 
@@ -807,17 +921,24 @@ Mat ImageAlgorithm::imageGaussianFilter(Mat img, int kernel_size)
 函数作用：双边滤波处理图像，可用于图像降噪，边缘保留等
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、kernel_size：卷积核大小
-		 3、channels：图片通道数
+		 3、space_sigma:空间平均差
+		 4、color_sigma：灰度平均差
 返回值：返回经过双边滤波处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size)
+Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size,double space_sigma, double color_sigma)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
-
+	/*空间权重和灰度值权重的sigma的平方*/
+	double space_coffe = -0.5 / (space_sigma * space_sigma);
+	double color_coffe = -0.5 / (color_sigma * color_sigma);
 	/*窗口半径*/
 	int r = kernel_size / 2;
-	double sigma = kernel_size / 6.0;
+	/*进行边缘扩充*/
+	Mat newImage;
+	newImage = imageEdgeExpand(img, r);
+	/*灰度数量*/
+	int gray_num = 256;
 	/*图片通道数*/
 	int channels = img.channels();
 	/*通道灰度值的求和*/
@@ -828,41 +949,56 @@ Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size)
 		sum[i] = 0;
 		weight_sum[i] = 0;
 	}
+	/*计算空间权重*/
+	double* space_weight = new double[(kernel_size * kernel_size)];
+	for (int i = 0; i < kernel_size; ++i) {
+		for (int j = 0; j < kernel_size; ++j) {
+			double tmp = sqrt((i - r) * (i - r) + (j - r) * (j - r));
+			space_weight[i * kernel_size + j] = exp(tmp*tmp*space_coffe);
+		}
+	}
+	/*我们可以确定，计算值域比重时，结果范围在0-255之间，那么我们可以提前计算出值域比重*/
+	double* color_weight = new double[gray_num];
+	for (int i = 0; i < gray_num; ++i) {
+		color_weight[i] = exp( i*i * color_coffe);
+	}
+
 	/*x,y循环遍历图像的所有像素*/
-	for (int x = 0; x < img.rows-kernel_size; ++x) {
-		for (int y = 0; y < img.cols - kernel_size; ++y) {
+	for (int x = 0; x < img.rows; ++x) {
+		for (int y = 0; y < img.cols; ++y) {
 			/*i,j循环遍历窗口*/
-			for (int i = 0; i < kernel_size; ++i) {
-				for (int j = 0; j < kernel_size; ++j) {
+			for (int i = -r; i <= r; ++i) {
+				for (int j = -r; j <= r; ++j) {
 					/*m循环遍历通道*/
 					for (int m = 0; m < channels; ++m) {
 						if (channels == 1) {
 							/*空间权重*/
-							double space_weight = exp(-(i-r)*(i-r)+(j-r)*(j-r))/(2*sigma*sigma);
+							double space = space_weight[(i+r) * kernel_size + (j+r)];
 							/*灰度值权重*/
-							double color_weight = exp(-(img.at<uchar>(x+i,y+j)-img.at<uchar>(x,y))* (img.at<uchar>(x + i, y + j) - img.at<uchar>(x, y)));
+							double color = color_weight[abs(newImage.at<uchar>(x + i + r, y + j + r) - newImage.at<uchar>(x+r, y+r))];
 							/*双边滤波权重*/
-							double weight = color_weight * space_weight;
+							double weight = color * space;
 							/*对权重求和的操作，便于进行归一化处理*/
-							sum[m] += img.at<uchar>(x+i,y+j) * weight;
+							sum[m] += newImage.at<uchar>(x+i+r,y+j+r) * weight;
 							/*对结果进行求和*/
 							weight_sum[m] += weight;
 						}
 						else if (channels > 1) {
 							/*空间权重*/
-							double space_weight = exp(-(i - r) * (i - r) + (j - r) * (j - r)) / (2 * sigma * sigma);
+							double space = space_weight[(i+r) * kernel_size + (j+r)];
 							/*灰度值权重*/
-							double color_weight = exp(-(img.at<Vec3b>(x + i, y + j)[m] - img.at<Vec3b>(x, y)[m])* (img.at<Vec3b>(x + i, y + j)[m] - img.at<Vec3b>(x, y)[m]));
+							double color = color_weight[abs(newImage.at<Vec3b>(x + i+r, y + j+r)[m] - newImage.at<Vec3b>(x+r, y+r)[m])];
 							/*双边滤波权重*/
-							double weight = color_weight * space_weight;
+							double weight = color * space;
 							/*对权重求和的操作，便于进行归一化处理*/
-							sum[m] += img.at<Vec3b>(x + i, y + j)[m] * weight;
+							sum[m] += newImage.at<Vec3b>(x + i+r, y + j+r)[m] * weight;
 							/*对结果进行求和*/
 							weight_sum[m] += weight;
 						}
 					}
 				}
 			}
+
 			/*进行归一化处理，并将结果赋给输出矩阵*/
 			for (int i = 0; i < channels; ++i) {
 				if (channels == 1) {
@@ -876,6 +1012,8 @@ Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size)
 			}
 		}
 	}
+	delete [] space_weight;
+	delete[] color_weight;
 	return imgRes;
 }
 

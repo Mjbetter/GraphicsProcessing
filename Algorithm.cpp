@@ -92,13 +92,13 @@ Mat ImageAlgorithm::imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, 
     /*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
     switch (option)
 	{
-	case 1:
+	case IMAGE_TRANSLATION :
 		return imageTranslation(img, dx, dy); /*图像平移*/
-	case 2:
+	case IMAGE_RESIZING:
 		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
-	case 3:
+	case IMAGE_ROTATING:
 		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
-	case 4:
+	case IMAGE_REFLECTION:
 		return imageReflection(img, choice); /*图像镜像*/
 	default:
 		break;
@@ -203,7 +203,7 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 			flip(img, reflectionImage, 1);
 	}
 	/*创建一个窗口显示图像*/
-	imshow("rotatingImage", reflectionImage);
+	imshow("reflectionImage", reflectionImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
 	waitKey(0);
 
@@ -213,32 +213,376 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 /*
 函数作用：图像变灰度处理函数，根据option的不同，选择不同的变换方法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
-		  2、dx，dy：x轴和y轴方向上的偏移量
-		  3、Scale_x，Scale_y：横向及纵向缩放的比例大小
-		  4、angle：旋转角度
-		  5、choice：镜像变换的选择数
-		  5、option：表示基本变换的选择：1：图像平移，2：图像缩放，3：图像旋转，4：图像镜像
-返回值：返回经过基本变换后的像素矩阵
+		  2、option：1：输出灰度图像，2：输出2值图像
+返回值：返回经过图像变灰度后的像素矩阵
 */
-//Mat ImageAlgorithm::imageGrayscale(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
-//{
-//	/*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
-//	switch (option)
-//	{
-//	case 1:
-//		return imageTranslation(img, dx, dy); /*图像平移*/
-//	case 2:
-//		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
-//	case 3:
-//		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
-//	case 4:
-//		return imageReflection(img, choice); /*图像镜像*/
-//	default:
-//		break;
-//	}
-//	return img;
-//}
+Mat ImageAlgorithm::imageGray(Mat img, int option)
+{
+	/*处理逻辑：根据选择变灰度函数，返回处理后的像素矩阵*/
+	switch (option)
+	{
+	case IMAGE_GRAYSCALE:
+		return imageGrayScale(img); /*图像变为灰度图像*/
+	case IMAGE_GRAYBINARY:
+		return imageGrayBinary(img);/*图像变为2值图像*/
+	default:
+		break;
+	}
+	return img;
+}
 
+/*
+函数作用：灰度图像函数，实现将彩色图像变为灰度图像
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像变灰度后的像素矩阵
+*/
+Mat ImageAlgorithm::imageGrayScale(Mat img)
+{
+	/*创建用于存储图像变灰度后的像素矩阵*/
+	Mat grayScaleImage;
+	/*图像变灰度图像*/
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+	/*创建一个窗口显示图像*/
+	imshow("grayScaleImage", grayScaleImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return grayScaleImage;
+}
+
+/*
+函数作用：2值图像函数，实现将彩色图像变为2值图像
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像变2值图像后的像素矩阵
+*/
+Mat ImageAlgorithm::imageGrayBinary(Mat img)
+{
+	/*创建用于存储图像变灰度后的像素矩阵*/
+	Mat grayBinaryImage;
+	/*灰度像素矩阵*/
+	Mat grayScaleImage;
+	/*图像变2值图像*/
+	/*先将其变为灰度矩阵*/
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+	/*再将灰度矩阵变为2值矩阵，将图像中的像素值与阈值（此处为128）进行比较，
+	并根据比较结果将像素值设置为两个给定的输出值（此处为0和255）*/
+	threshold(grayScaleImage, grayBinaryImage, 128, 255, THRESH_BINARY);
+	/*创建一个窗口显示图像*/
+	imshow("grayBinaryImage", grayBinaryImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return grayBinaryImage;
+}
+
+/*
+函数作用：钝化边缘函数，实现图像的边缘钝化
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像的边缘钝化后的像素矩阵
+*/
+Mat ImageAlgorithm::imageBlurring(Mat img)
+{
+	/*图像变灰度图像*/
+	Mat grayScaleImage;
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+
+	/*对灰度图像进行高斯模糊处理，以减少噪声*/
+	Mat blurredImage;
+	/*Size内的参数为高斯核的大小，参数0表示默认高斯核在X和Y方向上的标准差相同*/
+	GaussianBlur(grayScaleImage, blurredImage, Size(5, 5), 0);
+
+	/*进行拉普拉斯边缘检测，以检测图像中的边缘信息*/
+	Mat laplacianImage;
+	/*CV_8U表示输出图像的深度，3表示拉普拉斯核的大小*/
+	Laplacian(blurredImage, laplacianImage, CV_8U, 3);
+
+	/*创建用于存储图像的边缘钝化后的像素矩阵*/
+	Mat blurringImage;
+	/*将原始灰度图像减去拉普拉斯边缘图像，实现图像的边缘钝化*/
+	blurringImage = grayScaleImage - laplacianImage;
+
+	/*创建一个窗口显示图像*/
+	imshow("blurringImage", blurringImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return blurringImage;
+}
+
+/*
+函数作用：锐化边缘函数，实现图像的边缘锐化
+函数参数：1、img：传入的像素矩阵
+返回值：返回图像的边缘锐化后的像素矩阵
+*/
+Mat ImageAlgorithm::imageSharpening(Mat img)
+{
+	/*图像变灰度图像*/
+	Mat grayScaleImage;
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+
+	/*对灰度图像进行高斯模糊处理，以减少噪声*/
+	Mat blurredImage;
+	/*Size内的参数为高斯核的大小，参数0表示默认高斯核在X和Y方向上的标准差相同*/
+	GaussianBlur(grayScaleImage, blurredImage, Size(5, 5), 0);
+
+	/*进行拉普拉斯边缘检测，以检测图像中的边缘信息*/
+	Mat laplacianImage;
+	/*CV_8U表示输出图像的深度，3表示拉普拉斯核的大小*/
+	Laplacian(blurredImage, laplacianImage, CV_8U, 3);
+
+	/*创建用于存储图像的边缘锐化后的像素矩阵*/
+	Mat sharpeningImage;
+	/*将原始灰度图像与拉普拉斯边缘图像进行加权相加，实现图像的边缘锐化*/
+	/*参数1.5表示第一个图像（即灰度图像）的权重，参数-0.5表示第二个图像（即拉普拉斯边缘检测后的图像）的权重，
+	  参数0用于调整结果图像的亮度*/
+	addWeighted(grayScaleImage, 1.5, laplacianImage, -0.5, 0, sharpeningImage);
+
+	///*创建用于存储图像的边缘钝化后的像素矩阵*/
+	//Mat blurringImage;
+	///*将原始灰度图像减去拉普拉斯边缘图像，实现图像的边缘钝化*/
+	//blurringImage = grayScaleImage - laplacianImage;
+
+	/*创建一个窗口显示图像*/
+	imshow("sharpeningImage", sharpeningImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return sharpeningImage;
+}
+
+/*
+函数作用：图像加噪声处理函数，根据option的不同，选择不同的加噪方式
+函数参数：1、img：传入的需要处理的图像的像素矩阵
+		  2、option：1：加高斯噪声，2：加椒盐噪声，3：加泊松噪声
+返回值：返回加噪声后的的像素矩阵
+*/
+Mat ImageAlgorithm::imageAddNoise(Mat img, int option)
+{
+	/*处理逻辑：根据选择加噪函数，返回处理后的像素矩阵*/
+	switch (option)
+	{
+	case GAUSSIANNOISE:
+		return imageGaussianNoise(img);  /*加高斯噪声*/
+	case SALTPEPPERNOISE:
+		return imageSaltPepperNoise(img);/*加椒盐噪声*/
+	case POISSONNOISE:
+		return imagePoissonNoise(img);   /*加泊松噪声*/
+	default:
+		break;
+	}
+	return img;
+}
+
+/*
+函数作用：高斯噪声函数，实现给图像加高斯噪声
+函数参数：1、img：传入的像素矩阵
+返回值：返回加高斯噪声后上的像素矩阵
+*/
+Mat ImageAlgorithm::imageGaussianNoise(Mat img)
+{
+	/*创建一个用于存储加高斯噪声后的像素矩阵*/
+	Mat gaussiannoiseImage;
+
+	/*设置高斯噪声参数*/
+	double mean = 0.0;    //均值
+	double stddev = 30.0; //标准差
+	/*生成高斯噪声图像*/
+	Mat noise(img.size(), CV_32FC3); //创建一个与原图像相同尺寸、每个像素由3个32位浮点数组成的噪声图像
+	//randn(noise, mean, stddev); //生成服从均值为mean，标准差为stddev的高斯分布的随机数，并存储到 noise 矩阵中
+	randn(noise, Scalar::all(mean), Scalar::all(stddev));//与前一个的区别在于使用了Scalar对象来表示均值和标准差，可以方便地将相同的值应用于每个通道
+	/*img图像将被转换为每个像素由3个32位浮点数组成的图像，并且结果将存储在 gaussiannoiseImage 矩阵中，
+	  此转换在添加高斯噪声前进行，确保能够正确处理和操作浮点数值*/
+	img.convertTo(gaussiannoiseImage, CV_32FC3);
+	/*将噪声矩阵 noise 的值逐个地加到图像矩阵 gaussiannoiseImage 对应上（即将每个像素的颜色值与对应位置上的噪声值相加，从而在图像上添加噪声）*/
+	gaussiannoiseImage += noise;
+	/*将 gaussiannoiseImage 矩阵的数据类型将从 CV_32FC3 转换为每个像素由3个8位无符号整数数组成的图像*/
+	gaussiannoiseImage.convertTo(gaussiannoiseImage, CV_8UC3);
+
+	// 添加高斯噪声到图像
+	//add(img, noise, gaussiannoiseImage, Mat(), CV_8UC3);
+
+	/*创建一个窗口显示原图像*/
+	imshow("Image", img);
+	/*创建一个窗口显示加高斯噪声后的图像*/
+	imshow("gaussiannoiseImage", gaussiannoiseImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return gaussiannoiseImage;
+}
+
+/*
+函数作用：椒盐噪声函数，实现给图像加椒盐噪声
+函数参数：1、img：传入的像素矩阵
+返回值：返回加椒盐噪声后上的像素矩阵
+*/
+Mat ImageAlgorithm::imageSaltPepperNoise(Mat img)
+{
+	/*创建一个用于存储加椒盐噪声后的像素矩阵*/
+	Mat saltpeppernoiseImage = img.clone();
+
+	/*添加椒盐噪声*/ 
+	float noise_ratio = 0.02; //噪声比例
+	/*通过像素矩阵的行数和列数来计算噪声像素的数量*/
+	int num_noise_pixels = saltpeppernoiseImage.rows * saltpeppernoiseImage.cols * noise_ratio;
+	/*通过随机选择像素位置，并将其设置为黑色（椒噪声）或白色（盐噪声）来模拟椒盐噪声的效果*/
+	for (int i = 0; i < num_noise_pixels; i++) {
+		/*通过行数和列数分别生成随机的行数，列数*/
+		int row = rand() % saltpeppernoiseImage.rows;
+		int col = rand() % saltpeppernoiseImage.cols;
+
+		if (rand() % 2 == 0) {
+			/*将像素设置为黑色表示椒噪声(pepper noise)*/
+			saltpeppernoiseImage.at<Vec3b>(row, col) = Vec3b(0, 0, 0);
+		}
+		else {
+			/*将像素设置为白色表示盐噪声(salt noise)*/
+			saltpeppernoiseImage.at<Vec3b>(row, col) = Vec3b(255, 255, 255);
+		}
+	}
+
+	/*创建一个窗口显示原图像*/
+	imshow("Image", img);
+	/*创建一个窗口显示加高斯噪声后的图像*/
+	imshow("saltpeppernoiseImage", saltpeppernoiseImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return saltpeppernoiseImage;
+}
+
+/*
+函数作用：泊松噪声函数，实现给图像加泊松噪声
+函数参数：1、img：传入的像素矩阵
+返回值：返回加泊松噪声后上的像素矩阵
+*/
+Mat ImageAlgorithm::imagePoissonNoise(Mat img)
+{
+	/*创建一个用于存储加泊松噪声后的像素矩阵*/
+	Mat poissonnoiseImage;
+
+	/*生成泊松噪声图像*/
+	Mat noise(img.size(), CV_32FC3);
+	/*生成服从均值为0、标准差为16的正态分布的随机数存于 noise 矩阵中*/
+	randn(noise, Scalar(0, 0, 0), Scalar(16, 16, 16));
+	/*img图像将被转换为每个像素由3个32位浮点数组成的图像，并且结果将存储在 poissonnoiseImage 矩阵中*/
+	img.convertTo(poissonnoiseImage, CV_32FC3);
+	/*将噪声矩阵 noise 的值逐个地加到图像矩阵 poissonnoiseImage 对应上（即将每个像素的颜色值与对应位置上的噪声值相加，从而在图像上添加噪声）*/
+	poissonnoiseImage += noise;
+	/*将 poissonnoiseImage 矩阵的数据类型将从 CV_32FC3 转换为每个像素由3个8位无符号整数数组成的图像*/
+	poissonnoiseImage.convertTo(poissonnoiseImage, CV_8UC3);
+	
+	/*创建一个窗口显示原图像*/
+	imshow("Image", img);
+	/*创建一个窗口显示加高斯噪声后的图像*/
+	imshow("poissonnoiseImage", poissonnoiseImage);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return poissonnoiseImage;
+}
+
+/*
+函数作用：图像直方图绘制函数，实现图像的直方图绘制
+函数参数：1、img：传入的像素矩阵
+返回值：返回直方图的图像矩阵
+*/
+Mat ImageAlgorithm::imageHistogram(Mat img)
+{
+	/*将图像转换为HSV颜色空间*/
+	Mat hsvImage;
+	cvtColor(img, hsvImage, COLOR_BGR2HSV);
+	/*分割HSV图像的通道*/
+	vector<Mat> channels;
+	split(hsvImage, channels);
+
+	/*灰度图像的直方图实现:
+    //图像变灰度图像
+	Mat grayScaleImage;
+	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
+	//计算图像的直方图
+	int histSize = 256; //直方图尺寸
+	float range[] = { 0, 256 }; //像素值范围
+	const float* histRange = { range };
+	//bool uniform = true; //直方图是否均匀
+	//bool accumulate = false; //直方图是否累积
+	
+	Mat hist;
+	calcHist(&img, 1, 0, Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
+	//创建直方图窗口并绘制直方图
+	int histWidth = 512;
+	int histHeight = 400;
+	int binWidth = cvRound((double)histWidth / histSize);
+    //创建一个用于绘制直方图的图像矩阵
+	Mat histogramImage(histHeight, histWidth, CV_8UC3, Scalar(0, 0, 0));
+
+	normalize(hist, hist, 0, histogramImage.rows, NORM_MINMAX, -1, Mat());
+
+	for (int i = 1; i < histSize; i++)
+	{
+		line(histogramImage, Point(binWidth * (i - 1), histHeight - cvRound(hist.at<float>(i - 1))),
+			Point(binWidth * (i), histHeight - cvRound(hist.at<float>(i))),
+			Scalar(255, 255, 255), 2, 8, 0);
+	}*/
+	
+	/*计算每个通道的直方图*/
+	int histSize = 256;         //直方图尺寸
+	float range[] = { 0, 256 }; //像素值范围
+	const float* histRange = { range };
+	//bool uniform = true;        //直方图是否均匀
+	//bool accumulate = false;    //直方图是否累积
+	/*使用calcHist函数计算图像的直方图*/
+	Mat hist_h, hist_s, hist_v;
+	/*参数依次为：输入图像的数组（可以是多个图像，每个图像是一个单通道图像），输入图像的数量，
+	指定要计算直方图的通道（此处为单通道图像，故为0），用于指定感兴趣区域（ROI，即在指定的区域内的像素才会被用于计算直方图），
+	输出的直方图（一个单通道矩阵），直方图的维度，直方图的尺寸（即每个维度的直方图的bin数量），每个维度的像素值范围*/
+	calcHist(&channels[0], 1, 0, Mat(), hist_h, 1, &histSize, &histRange/*, uniform, accumulate*/);
+	calcHist(&channels[1], 1, 0, Mat(), hist_s, 1, &histSize, &histRange/*, uniform, accumulate*/);
+	calcHist(&channels[2], 1, 0, Mat(), hist_v, 1, &histSize, &histRange/*, uniform, accumulate*/);
+
+
+	/*创建直方图窗口并绘制直方图*/
+	int histWidth = 512;  //直方图图像的高度（像素数）
+	int histHeight = 400; //直方图图像的宽度（像素数）
+	int binWidth = cvRound((double)histWidth / histSize);
+	/*创建一个用于绘制直方图的图像矩阵作为直方图的背景，在其上绘制直方图的线条*/
+	/*CV_8UC3：指定图像矩阵的数据类型为8位无符号整数，通道数为3（表示彩色图像）,
+	  Scalar(0, 0, 0)：指定图像矩阵的初始值为白色（BGR通道的值分别为0）*/
+	Mat histogramImage(histHeight, histWidth, CV_8UC3, Scalar(255, 255, 255));
+	/*对直方图进行归一化,以便直方图能够适应绘制直方图的图像尺寸,
+	  归一化后的直方图将被用于绘制直方图的线条*/
+	/*参数分别为：要归一化的直方图，归一化后的直方图，归一化的最小值，归一化的最大值（即归一化后的直方图的最大高度），
+	  归一化的类型（这里使用最小-最大归一化），归一化的范围（默认为输入图像的全局范围），用于计算直方图的掩码（这里不使用掩码）*/
+	normalize(hist_h, hist_h, 0, histogramImage.rows, NORM_MINMAX, -1, Mat());
+	normalize(hist_s, hist_s, 0, histogramImage.rows, NORM_MINMAX, -1, Mat());
+	normalize(hist_v, hist_v, 0, histogramImage.rows, NORM_MINMAX, -1, Mat());
+	/*绘制直方图的线条*/
+	for (int i = 1; i < histSize; i++)
+	{
+		/*line函数参数分别为：直方图图像矩阵，线条的起始点（即当前bin的前一个bin的位置），线条的终点（即当前bin的位置），
+		  线条的颜色（以下分别代表蓝色，绿色，红色），线条的宽度，线条的连接类型，线条的偏移*/
+		line(histogramImage, Point(binWidth * (i - 1), histHeight - cvRound(hist_h.at<float>(i - 1))),
+			Point(binWidth * (i), histHeight - cvRound(hist_h.at<float>(i))),
+			Scalar(255, 0, 0), 2, 8, 0);
+
+		line(histogramImage, Point(binWidth * (i - 1), histHeight - cvRound(hist_s.at<float>(i - 1))),
+			Point(binWidth * (i), histHeight - cvRound(hist_s.at<float>(i))),
+			Scalar(0, 255, 0), 2, 8, 0);
+
+		line(histogramImage, Point(binWidth * (i - 1), histHeight - cvRound(hist_v.at<float>(i - 1))),
+			Point(binWidth * (i), histHeight - cvRound(hist_v.at<float>(i))),
+			Scalar(0, 0, 255), 2, 8, 0);
+	}
+	
+	/*创建一个直方图窗口，并在其中绘制直方图*/
+	imshow("histogramImage", histogramImage);
+	/*创建一个窗口显示图像*/
+	imshow("Image", img);
+	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
+	waitKey(0);
+
+	return histogramImage;
+}
 
 /*
 函数作用：滤波处理函数，根据option的不同，我们选择不同的滤波方法

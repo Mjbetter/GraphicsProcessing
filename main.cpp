@@ -49,7 +49,19 @@ int main(int argc, char *argv[])
     //s.imageResizing(img, 10, 0.5);
     //s.imageRotating(img, 20, 10, -45.0);
     //s.imageReflection(img, 1);
+    //s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 1);
+    //s.imageGrayScale(img);
+    //s.imageGrayBinary(img);
+    //s.imageGray(img, 2);
+    //s.imageBlurring(img);
+    //s.imageSharpening(img);
+    //s.imageHistogram(img);
+    //s.imageGaussianNoise(img);
+    //s.imagePoissonNoise(img);
+    //s.imageAddNoise(img, 3);
+    //s.imageSaltPepperNoise(img);
     //s.imageNoiseAddition(img, 50, 50, 5.0, 5.0, 45.0, 0, 3);
+
     /*Mat img = imread("E:\\lena.jpg");
     Mat img0,img1, img2, img3, img4, img5;
 
@@ -129,6 +141,17 @@ int main(int argc, char *argv[])
     /*图像打马赛克*/
     //img0 = s.imageMasaic(img, 5);
     /*图像卷积*/
+
+    //int kernel_size = 3;
+    //int** laplacian_kernel = new int* [kernel_size];
+    //for (int i = 0; i < kernel_size; ++i) {
+    //    laplacian_kernel[i] = new int[kernel_size];
+    //}
+    //laplacian_kernel[0][0] = 1, laplacian_kernel[0][1] = -1, laplacian_kernel[0][2] = -1;
+    //laplacian_kernel[1][0] = -1, laplacian_kernel[1][1] = 4, laplacian_kernel[1][2] = -1;
+    //laplacian_kernel[2][0] = -1, laplacian_kernel[2][1] = -1, laplacian_kernel[2][2] = 1;
+    //img0 = s.imageCovolution(img, kernel_size, laplacian_kernel);
+
     //int kernel_size = 3;
     //int** laplacian_kernel = new int* [kernel_size];
     //for (int i = 0; i < kernel_size; ++i) {
@@ -162,5 +185,6 @@ int main(int argc, char *argv[])
     /*数字识别进行检测*/
     //img0=s.imageDigitalIdentify(img);
     //imshow("test", img0);
+
     return a.exec();
 }

@@ -30,6 +30,8 @@ public:
 
 	/*构造积分图*/
 	void GetIntegralImage(Mat img, double **integralImage);
+	/*扩充图像边缘*/
+	Mat imageEdgeExpand(Mat img, int size);
 
 
 	/*基础功能*/
@@ -81,7 +83,7 @@ public:
 	/*高斯滤波*/
 	Mat imageGaussianFilter(Mat img, int kernel_size);
 	/*双边滤波*/
-	Mat imageBilateralFilter(Mat img, int kernel_size);
+	Mat imageBilateralFilter(Mat img, int kernel_size,double space_sigma=3,double color_sigma=3.5);
 	/*小波变换*/
 	void waveLetTransform(double** data, double** lowPass, double** highPass,int rows, int cols);
 	/*求阈值*/

@@ -13,6 +13,8 @@
 #include <QStackedLayout>
 #include <core/base.hpp>
 #include <opencv2/opencv.hpp>
+#include "Algorithm.h"
+
 
 class UI : public QWidget
 {
@@ -26,7 +28,7 @@ public:
 	//设置菜单
 	void createMenu(QMainWindow* mainwin);
 	//设置工具栏
-	void createToolbar(QMainWindow* mainwin);
+	//void createToolbar(QMainWindow* mainwin);
 	//设置中心窗口
 	void createCenterWin(QMainWindow* mainwin);
 	//设置右击菜单
@@ -214,8 +216,8 @@ public	slots:
 	void ImageDigitRecognition();
 	//右击菜单_撤销与反撤销
 	//撤销
-	void Revoke_operation();
+	//void Revoke_operation();
 	//反撤销
-	void Redo_Operatio();
+	//void Redo_Operatio();
 
 };

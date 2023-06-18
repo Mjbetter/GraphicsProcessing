@@ -838,11 +838,13 @@ void UI::ImageSynthesis()
             如果image不为空，将image设置为名为imageLabel的图像标签的像素图。
         */
         else {
+            Otherimage = Otherimage.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
             QImage rgbaOtherImage = Otherimage.convertToFormat(QImage::Format_RGBA8888);
             cv::Mat Othermat(rgbaOtherImage.height(), rgbaOtherImage.width(), CV_8UC4, rgbaOtherImage.bits(), rgbaOtherImage.bytesPerLine());
+            cv::cvtColor(Othermat, Othermat, cv::COLOR_RGB2BGR);
             Mat img = convertQLabelToMat(imageLabel);
             ImageAlgorithm method;
-            Mat newImage = method.imageSynthesis(img, Othermat);
+            Mat newImage = method.imageSynthesis(Othermat,img);
             cvtColor(newImage, newImage, COLOR_BGR2RGB);
             QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
             image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);

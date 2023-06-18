@@ -36,8 +36,7 @@ int main(int argc, char *argv[])
     //ImageAlgorithm s;
     //Mat img, img0;
     //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
-
-    //img0 = s.imageMedianFilter(img,9);
+    //img0 = s.imageSketch(img);
 
     return a.exec();
 }

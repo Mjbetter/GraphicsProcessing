@@ -2219,3 +2219,32 @@ Mat ImageAlgorithm::imageDigitalIdentify(Mat src)
 	return result;
 }
 
+
+/*
+函数作用：图像转素描
+*/
+Mat ImageAlgorithm::imageSketch(Mat src)
+{
+	Mat gray, gray_inverse, dst;
+	
+	/*图像转灰度图*/
+	cvtColor(src, gray, COLOR_BGRA2GRAY);
+
+	//2.图像取反,三种取反的方法
+	//2.1 遍历像素直接用255去减
+	//gray_inverse = Scalar(255, 255, 255) - gray;
+	//2.2 用subtract函数
+	//subtract(Scalar(255, 255, 255), gray, gray_inverse);
+	//2.3 位运算直接取反
+	gray_inverse = ~gray;
+	imshow("gray_inverse", gray_inverse);
+
+	//3 高斯模糊
+	GaussianBlur(gray_inverse, gray_inverse, Size(15, 15), 50, 50);
+	imshow("GaussianBlur", gray_inverse);
+
+	//4 颜色减淡混合
+	divide(gray, 255 - gray_inverse, dst, 255);
+	return dst;
+}
+

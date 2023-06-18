@@ -124,7 +124,7 @@ void UI::openImage()
         它打开一个文件对话框，允许用户选择一个带有扩展名".png"、".jpg"或".bmp"的图像文件。
         选择的文件路径存储在变量imagePath中。不过这个imagePath是一个私有变量。
     */
-    imagePath = QFileDialog::getOpenFileName(this, "Open Image", QString(), "Image Files (*.png *.jpg *.bmp)");
+    imagePath = QFileDialog::getOpenFileName(this, "Open Image", QString(), "Image Files (*.png *.jpg *.bmp *.webp)");
     if (!imagePath.isEmpty()) {
         //它使用选定的文件路径创建一个名为image的QImage对象。
         QImage image(imagePath);
@@ -342,8 +342,24 @@ void UI::BinaryImage()
 */
 void UI::MeanF()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*进行均值滤波*/
+    Mat newImage = method.imageDenoising(img, 5, AVERAGE_FILTER);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    QPixmap pixmap = QPixmap::fromImage(image);
+        
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
+    imageLabel->setPixmap(pixmap);
 }
 //中值滤波
 /*
@@ -352,8 +368,17 @@ void UI::MeanF()
 */
 void UI::MedianF()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageDenoising(img, 9, MEDIAN_FILTER);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data,newImage.cols,newImage.rows,newImage.step,QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //高斯滤波
 /*
@@ -362,8 +387,17 @@ void UI::MedianF()
 */
 void UI::GaussianF()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageDenoising(img, 9, GAUSSIAN_FILTER);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //双边滤波
 /*
@@ -372,8 +406,17 @@ void UI::GaussianF()
 */
 void UI::BilateralF()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageDenoising(img, 9, BILATERAL_FILTER);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //小波滤波
 /*
@@ -382,8 +425,17 @@ void UI::BilateralF()
 */
 void UI::WaveletF()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageDenoising(img, 9, SMALLWAVE_FILTER);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //加噪
 //高斯噪声
@@ -448,8 +500,17 @@ void UI::SharpE()
 */
 void UI::RobertsE()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, ROBERTS);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //Sobel算子
 /*
@@ -458,8 +519,17 @@ void UI::RobertsE()
 */
 void UI::SobelE()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, SOBEL);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //Prewitt算子
 /*
@@ -468,8 +538,17 @@ void UI::SobelE()
 */
 void UI::PrewittE()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, PREWITT);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //Kirsch算子
 /*
@@ -478,20 +557,67 @@ void UI::PrewittE()
 */
 void UI::KirschE()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, KIRSCH);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
+
 //Robinsom算子
 /*
 函数作用：
 函数参数：
 */
-void UI::RobinsomE()
+void UI::RobinsonE()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, ROBINSON);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 
+void UI::LaplacianE()
+{
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, LAPLACIAN);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
+}
+void UI::CannyE()
+{
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEdgeDetection(img, CANNY);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
+}
 
 /*
 ----------------------------------------------------图像处理------------------------------------------------
@@ -514,9 +640,17 @@ void UI::ContrastE()
     QLabel* labelRotata = new QLabel(QString::number(sliderContrast->value()), this);
     ContrastNum = sliderContrast->value();
 
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEnhance(img, CONTRAST_ENHANCE,sliderContrast->value());
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
-
+    imageLabel->setPixmap(pixmap);
     controlLayout->addWidget(sliderContrast);
     controlLayout->addWidget(labelRotata);
     connect(sliderContrast, &QSlider::valueChanged, this, [labelRotata](int value) {
@@ -540,9 +674,18 @@ void UI::BrightnessE()
     QLabel* labelBrightness = new QLabel(QString::number(sliderBrightness->value()), this);
     BrightnessNum = sliderBrightness->value();
 
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEnhance(img, BRIGHTNESS, sliderBrightness->value());
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
+    
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
-
+    imageLabel->setPixmap(pixmap);
     controlLayout->addWidget(sliderBrightness);
     controlLayout->addWidget(labelBrightness);
     connect(sliderBrightness, &QSlider::valueChanged, this, [labelBrightness](int value) {
@@ -556,12 +699,21 @@ void UI::BrightnessE()
 */
 void UI::HistogramEqualization()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageEnhance(img, HISTOGRAME_QUALIZATION);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //_指数变化增强
 void UI::ExponentialTransformationEnhancement()
 {
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 }
@@ -583,9 +735,17 @@ void UI::Mosaic()
     QLabel* labelMosaic = new QLabel(QString::number(sliderMosaic->value()), this);
     MosaicNum = sliderMosaic->value();
 
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageMasaic(img,sliderMosaic->value());
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
-
+    imageLabel->setPixmap(pixmap);
     controlLayout->addWidget(sliderMosaic);
     controlLayout->addWidget(labelMosaic);
     connect(sliderMosaic, &QSlider::valueChanged, this, [labelMosaic](int value) {
@@ -640,8 +800,16 @@ void UI::ConvolutionImage()
 */
 void UI::FourierTransform()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageFourierTransform(img);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 
 /*
@@ -672,8 +840,18 @@ void UI::ImageSynthesis()
         else {
             QImage rgbaOtherImage = Otherimage.convertToFormat(QImage::Format_RGBA8888);
             cv::Mat Othermat(rgbaOtherImage.height(), rgbaOtherImage.width(), CV_8UC4, rgbaOtherImage.bits(), rgbaOtherImage.bytesPerLine());
+            Mat img = convertQLabelToMat(imageLabel);
+            ImageAlgorithm method;
+            Mat newImage = method.imageSynthesis(img, Othermat);
+            cvtColor(newImage, newImage, COLOR_BGR2RGB);
+            QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+            image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QPixmap pixmap = QPixmap::fromImage(image);
+            //删除空间变换区域原有控件
+            imageLabel->setPixmap(pixmap);
         }
     }
+
 
 }
 /*
@@ -685,8 +863,16 @@ void UI::ImageSynthesis()
 */
 void UI::ImageSegmentation()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageSegmentation(img);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 
 /*
@@ -698,8 +884,16 @@ void UI::ImageSegmentation()
 */
 void UI::ImageDigitRecognition()
 {
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    Mat newImage = method.imageDigitalIdentify(img);
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 
 /*
@@ -829,7 +1023,15 @@ void UI::createMenu(QMainWindow* mainwin)
 
     ImaFirRobin = new QAction(" Robinsom算子 ", this);
     ImaEdge->addAction(ImaFirRobin);
-    connect(ImaFirRobin, &QAction::triggered, this, &UI::RobinsomE);
+    connect(ImaFirRobin, &QAction::triggered, this, &UI::RobinsonE);
+
+    ImaFirRobin = new QAction(" Laplacian算子", this);
+    ImaEdge->addAction(ImaFirRobin);
+    connect(ImaFirRobin, &QAction::triggered, this, &UI::LaplacianE);
+
+    ImaFirRobin = new QAction(" Canny算子 ", this);
+    ImaEdge->addAction(ImaFirRobin);
+    connect(ImaFirRobin, &QAction::triggered, this, &UI::CannyE);
 
     //图像处理的二级菜单
     ImaEnh = new QMenu(" 图像增强 ", ImaPro);

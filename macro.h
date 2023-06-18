@@ -13,8 +13,35 @@
 #define GAUSSIAN_FILTER 3
 /*双边滤波*/
 #define BILATERAL_FILTER 4
-/*小边滤波*/
+/*小波滤波*/
 #define SMALLWAVE_FILTER 5
+
+/*边缘检测*/
+/*roberts边缘检测*/
+#define ROBERTS 1
+/*sobel边缘检测*/
+#define SOBEL 2
+/*prewitt边缘检测*/
+#define PREWITT 3
+/*kirsch边缘检测*/
+#define KIRSCH 4
+/*robinson边缘检测*/
+#define ROBINSON 5
+/*laplacian边缘检测*/
+#define LAPLACIAN 6
+/*canny边缘检测*/
+#define CANNY 7
+
+/*图像增强*/
+/*对比度增强*/
+#define CONTRAST_ENHANCE 1
+/*亮度增强*/
+#define BRIGHTNESS 2
+/*直方图均衡化*/
+#define HISTOGRAME_QUALIZATION 3
+/*指数变换增强*/
+#define EXPONENTIAL_TRANSFORM 4
+
 
 /*图像的四种基本变换*/
 /*图像平移*/

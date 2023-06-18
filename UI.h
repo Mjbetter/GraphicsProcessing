@@ -188,8 +188,12 @@ public	slots:
 	void PrewittE();
 	//_Kirsch算子
 	void KirschE();
-	//_Robinsom算子
-	void RobinsomE();
+	//_Robinson算子
+	void RobinsonE();
+	//Laplacian算子
+	void LaplacianE();
+	//Canny算子
+	void CannyE();
 
 	//图像处理
 	//图像增强

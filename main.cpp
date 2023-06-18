@@ -1,7 +1,7 @@
 #include "GraphicsProcessing.h"
 #include <QtWidgets/QApplication>
 #include "macro.h"
-
+#include "Algorithm.h"
 /*
 命名规范：
 类名：首字母大写，单词和单词之间首字母大写
@@ -33,6 +33,11 @@ int main(int argc, char *argv[])
     GraphicsProcessing w;
     w.show();
 
+    //ImageAlgorithm s;
+    //Mat img, img0;
+    //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
+
+    //img0 = s.imageMedianFilter(img,9);
 
     return a.exec();
 }

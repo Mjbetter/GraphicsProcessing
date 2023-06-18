@@ -13,7 +13,12 @@
 #include <QStackedLayout>
 #include <core/base.hpp>
 #include <opencv2/opencv.hpp>
+<<<<<<< HEAD
+#include <QStandardItemModel>
+#include <QTreeView>
+=======
 #include "Algorithm.h"
+>>>>>>> 580a69773558cd4786d11b342ab803c2ab1f2a00
 
 
 class UI : public QWidget
@@ -21,9 +26,32 @@ class UI : public QWidget
 
 public:
 
+	//test
+	void translateImage(int dx, int dy);
+
 
 	//设置主窗口
 	void initmainwin(QMainWindow* mainwin);
+<<<<<<< HEAD
+	//在主窗口设置一个菜单用于一些快捷键
+	void createUpMenu(QMainWindow* mainwin);
+
+
+	//设置中心窗口
+	void createCenterWin(QMainWindow* mainwin);
+	//在中心窗口设置左侧菜单
+	QStandardItemModel* createLeftMenu(QWidget* leftwidget);
+	//设置右击菜单
+	void right_clickMenu(QWidget* centralWidget);
+	/*
+	-------------------------------------------右击菜单----------------------------------------------------------------
+	*/
+	QMenu* clickmenu;
+
+	/*
+	-----------------------------------openImage&saveImage-------------------------------------------------------------
+	*/
+=======
 
 	//设置菜单
 	void createMenu(QMainWindow* mainwin);
@@ -103,11 +131,147 @@ public:
 
 
 
+>>>>>>> 580a69773558cd4786d11b342ab803c2ab1f2a00
 	//openImage&saveImage
 	QLabel* imageLabel = nullptr;
 	QString imagePath;
 	QString savePath;
+<<<<<<< HEAD
+	/*
+	-------------------------------------mainwin下的一级窗口-----------------------------------------------------------
+	*/
+	//中心窗口
+	QWidget* centralWidget;
+	//中心窗口总布局--将会水平分为左右两个窗口，左侧窗口用于放置菜单
+	QHBoxLayout* mainlayout;
+	/*
+	-------------------------------------mainwin下的二级窗口-----------------------------------------------------------
+	----------------------------------centralWidget下的一级窗口--------------------------------------------------------
+	*/
+	//左侧窗口及其布局
+	QWidget* leftWidget;
+	QVBoxLayout* leftWidgetLayout;
+	//右侧窗口及其布局
+	QWidget* rightWidget;
+	QVBoxLayout* rightWidgetLayout;
+	/*
+	-------------------------------------mainwin下的二级窗口-----------------------------------------------------------
+	----------------------------------centralWidget下的一级窗口--------------------------------------------------------
+	------------------------------------leftWidget下的菜单布局---------------------------------------------------------
+	*/
+	//创建菜单布局,垂直分布
+	QVBoxLayout* menubarLayout;
+	//创建树视图
+	QTreeView* treeView;
 
+	/*
+-------------------------------------------左侧菜单----------------------------------------------------------------
+*/
+
+	// 创建标准项模型_相当于创建左侧的菜单容器
+	QStandardItemModel* MenuModel;
+
+	//创建一阶菜单项
+	QStandardItem* fileOP;
+	QStandardItem* ImaAdjust;
+	QStandardItem* ImaDetail;
+	QStandardItem* ImaEdge;
+	QStandardItem* ImaPro;
+	QStandardItem* ImaCom;
+	QStandardItem* ImaSeg;
+	QStandardItem* ImaNumRec;
+	QStandardItem* ImaSketching;
+
+	//二阶菜单
+	
+	//fileOP
+	QStandardItem* openAction;
+	QStandardItem* saveAction;
+	QStandardItem* vImaInfoAction;
+	//ImaAdjust
+	QStandardItem* ImaPanAction;
+	int xNum;
+	int yNum;
+	QStandardItem* ImaZoomAction;
+	int zoomNum;
+	QStandardItem* ImaRotAction;
+	int rotataNum;
+	QStandardItem* ImaMirrAction;
+	//ImaDetail
+	QStandardItem* ImaGS;
+	QStandardItem* ImaNoiPro;
+	QStandardItem* ImaPasEdg;
+	QStandardItem* ImaShrEdg;
+	//ImaEdge
+	QStandardItem* ImaFirRober;
+	QStandardItem* ImaFirSobel;
+	QStandardItem* ImaFirPrewi;
+	QStandardItem* ImaFirKirsc;
+	QStandardItem* ImaFirRobin;
+	QStandardItem* ImaFirLapla;
+	QStandardItem* ImaFirCanny;
+	//ImaPro
+	QStandardItem* ImaEnh;
+	QStandardItem* ImaMos;
+	int MosaicNum;
+	QStandardItem* ImaConv;
+	int KernelNum;
+	int KernelSize;
+	QStandardItem* ImaFourAnal;
+
+	//三阶菜单
+	//ImaDetail
+	//ImaDetail_ImaGS
+	QStandardItem* ImaGray;
+	QStandardItem* ImaBin;
+	//ImaDetail_ImaNoiPro
+	QStandardItem* ImaNoiRe;
+	QStandardItem* ImaNoiAdd;
+	//ImaPro
+	//ImaPro_ImaEnh
+	QStandardItem* ImaCE;
+	int ContrastNum;
+	QStandardItem* ImaBE;
+	int BrightnessNum;
+	QStandardItem* ImaHE;
+	int Exponential1Num;
+	int Exponential2Num;
+	QStandardItem* ImaETE;
+
+	//四阶菜单
+	//ImaDetail_ImaNoiPro_ImaNoiRe
+	int Con_KernelSize;
+	QStandardItem* ImaMeanF;
+	QStandardItem* ImaMediF;
+	QStandardItem* ImaGausF;
+	QStandardItem* ImaBiluF;
+	QStandardItem* ImaWaveF;
+	//ImaDetail_ImaNoiPro_ImaNoiAdd;
+	QStandardItem* ImaGausN;
+	QStandardItem* ImaSAPN;
+	QStandardItem* ImaPoiN;
+
+	/*
+	-------------------------------------mainwin下的二级窗口-----------------------------------------------------------
+	----------------------------------centralWidget下的一级窗口--------------------------------------------------------
+	------------------------------------rightWidget下的图像与控件容器布局---------------------------------------------------------
+	*/
+	// 创建图像控件的布局管理器
+	//QLabel* imageLabel = nullptr;
+	QVBoxLayout* imageLayout;
+	//控件容器布局管理
+	QWidget* controlContainer;
+	QHBoxLayout* controlLayout;
+	/*
+	----------------------------------------mat与label的互相转换--------------------------------------------------------
+	*/
+	//将Mat图像转化成Label形式
+	QLabel* convertMatToQLabel(const cv::Mat& mat);
+	//将Label图像转化成Mat形式
+	cv::Mat convertQLabelToMat(const QLabel* imagelabel);
+=======
+
+>>>>>>> 580a69773558cd4786d11b342ab803c2ab1f2a00
 
 	QWidget* centralWidget;
 	//QVBoxLayout* mainlayout;
@@ -127,6 +291,12 @@ public:
 private:
 
 public	slots:
+<<<<<<< HEAD
+	
+	//根据索引寻找要实现的槽函数
+	void handleMenuItemClicked(const QModelIndex& index);
+=======
+>>>>>>> 580a69773558cd4786d11b342ab803c2ab1f2a00
 
 	//删除控件变化区的存在控件
 	void deleteChildWidgets(QWidget* parentWidget);
@@ -188,6 +358,14 @@ public	slots:
 	void PrewittE();
 	//_Kirsch算子
 	void KirschE();
+<<<<<<< HEAD
+	//_Robinsom算子
+	void RobinsomE();
+	//_Laplacian算子
+	void LaplacianE();
+	//_Canny算子
+	void CannyE();
+=======
 	//_Robinson算子
 	void RobinsonE();
 	//Laplacian算子
@@ -195,6 +373,7 @@ public	slots:
 	//Canny算子
 	void CannyE();
 
+>>>>>>> 580a69773558cd4786d11b342ab803c2ab1f2a00
 	//图像处理
 	//图像增强
 	//_对比度增强
@@ -218,10 +397,20 @@ public	slots:
 	void ImageSegmentation();
 	//图像数字识别
 	void ImageDigitRecognition();
+<<<<<<< HEAD
+	//图像素描化
+	void ImageSketching();
+	//右击菜单_撤销与反撤销
+	//撤销
+	void Revoke_operation();
+	//反撤销
+	void Redo_Operatio();
+=======
 	//右击菜单_撤销与反撤销
 	//撤销
 	//void Revoke_operation();
 	//反撤销
 	//void Redo_Operatio();
+>>>>>>> 580a69773558cd4786d11b342ab803c2ab1f2a00
 
 };

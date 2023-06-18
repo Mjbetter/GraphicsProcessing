@@ -1,4 +1,3 @@
-#pragma
 #include "UI.h"
 #include <QFileDialog>
 #include <QMessageBox>

@@ -1,8 +1,7 @@
 #include "GraphicsProcessing.h"
 #include <QtWidgets/QApplication>
-#include "Algorithm.h"
 #include "macro.h"
-
+#include "Algorithm.h"
 /*
 命名规范：
 类名：首字母大写，单词和单词之间首字母大写
@@ -32,18 +31,12 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     GraphicsProcessing w;
-    //w.show();
+    w.show();
 
-    ImageAlgorithm s;
-    Mat img = imread("E:\\lena.jpg");
-    Mat img0,img1, img2, img3, img4, img5;
-    img0 = s.imageRoberts(img, NO_FILTER, 20);
-    img1 = s.imageRoberts(img, AVERAGE_FILTER,20);
-    img2 = s.imageRoberts(img, MEDIAN_FILTER,20);
-    img3 = s.imageRoberts(img, GAUSSIAN_FILTER,20);
-    //img4 = s.imageRoberts(img, BILATERAL_FILTER);
-    //img5 = s.imageRoberts(img, SMALLWAVE_FILTER);
-
+    //ImageAlgorithm s;
+    //Mat img, img0;
+    //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
+    //img0 = s.imageSketch(img);
 
     return a.exec();
 }

@@ -1217,43 +1217,35 @@ Mat ImageAlgorithm::imageWaveletFilter(Mat img, int level)
 /*
 函数作用：进行图片的边缘提取，可用于处理物体检测和跟踪，图像分割，图像增强，噪声去噪，图像压缩等领域。
 函数参数：1、img：传入的需要处理的图像的像素矩阵
-		 2、order：1:一阶算子，2:二阶算子
 		 3、option：一阶：1:Roberts算子，2:Sobel算子，3:Prewitt算子，4:Kirsch算子，5:Robinson算子，二阶：6:Laplacion算子，7:Canny算子
 返回值：返回经过所选择的边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageEdgeDetection(Mat img,int order,int option, int denoising, int threshold)
+Mat ImageAlgorithm::imageEdgeDetection(Mat img,int option, int threshold)
 {
 	/*
-	处理逻辑：根据参数order选择对应的order阶差分算子，然后根据option选择对应的边缘检测算子进行处理，返回处理后的像素矩阵
+	处理逻辑：根据option选择对应的边缘检测算子进行处理，返回处理后的像素矩阵
 	*/
-	if (order == 1) {
-		switch (option)
-		{
-		case 1:
-			return imageRoberts(img, denoising,threshold);
-		case 2:
-			return imageSobel(img, denoising);
-		case 3:
-			return imagePrewitt(img, denoising);
-		case 4:
-			return imageKirsch(img, denoising);
-		case 5:
-			return imageRobinson(img, denoising);
-		default:
-			break;
-		}
+	switch (option)
+	{
+	case ROBERTS:
+		return imageRoberts(img,threshold);
+	case SOBEL:
+		return imageSobel(img);
+	case PREWITT:
+		return imagePrewitt(img);
+	case KIRSCH:
+		return imageKirsch(img);
+	case ROBINSON:
+		return imageRobinson(img);
+	case LAPLACIAN:
+		return imageLaplacian(img);
+	case CANNY:
+		return imageCanny(img);
+	default:
+		break;
 	}
-	else if (order == 2) {
-		switch (option)
-		{
-		case 1:
-			return imageLaplacian(img, denoising);
-		case 2:
-			return imageCanny(img);
-		default:
-			break;
-		}
-	}
+	
+
 	return Mat();
 }
 /*
@@ -1261,12 +1253,10 @@ Mat ImageAlgorithm::imageEdgeDetection(Mat img,int order,int option, int denoisi
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过Roberts边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageRoberts(Mat img, int denoising, int threshold)
+Mat ImageAlgorithm::imageRoberts(Mat img, int threshold)
 {
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
-	/*Roberts算子边缘检测对噪声非常敏感，所以在用算子模板进行计算前，我们对图像进行降噪处理*/
-	if(denoising!=NO_FILTER)img = imageDenoising(img, 3, img.channels(), denoising);
 
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
@@ -1303,12 +1293,10 @@ Mat ImageAlgorithm::imageRoberts(Mat img, int denoising, int threshold)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过Sobel边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageSobel(Mat img, int denoising,int kernel_size)
+Mat ImageAlgorithm::imageSobel(Mat img,int kernel_size)
 {
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
-	/*图像的去噪平滑处理*/
-	if (denoising != NO_FILTER)img = imageDenoising(img, 3, img.channels(), denoising);
 
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
@@ -1363,12 +1351,10 @@ Mat ImageAlgorithm::imageSobel(Mat img, int denoising,int kernel_size)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过Prewitt边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imagePrewitt(Mat img, int denoising)
+Mat ImageAlgorithm::imagePrewitt(Mat img)
 {
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
-	/*图像平滑去噪*/
-	if (denoising != NO_FILTER)img = imageDenoising(img, 3, img.channels(), denoising);
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 
@@ -1402,12 +1388,10 @@ Mat ImageAlgorithm::imagePrewitt(Mat img, int denoising)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过Kirsch边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageKirsch(Mat img, int denoising)
+Mat ImageAlgorithm::imageKirsch(Mat img)
 {
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
-	/*图像平滑去噪*/
-	if (denoising != NO_FILTER)img = imageDenoising(img, 3, img.channels(), denoising);
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	/*八个方向的卷积模板*/
@@ -1449,12 +1433,10 @@ Mat ImageAlgorithm::imageKirsch(Mat img, int denoising)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过Robinson边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageRobinson(Mat img, int denoising)
+Mat ImageAlgorithm::imageRobinson(Mat img)
 {
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
-	/*图像平滑去噪*/
-	if (denoising != NO_FILTER)img = imageDenoising(img, 3, img.channels(), denoising);
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 
@@ -1505,12 +1487,11 @@ Mat ImageAlgorithm::imageRobinson(Mat img, int denoising)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回经过Laplacian边缘检测算子处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageLaplacian(Mat img, int denoising)
+Mat ImageAlgorithm::imageLaplacian(Mat img)
 {
 	/*将彩色图像转化为灰度图*/
 	cvtColor(img, img, COLOR_RGB2GRAY);
-	/*图像平滑去噪*/
-	if (denoising != NO_FILTER)img = imageDenoising(img, 3, img.channels(), denoising);
+
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	// 定义拉普拉斯算子
@@ -1543,8 +1524,6 @@ Mat ImageAlgorithm::imageCanny(Mat img)
 	cvtColor(img, img, COLOR_RGB2GRAY);
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
-	/*Gaussian滤波进行图像平滑去噪*/
-	img = imageGaussianFilter(img, 3);
 	double** mag = new double* [img.rows];
 	double** dir = new double* [img.rows];
 	for (int i = 0; i < img.rows; ++i) {
@@ -1649,21 +1628,22 @@ Mat ImageAlgorithm::imageCanny(Mat img)
 函数作用：图像增强，根据option选择对应的算法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		 2、option：1:对比度增强，2:亮度增强，3:直方图均衡化，4:指数变换增强
-		 3、L：对比度增强，亮度增强，指数增强的参数。
+		 3、c：对比度增强，亮度增强，指数增强的参数。
+		 4、r：指数增强的参数
 返回值：返回经过对应算法处理过后的像素矩阵
 */
-Mat ImageAlgorithm::imageEnhance(Mat img,int option,double L)
+Mat ImageAlgorithm::imageEnhance(Mat img,int option,double c,double r)
 {
 	switch (option)
 	{
-	case 1:
-		return imageContrastEnhance(img, L);
-	case 2:
-		return imageBrightness(img,L);
-	case 3:
+	case CONTRAST_ENHANCE:
+		return imageContrastEnhance(img, c);
+	case BRIGHTNESS:
+		return imageBrightness(img,c);
+	case HISTOGRAME_QUALIZATION:
 		return imageHistogramEqualization(img);
-	case 4:
-		return imageExponentialTransform(img);
+	case EXPONENTIAL_TRANSFORM:
+		return imageExponentialTransform(img, c, r);
 	default:
 		break;
 	}
@@ -1865,14 +1845,12 @@ Mat ImageAlgorithm::imageHistogramEqualization(Mat img)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回指数变换增强过后的像素矩阵
 */
-Mat ImageAlgorithm::imageExponentialTransform(Mat img)
+Mat ImageAlgorithm::imageExponentialTransform(Mat img,double c, double r)
 {
 	Mat imgRes;
 	imgRes.create(img.size(), img.type());
 	int channels = img.channels();
 
-	double c = 1.1;
-	double r = 1.05;
 
 	for (int i = 0; i < img.rows; ++i) {
 		for (int j = 0; j < img.cols; ++j) {

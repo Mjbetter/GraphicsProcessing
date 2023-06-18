@@ -98,25 +98,25 @@ public:
 	/*中级功能*/
 
 	/*图像的边缘提取*/
-	Mat imageEdgeDetection(Mat img,int order,int option,int denoising,int threshold=20);
+	Mat imageEdgeDetection(Mat img,int option,int threshold=20);
 	/*一阶边缘检测算子Roberts*/
-	Mat imageRoberts(Mat img, int denoising, int threshold=20);
+	Mat imageRoberts(Mat img, int threshold=20);
 	/*一阶边缘检测算子Sobel*/
-	Mat imageSobel(Mat img, int denoising,int kernel_size=3);
+	Mat imageSobel(Mat img,int kernel_size=3);
 	/*一阶边缘检测算子Prewitt*/
-	Mat imagePrewitt(Mat img, int denoising);
+	Mat imagePrewitt(Mat img);
 	/*一阶边缘检测算子Kirsch*/
-	Mat imageKirsch(Mat img, int denoising);
+	Mat imageKirsch(Mat img);
 	/*一阶边缘检测算子Robinson*/
-	Mat imageRobinson(Mat img, int denoising);
+	Mat imageRobinson(Mat img);
 	/*一阶边缘检测算子Canny*/
 	Mat imageCanny(Mat img);
 	/*二阶边缘检测算子Laplacian算子*/
-	Mat imageLaplacian(Mat img, int denoising);
+	Mat imageLaplacian(Mat img);
 
 
 	/*图像的增强*/
-	Mat imageEnhance(Mat img,int option,double L);
+	Mat imageEnhance(Mat img,int option,double c = 1.1, double r = 1.05);
 	/*对比度增强*/
 	Mat imageContrastEnhance(Mat img, double L);
 	/*亮度增强*/
@@ -126,7 +126,7 @@ public:
 	/*直方图均衡化*/
 	Mat imageHistogramEqualization(Mat img);
 	/*指数变换增强*/
-	Mat imageExponentialTransform(Mat img);
+	Mat imageExponentialTransform(Mat img,double c ,double r);
 
 	/*图像加马赛克*/
 	Mat imageMasaic(Mat img, int blockSize=5);

@@ -146,5 +146,7 @@ public:
 	/*高级功能*/
 	Mat imageDigitalIdentify(Mat img);
 
+	/*其他功能*/
+	Mat imageSketch(Mat src);
 
 };

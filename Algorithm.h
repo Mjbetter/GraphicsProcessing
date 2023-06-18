@@ -36,11 +36,6 @@ public:
 
 	/*基础功能*/
 
-	/*图像加载*/
-	Mat imageLoading_Show(string imageName);
-
-	/*图像的四种基本变换*/
-	Mat imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option);
 	/*图像平移*/
 	Mat imageTranslation(Mat img, int dx, int dy);
 	/*图像缩放*/

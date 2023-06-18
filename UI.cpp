@@ -307,7 +307,21 @@ void UI::rotataImage()
 */
 void UI::mirrorImage()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*进行图像镜像变换*/
+    Mat newImage = method.imageReflection(img, 0);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
 
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 
 /*
@@ -321,8 +335,21 @@ void UI::mirrorImage()
 */
 void UI::GrayImage()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*彩色图像变灰度图像*/
+    Mat newImage = method.imageGray(img, IMAGE_GRAYSCALE);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //_2值图
 /*
@@ -331,8 +358,21 @@ void UI::GrayImage()
 */
 void UI::BinaryImage()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*彩色图像变2值图像*/
+    Mat newImage = method.imageGray(img, IMAGE_GRAYBINARY);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //去噪
 //均值滤波
@@ -445,8 +485,21 @@ void UI::WaveletF()
 */
 void UI::GaussianN()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*给图像加高斯噪声*/
+    Mat newImage = method.imageAddNoise(img, GAUSSIANNOISE);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //椒盐噪声
 /*
@@ -455,8 +508,21 @@ void UI::GaussianN()
 */
 void UI::SaltAndPepperN()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*给图像加椒盐噪声*/
+    Mat newImage = method.imageAddNoise(img, SALTPEPPERNOISE);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //泊松噪声
 /*
@@ -465,8 +531,21 @@ void UI::SaltAndPepperN()
 */
 void UI::PoissonN()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*给图像加泊松噪声*/
+    Mat newImage = method.imageAddNoise(img, POISSONNOISE);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 //钝化边缘
 /*
@@ -475,8 +554,21 @@ void UI::PoissonN()
 */
 void UI::BluntE()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*实现图像的边缘钝化*/
+    Mat newImage = method.imageBlurring(img);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);   
 }
 //锐化边缘
 /*
@@ -485,8 +577,21 @@ void UI::BluntE()
 */
 void UI::SharpE()
 {
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*实现图像的边缘锐化*/
+    Mat newImage = method.imageSharpening(img);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
 }
 
 

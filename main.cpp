@@ -34,10 +34,9 @@ int main(int argc, char *argv[])
     w.show();
 
     //ImageAlgorithm s;
-
     //Mat img;
-    //img = imread("D:\\engineering practice_4\\cat.png");
-    //s.imageHistogram(img);
+    //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
+    //img = s.imageWaveletFilter(img,3);
 
 
     return a.exec();

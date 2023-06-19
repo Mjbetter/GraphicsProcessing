@@ -1,3 +1,4 @@
+
 #pragma
 #include <QMainWindow>
 #include <QMenuBar>
@@ -120,7 +121,6 @@ public:
 	QStandardItem* ImaNoiPro;
 	QStandardItem* ImaPasEdg;
 	QStandardItem* ImaShrEdg;
-	QStandardItem* ImaHisEdg;
 	//ImaEdge
 	QStandardItem* ImaFirRober;
 	QStandardItem* ImaFirSobel;
@@ -253,8 +253,6 @@ public	slots:
 	void BluntE();
 	//__锐化边缘
 	void SharpE();
-	//__绘制图像直方图
-	void HistogramE();
 
 	//边缘提取
 	//_Roberts算子

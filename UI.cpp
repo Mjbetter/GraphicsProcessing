@@ -507,7 +507,7 @@ void UI::rotataImage()
 void UI::mirrorImage()
 {
     /*将控件上的图片转化为img*/
-    Mat img = convertQLabelToMat(imageLabel);
+    Mat img = convertQPixmapToMat();
     ImageAlgorithm method;
     /*进行图像镜像变换*/
     Mat newImage = method.imageReflection(img, 0);
@@ -935,24 +935,24 @@ void UI::SharpE()
 函数作用：
 函数参数：
 */
-void UI::HistogramE()
-{
-    /*将控件上的图片转化为img*/
-    Mat img = convertQLabelToMat(imageLabel);
-    ImageAlgorithm method;
-    /*实现图像的边缘锐化*/
-    Mat newImage = method.imageSharpening(img);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_BGR2RGB);
-    /*Mat类型转化为QImage格式*/
-    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
-    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    QPixmap pixmap = QPixmap::fromImage(image);
-
-    //删除空间变换区域原有控件
-    deleteChildWidgets(controlContainer);
-    imageLabel->setPixmap(pixmap);
-}
+//void UI::HistogramE()
+//{
+//    /*将控件上的图片转化为img*/
+//    Mat img = convertQLabelToMat(imageLabel);
+//    ImageAlgorithm method;
+//    /*实现图像的边缘锐化*/
+//    Mat newImage = method.imageSharpening(img);
+//    /*将图片转化为RGB格式*/
+//    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+//    /*Mat类型转化为QImage格式*/
+//    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+//    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//    QPixmap pixmap = QPixmap::fromImage(image);
+//
+//    //删除空间变换区域原有控件
+//    deleteChildWidgets(controlContainer);
+//    imageLabel->setPixmap(pixmap);
+//}
 
 /*
 ----------------------------------------------------边缘提取------------------------------------------------

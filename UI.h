@@ -15,6 +15,11 @@
 #include <opencv2/opencv.hpp>
 #include <QStandardItemModel>
 #include <QTreeView>
+#include "Algorithm.h"
+#include <stack>
+
+using namespace cv;
+using namespace std;
 
 class UI : public QMainWindow
 {
@@ -100,6 +105,7 @@ public:
 	QStandardItem* openAction;
 	QStandardItem* saveAction;
 	QStandardItem* vImaInfoAction;
+	QStandardItem* rset;
 	//ImaAdjust
 	QStandardItem* ImaPanAction;
 	int xNum;
@@ -178,9 +184,9 @@ public:
 	----------------------------------------mat与label的互相转换--------------------------------------------------------
 	*/
 	//将Mat图像转化成Label形式
-	QLabel* convertMatToQLabel(const cv::Mat& mat);
+	QPixmap convertMatToQPixmap(const cv::Mat& mat);
 	//将Label图像转化成Mat形式
-	cv::Mat convertQLabelToMat(const QLabel* imagelabel);
+	cv::Mat convertQPixmapToMat(QPixmap pixmap);
 
 private:
 
@@ -199,6 +205,8 @@ public	slots:
 	void saveImage();
 	//查看图像信息
 	void showImageInfo();
+	//文件操作重置
+	void imageRest();
 
 	//图像调整
 	//平移
@@ -220,14 +228,19 @@ public	slots:
 	//_去噪
 	//__均值滤波
 	void MeanF();
+	void mean_f();
 	//__中值滤波
 	void MedianF();
+	void median_f();
 	//__高斯滤波
 	void GaussianF();
+	void gaussian_f();
 	//__双边滤波
 	void BilateralF();
+	void bilateral_f();
 	//__小波滤波
 	void WaveletF();
+	void wavelet_f();
 	//_加噪
 	//__高斯噪声
 	void GaussianN();
@@ -285,5 +298,13 @@ public	slots:
 	void Revoke_operation();
 	//反撤销
 	void Redo_Operatio();
+	//替换画布上图案
+	void Replace_Picture(Mat img);
 
+	//撤销，反撤销的栈
+	stack<QPixmap> revoke;
+	stack<QPixmap> redo;
+
+	//进入一个功能时，画布上面的图片
+	QPixmap nowPixmap;
 };

@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     //ImageAlgorithm s;
     //Mat img, img0;
     //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
-    //img0 = s.imageSketch(img);
+    //img0 = s.imageDenoising(img, 5, SMALLWAVE_FILTER);
 
     return a.exec();
 }

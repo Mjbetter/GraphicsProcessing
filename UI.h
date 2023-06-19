@@ -17,6 +17,10 @@
 #include <QTreeView>
 #include "Algorithm.h"
 #include <stack>
+#include <QPainter>
+#include "Algorithm.h"
+#include <QTimer>
+#include <QPlainTextEdit>
 
 using namespace cv;
 using namespace std;
@@ -115,6 +119,7 @@ public:
 	QStandardItem* ImaRotAction;
 	int rotataNum;
 	QStandardItem* ImaMirrAction;
+	int MirrNum;
 	//ImaDetail
 	QStandardItem* ImaGS;
 	QStandardItem* ImaNoiPro;
@@ -134,7 +139,7 @@ public:
 	QStandardItem* ImaMos;
 	int MosaicNum;
 	QStandardItem* ImaConv;
-	int ** KernelNum;
+	int** matrix;
 	int KernelSize;
 	QStandardItem* ImaFourAnal;
 
@@ -190,7 +195,7 @@ public:
 	cv::Mat convertQPixmapToMat(QPixmap pixmap);
 
 private:
-
+	bool isInputComplete = false;
 public	slots:
 	
 	//根据索引寻找要实现的槽函数
@@ -229,18 +234,23 @@ public	slots:
 	//_去噪
 	//__均值滤波
 	void MeanF();
+	void executeMeanF(int value);
 	void mean_f();
 	//__中值滤波
 	void MedianF();
+	void executeMedianF(int value);
 	void median_f();
 	//__高斯滤波
 	void GaussianF();
+	void executeGaussianF(int value);
 	void gaussian_f();
 	//__双边滤波
 	void BilateralF();
+	void executeBilateralF(int value);
 	void bilateral_f();
 	//__小波滤波
 	void WaveletF();
+	void executeWaveletF(int value);
 	void wavelet_f();
 	//_加噪
 	//__高斯噪声

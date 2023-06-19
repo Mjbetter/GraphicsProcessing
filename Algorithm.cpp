@@ -619,11 +619,11 @@ Mat ImageAlgorithm::imageHistogram(Mat img)
 	}
 	
 	/*创建一个直方图窗口，并在其中绘制直方图*/
-	imshow("histogramImage", histogramImage);
+	//imshow("histogramImage", histogramImage);
 	/*创建一个窗口显示图像*/
-	imshow("Image", img);
+	//imshow("Image", img);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return histogramImage;
 }

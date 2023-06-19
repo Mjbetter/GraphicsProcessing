@@ -182,6 +182,9 @@ void UI::handleMenuItemClicked(const QModelIndex& index)
     else if (itemName == " 图像数字识别 ") {
         ImageDigitRecognition();
     }
+    else if (itemName == " 图像素描化 ") {
+        ImageSketching();
+    }
     else if (itemName == " 其他 ") {
 
     }
@@ -212,7 +215,7 @@ QPixmap UI::convertMatToQPixmap(const cv::Mat& mat)
     else if (mat.channels() == 3) {
         // 3通道图像，使用Format_RGB888格式
         image = QImage(mat.data, mat.cols, mat.rows, static_cast<int>(mat.step), QImage::Format_RGB888);
-        image = image.rgbSwapped(); // OpenCV的通道顺序是BGR，需要进行颜色通道交换
+        //image = image.rgbSwapped(); // OpenCV的通道顺序是BGR，需要进行颜色通道交换
     }
     else {
         return QPixmap();
@@ -540,15 +543,14 @@ void UI::MeanF()
 
     QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
     //zoomNum
-    sliderCon_Kernel->setMinimum(1); // 设置最小值
+    sliderCon_Kernel->setMinimum(0); // 设置最小值
     sliderCon_Kernel->setMaximum(99); // 设置最大值
-    sliderCon_Kernel->setValue(3); // 设置初始值
-    sliderCon_Kernel->setSingleStep(2); // 设置步长
+    sliderCon_Kernel->setValue(0); // 设置初始值
+    sliderCon_Kernel->setSingleStep(3); // 设置步长
     QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
      
     Con_KernelSize = sliderCon_Kernel->value();
 
-    mean_f();
 
     controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
@@ -586,14 +588,12 @@ void UI::MedianF()
 
     QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
     //zoomNum
-    sliderCon_Kernel->setMinimum(1); // 设置最小值
-    sliderCon_Kernel->setMaximum(100); // 设置最大值
-    sliderCon_Kernel->setValue(3); // 设置初始值
-    sliderCon_Kernel->setSingleStep(2); // 设置步长
+    sliderCon_Kernel->setMinimum(0); // 设置最小值
+    sliderCon_Kernel->setMaximum(99); // 设置最大值
+    sliderCon_Kernel->setValue(0); // 设置初始值
+    sliderCon_Kernel->setSingleStep(3); // 设置步长
     QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
     Con_KernelSize = sliderCon_Kernel->value();
-
-    median_f();
 
     controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
@@ -637,13 +637,12 @@ void UI::GaussianF()
     QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
     //zoomNum
     sliderCon_Kernel->setMinimum(0); // 设置最小值
-    sliderCon_Kernel->setMaximum(100); // 设置最大值
-    sliderCon_Kernel->setValue(5); // 设置初始值
-    sliderCon_Kernel->setSingleStep(2); // 设置步长
+    sliderCon_Kernel->setMaximum(99); // 设置最大值
+    sliderCon_Kernel->setValue(0); // 设置初始值
+    sliderCon_Kernel->setSingleStep(3); // 设置步长
     QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
     Con_KernelSize = sliderCon_Kernel->value();
 
-    gaussian_f();
 
     controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
@@ -684,14 +683,12 @@ void UI::BilateralF()
 
     QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
     //zoomNum
-    sliderCon_Kernel->setMinimum(1); // 设置最小值
-    sliderCon_Kernel->setMaximum(100); // 设置最大值
-    sliderCon_Kernel->setValue(5); // 设置初始值
-    sliderCon_Kernel->setSingleStep(2); // 设置步长
+    sliderCon_Kernel->setMinimum(0); // 设置最小值
+    sliderCon_Kernel->setMaximum(99); // 设置最大值
+    sliderCon_Kernel->setValue(0); // 设置初始值
+    sliderCon_Kernel->setSingleStep(3); // 设置步长
     QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
     Con_KernelSize = sliderCon_Kernel->value();
-
-    bilateral_f();
 
     controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
@@ -732,20 +729,19 @@ void UI::WaveletF()
 
     QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
     //zoomNum
-    sliderCon_Kernel->setMinimum(1); // 设置最小值
-    sliderCon_Kernel->setMaximum(100); // 设置最大值
-    sliderCon_Kernel->setValue(3); // 设置初始值
-    sliderCon_Kernel->setSingleStep(2); // 设置步长
-    QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
+    sliderCon_Kernel->setMinimum(0); // 设置最小值
+    sliderCon_Kernel->setMaximum(10); // 设置最大值
+    sliderCon_Kernel->setValue(0); // 设置初始值
+    sliderCon_Kernel->setSingleStep(3); // 设置步长
+    QLabel* labelCon_Kernel = new QLabel("滤波层级大小：" + QString::number(sliderCon_Kernel->value()), this);
     Con_KernelSize = sliderCon_Kernel->value();
 
-    wavelet_f();
 
     controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
     connect(sliderCon_Kernel, &QSlider::valueChanged, this, [this, labelCon_Kernel](int value) {
         Con_KernelSize = value;
-        labelCon_Kernel->setText("卷积核大小：" + QString::number(value));
+        labelCon_Kernel->setText("滤波层级大小：" + QString::number(value));
         //函数
         wavelet_f();
         });
@@ -760,7 +756,7 @@ void UI::wavelet_f()
     int kernelSize = Con_KernelSize;
     if (kernelSize < 3)kernelSize = 3;
     if (kernelSize % 2 == 0)kernelSize += 1;
-    img = method.imageDenoising(img, kernelSize, SMALLWAVE_FILTER);
+    img = method.imageWaveletFilter(img,kernelSize);
     /*将图片转化为BGR格式*/
     //cvtColor(img, img, COLOR_BGR2RGB);
     Replace_Picture(img);
@@ -946,17 +942,19 @@ void UI::CannyE()
 */
 void UI::ContrastE()
 {
-
-    QSlider* sliderContrast = new QSlider(Qt::Horizontal, this); // 为ContrastNum创建水平滚动条
-    //ContrastNum
-    sliderContrast->setMinimum(0); // 设置最小值
-    sliderContrast->setMaximum(100); // 设置最大值
-    sliderContrast->setValue(0); // 设置初始值
-    sliderContrast->setSingleStep(1); // 设置步长
-    QLabel* labelRotata = new QLabel("对比增强：" + QString::number(sliderContrast->value()), this);
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    QSlider* sliderContrast = new QSlider(Qt::Horizontal, this); // 为ContrastNum创建水平滚动条
+    //ContrastNum
+    sliderContrast->setMinimum(0); // 设置最小值
+    sliderContrast->setMaximum(500); // 设置最大值
+    sliderContrast->setValue(150); // 设置初始值
+    sliderContrast->setSingleStep(10); // 设置步长
+    QLabel* labelRotata = new QLabel("对比增强：" + QString::number(sliderContrast->value()), this);
+
 
     controlLayout->addWidget(sliderContrast);
     controlLayout->addWidget(labelRotata);
@@ -964,8 +962,16 @@ void UI::ContrastE()
         ContrastNum = value;
         labelRotata->setText("对比增强：" + QString::number(value));
         //函数
+        contrast_e();
         });
     //函数
+}
+void UI::contrast_e()
+{
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageEnhance(img,CONTRAST_ENHANCE,ContrastNum);
+    Replace_Picture(img);
 }
 //_亮度增强
 /*
@@ -974,7 +980,10 @@ void UI::ContrastE()
 */
 void UI::BrightnessE()
 {
-
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     QSlider* sliderBrightness = new QSlider(Qt::Horizontal, this); // 为BrightnessNum创建水平滚动条
     //ContrastNum
     sliderBrightness->setMinimum(-100); // 设置最小值
@@ -983,8 +992,6 @@ void UI::BrightnessE()
     sliderBrightness->setSingleStep(1); // 设置步长
     QLabel* labelBrightness = new QLabel("亮度增强" + QString::number(sliderBrightness->value()), this);
 
-    //删除空间变换区域原有控件
-    deleteChildWidgets(controlContainer);
 
     controlLayout->addWidget(sliderBrightness);
     controlLayout->addWidget(labelBrightness);
@@ -992,8 +999,16 @@ void UI::BrightnessE()
         BrightnessNum = value;
         labelBrightness->setText("亮度增强" + QString::number(value));
         //函数
+        brightness_e();
         });
     //函数
+}
+void UI::brightness_e()
+{
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageEnhance(img, BRIGHTNESS,BrightnessNum);
+    Replace_Picture(img);
 }
 //_直方图均衡化
 /*
@@ -1002,26 +1017,36 @@ void UI::BrightnessE()
 */
 void UI::HistogramEqualization()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageEnhance(img,HISTOGRAME_QUALIZATION);
+    Replace_Picture(img);
 }
+
 //_指数变化增强
 void UI::ExponentialTransformationEnhancement()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     QSlider* sliderETE1 = new QSlider(Qt::Horizontal, this); // 为Exponential1Num创建水平滚动条
 //Exponential1Num
     sliderETE1->setMinimum(-100); // 设置最小值
     sliderETE1->setMaximum(100); // 设置最大值
-    sliderETE1->setValue(0); // 设置初始值
-    sliderETE1->setSingleStep(1); // 设置步长
+    sliderETE1->setValue(0.8); // 设置初始值
+    sliderETE1->setSingleStep(0.05); // 设置步长
     QLabel* labelETE1 = new QLabel("指数变化指标2：" + QString::number(sliderETE1->value()), this);
 
     QSlider* sliderETE2 = new QSlider(Qt::Horizontal, this); // 为Exponential2Num创建水平滚动条
 //Exponential2Num
     sliderETE2->setMinimum(-100); // 设置最小值
     sliderETE2->setMaximum(100); // 设置最大值
-    sliderETE2->setValue(0); // 设置初始值
-    sliderETE2->setSingleStep(1); // 设置步长
+    sliderETE2->setValue(0.8); // 设置初始值
+    sliderETE2->setSingleStep(0.05); // 设置步长
     QLabel* labelETE2 = new QLabel("指数变化指标2：" + QString::number(sliderETE2->value()), this);
 
     //删除空间变换区域原有控件
@@ -1035,13 +1060,22 @@ void UI::ExponentialTransformationEnhancement()
         Exponential1Num = value;
         labelETE1->setText("指数变化指标1：" + QString::number(value));
         //函数
+        Exponential_transformation_enhancement();
         });
     connect(sliderETE2, &QSlider::valueChanged, this, [this, labelETE2](int value) {
-        Exponential1Num = value;
+        Exponential2Num = value;
         labelETE2->setText("指数变化指标1：" + QString::number(value));
         //函数
+        Exponential_transformation_enhancement();
         });
     //函数
+}
+void UI::Exponential_transformation_enhancement()
+{
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageEnhance(img, EXPONENTIAL_TRANSFORM,Exponential1Num, Exponential2Num);
+    Replace_Picture(img);
 }
 //加马赛克
 /*
@@ -1050,7 +1084,8 @@ void UI::ExponentialTransformationEnhancement()
 */
 void UI::Mosaic()
 {
-
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
 
     QSlider* sliderMosaic = new QSlider(Qt::Horizontal, this); // 为MosaicNum创建水平滚动条
     //ContrastNum
@@ -1068,7 +1103,15 @@ void UI::Mosaic()
     connect(sliderMosaic, &QSlider::valueChanged, this, [this,labelMosaic](int value) {
         MosaicNum = value;
         labelMosaic->setText("马赛克程度" + QString::number(value));
+        mosaic();
         });
+}
+void UI::mosaic()
+{
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageMasaic(img, MosaicNum);
+    Replace_Picture(img);
 }
 //图像卷积
 /*
@@ -1077,7 +1120,8 @@ void UI::Mosaic()
 */
 void UI::ConvolutionImage()
 {
-
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     QSlider* sliderKernelSize = new QSlider(Qt::Horizontal, this); // 为KernelSize创建水平滚动条
     //KernelSize
     sliderKernelSize->setMinimum(0); // 设置最小值
@@ -1109,10 +1153,26 @@ void UI::ConvolutionImage()
     // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
     connect(lineEdit, &QLineEdit::returnPressed, this, [this,lineEdit]() {
         QString inputText = lineEdit->text();
-        KernelNum = inputText.toInt();
+        KernelNum = new int* [KernelSize];
+        for (int i = 0; i < KernelSize; ++i) {
+            KernelNum[i] = new int[KernelSize];
+        }
+
         // 后续的函数
+        convolution();
         });
     //函数
+}
+void UI::convolution()
+{
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageCovolution(img, MosaicNum,KernelNum);
+    for (int i = 0; i < KernelSize; ++i) {
+        delete[] KernelNum[i];
+    }
+    delete[] KernelNum;
+    Replace_Picture(img);
 }
 //傅里叶变换
 /*
@@ -1121,8 +1181,15 @@ void UI::ConvolutionImage()
 */
 void UI::FourierTransform()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    Mat img = convertQPixmapToMat(nowPixmap);
+    //cvtColor(img, img, COLOR_RGB2BGR);
+    ImageAlgorithm method;
+    img = method.imageFourierTransform(img);
+    Replace_Picture(img);
 }
 
 /*
@@ -1134,6 +1201,8 @@ void UI::FourierTransform()
 */
 void UI::ImageSynthesis()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     QString OtherimagePath = QFileDialog::getOpenFileName(this, "Select Image", QString(), "Image Files (*.png *.jpg *.bmp)");
@@ -1151,8 +1220,13 @@ void UI::ImageSynthesis()
             如果image不为空，将image设置为名为imageLabel的图像标签的像素图。
         */
         else {
-            QImage rgbaOtherImage = Otherimage.convertToFormat(QImage::Format_RGBA8888);
-            cv::Mat Othermat(rgbaOtherImage.height(), rgbaOtherImage.width(), CV_8UC4, rgbaOtherImage.bits(), rgbaOtherImage.bytesPerLine());
+            Otherimage = Otherimage.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QPixmap pixmap = QPixmap::fromImage(Otherimage);
+            Mat Othermat = convertQPixmapToMat(pixmap);
+            Mat img = convertQPixmapToMat(nowPixmap);
+            ImageAlgorithm method;
+            Mat newImage = method.imageSynthesis(Othermat, img);
+            Replace_Picture(newImage);
         }
     }
 
@@ -1166,8 +1240,14 @@ void UI::ImageSynthesis()
 */
 void UI::ImageSegmentation()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageSegmentation(img);
+    Replace_Picture(img);
 }
 
 /*
@@ -1179,8 +1259,14 @@ void UI::ImageSegmentation()
 */
 void UI::ImageDigitRecognition()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageDigitalIdentify(img);
+    Replace_Picture(img);
 }
 /*
 ---------------------------------------------图像素描化-------------------------------------------------------------------
@@ -1191,8 +1277,14 @@ void UI::ImageDigitRecognition()
 */
 void UI::ImageSketching()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    img = method.imageSketch(img);
+    Replace_Picture(img);
 }
 
 

@@ -133,7 +133,7 @@ public:
 	QStandardItem* ImaMos;
 	int MosaicNum;
 	QStandardItem* ImaConv;
-	int KernelNum;
+	int **KernelNum;
 	int KernelSize;
 	QStandardItem* ImaFourAnal;
 
@@ -272,16 +272,21 @@ public	slots:
 	//图像增强
 	//_对比度增强
 	void ContrastE();
+	void contrast_e();
 	//_亮度增强
 	void BrightnessE();
+	void brightness_e();
 	//_直方图均衡化
 	void HistogramEqualization();
 	//_指数变化增强
 	void ExponentialTransformationEnhancement();
+	void Exponential_transformation_enhancement();
 	//加马赛克
 	void Mosaic();
+	void mosaic();
 	//图像卷积
 	void ConvolutionImage();
+	void convolution();
 	//傅里叶变换
 	void FourierTransform();
 

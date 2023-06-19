@@ -523,7 +523,7 @@ void UI::mirrorImage()
     /*进行图像镜像变换*/
     Mat newImage = method.imageReflection(img, 0);
     /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
+    //cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 
@@ -1417,7 +1417,7 @@ void UI::ImageSketching()
 //撤销
 void UI::Revoke_operation()
 {
-    if (revoke.size() != 0) {
+    if (revoke.size() != 1) {
         //取出栈顶元素
         QPixmap pixmap = revoke.top();
         imageLabel->setPixmap(pixmap);
@@ -1430,7 +1430,7 @@ void UI::Revoke_operation()
 //反撤销
 void UI::Redo_Operatio()
 {
-    if (redo.size() != 0) {
+    if (redo.size() != 1) {
         QPixmap pixmap = redo.top();
         imageLabel->setPixmap(pixmap);
         revoke.push(pixmap);

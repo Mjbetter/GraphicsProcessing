@@ -17,6 +17,7 @@
 #include <QLineEdit>
 
 #include <QPainter>
+#include "Algorithm.h"
 
 
 /*
@@ -242,12 +243,16 @@ cv::Mat UI::convertQLabelToMat(const QLabel* imagelabel)
     // 获取 QLabel 的图像
     QPixmap pixmap = *imagelabel->pixmap();
     QImage image = pixmap.toImage();
-
+    qDebug() << image.format();
     // 判断图像的格式和通道数
     if (!image.isNull()) {
         if (image.format() == QImage::Format_RGB888) {
             // 三通道图像（RGB）
             mat = cv::Mat(image.height(), image.width(), CV_8UC3, const_cast<uchar*>(image.bits()), image.bytesPerLine()).clone();
+            cv::cvtColor(mat, mat, cv::COLOR_RGB2BGR); // 将 RGB 图像转换为 BGR 图像
+        }
+        else if (image.format() == QImage::Format_RGB32) {
+            mat = cv::Mat(image.height(), image.width(), CV_8UC4, const_cast<uchar*>(image.bits()), image.bytesPerLine()).clone();
             cv::cvtColor(mat, mat, cv::COLOR_RGB2BGR); // 将 RGB 图像转换为 BGR 图像
         }
         else if (image.format() == QImage::Format_Indexed8) {
@@ -411,22 +416,30 @@ void UI::panImage()
 //-----------------------------------------------------------------------------------------------------------------------------
 void UI::translateImage(int dx, int dy)//需修改
 {
-    QImage testimage = imageLabel->pixmap()->toImage(); // 获取当前图像
-    QPixmap testpixmap = QPixmap::fromImage(testimage); // 将图像转换为 pixmap
+    //QImage testimage = imageLabel->pixmap()->toImage(); // 获取当前图像
+    //QPixmap testpixmap = QPixmap::fromImage(testimage); // 将图像转换为 pixmap
 
-    // 创建一个平移后的图像副本
-    QImage translatedImage(testpixmap.width(), testpixmap.height(), QImage::Format_RGB32);
-    translatedImage.fill(Qt::black); // 使用黑色填充作为背景色
 
-    // 执行平移操作
-    QPainter painter(&translatedImage);
-    painter.drawImage(dx, dy, testimage);
-    painter.end();
+    //// 计算平移距离
+    //int dx = horizontalScrollBar->value() * (testpixmap->boundingRect().width() - viewport()->width()) / 100;
+    //int dy = verticalScrollBar->value() * (testpixmap->boundingRect().height() - viewport()->height()) / 100;
+    //// 平移图像
+    //pixmapItem->moveBy(-dx, -dy);
 
-    // 更新图像显示
-    QPixmap translatedPixmap = QPixmap::fromImage(translatedImage);
-    imageLabel->setPixmap(translatedPixmap);
+    //// 创建一个平移后的图像副本
+    //QImage translatedImage(testpixmap.width(), testpixmap.height(), QImage::Format_RGB32);
+    //translatedImage.fill(Qt::white); // 使用白色填充作为背景色
+
+    //// 执行平移操作
+    //QPainter painter(&translatedImage);
+    //painter.drawImage(dx, dy, testimage);
+    //painter.end();
+
+    //// 更新图像显示
+    //QPixmap translatedPixmap = QPixmap::fromImage(translatedImage);
+    //imageLabel->setPixmap(translatedPixmap);
 }
+
 //----------------------------------------------------------------------------------------------------------------------------
 /*
 函数作用：通过窗口获取放大或缩小的数值来进行图像缩放
@@ -613,6 +626,7 @@ void UI::MedianF()
         });
     //函数
 }
+
 //高斯滤波
 /*
 函数作用：
@@ -821,6 +835,29 @@ void UI::SharpE()
     imageLabel->setPixmap(pixmap);
 }
 
+//绘制图像的直方图
+/*
+函数作用：
+函数参数：
+*/
+void UI::HistogramE()
+{
+    /*将控件上的图片转化为img*/
+    Mat img = convertQLabelToMat(imageLabel);
+    ImageAlgorithm method;
+    /*实现图像的边缘锐化*/
+    Mat newImage = method.imageSharpening(img);
+    /*将图片转化为RGB格式*/
+    cvtColor(newImage, newImage, COLOR_BGR2RGB);
+    /*Mat类型转化为QImage格式*/
+    QImage image(newImage.data, newImage.cols, newImage.rows, newImage.step, QImage::Format_RGB888);
+    image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap pixmap = QPixmap::fromImage(image);
+
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+    imageLabel->setPixmap(pixmap);
+}
 
 /*
 ----------------------------------------------------边缘提取------------------------------------------------
@@ -1243,6 +1280,9 @@ QStandardItemModel* UI::createLeftMenu(QWidget* leftwidget)
     ImaShrEdg = new QStandardItem(" 边缘锐化 ");
     ImaDetail->appendRow(ImaShrEdg);
 
+    ImaHisEdg = new QStandardItem(" 图像直方图 ");
+    ImaDetail->appendRow(ImaHisEdg);
+
     //边缘提取的二级菜单
     ImaFirRober = new QStandardItem(" Roberts算子 ");
     ImaEdge->appendRow(ImaFirRober);
@@ -1388,7 +1428,7 @@ void UI::createCenterWin(QMainWindow* mainwin)
     // 创建图像控件及其布局管理器
     imageLabel = new QLabel();
     // 设置图像控件的大小
-    imageLabel->setFixedSize(2100, 1200);
+    imageLabel->setFixedSize(1700, 850); //2100,1200
     imageLabel->setParent(rightWidget);
     imageLayout = new QVBoxLayout(imageLabel);
     rightWidgetLayout->addWidget(imageLabel,0, Qt::AlignCenter | Qt::AlignHCenter);
@@ -1396,7 +1436,7 @@ void UI::createCenterWin(QMainWindow* mainwin)
 
     //控件容器
     controlContainer = new QWidget(rightWidget);
-    controlContainer->setFixedSize(2100, 100);
+    controlContainer->setFixedSize(1700, 100); //2100,100
     controlLayout = new QHBoxLayout(controlContainer);
     controlContainer->setLayout(controlLayout);
     rightWidgetLayout->addWidget(controlContainer);

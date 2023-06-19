@@ -15,6 +15,7 @@
 #include <opencv2/opencv.hpp>
 #include <QStandardItemModel>
 #include <QTreeView>
+#include <stack>
 
 class UI : public QMainWindow
 {
@@ -114,6 +115,7 @@ public:
 	QStandardItem* ImaNoiPro;
 	QStandardItem* ImaPasEdg;
 	QStandardItem* ImaShrEdg;
+	QStandardItem* ImaHisEdg;
 	//ImaEdge
 	QStandardItem* ImaFirRober;
 	QStandardItem* ImaFirSobel;
@@ -222,6 +224,7 @@ public	slots:
 	void MeanF();
 	//__中值滤波
 	void MedianF();
+	void median_f();
 	//__高斯滤波
 	void GaussianF();
 	//__双边滤波
@@ -239,6 +242,8 @@ public	slots:
 	void BluntE();
 	//__锐化边缘
 	void SharpE();
+	//__绘制图像直方图
+	void HistogramE();
 
 	//边缘提取
 	//_Roberts算子
@@ -285,5 +290,11 @@ public	slots:
 	void Revoke_operation();
 	//反撤销
 	void Redo_Operatio();
+	//替换画布上的图案
+	//void Replace_Picture(Mat img);
+
+	//撤销，反撤销的栈
+	/*stack<QPixmap> revoke;
+	stack<QPixmap> redo;*/
 
 };

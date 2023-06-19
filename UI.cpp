@@ -777,7 +777,7 @@ void UI::WaveletF()
     sliderCon_Kernel->setMinimum(0); // 设置最小值
     sliderCon_Kernel->setMaximum(10); // 设置最大值
     sliderCon_Kernel->setValue(0); // 设置初始值
-    sliderCon_Kernel->setSingleStep(3); // 设置步长
+    sliderCon_Kernel->setSingleStep(1); // 设置步长
     QLabel* labelCon_Kernel = new QLabel("滤波层级大小：" + QString::number(sliderCon_Kernel->value()), this);
     Con_KernelSize = sliderCon_Kernel->value();
 
@@ -798,10 +798,7 @@ void UI::wavelet_f()
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*进行小波滤波*/
-    int kernelSize = Con_KernelSize;
-    if (kernelSize < 3)kernelSize = 3;
-    if (kernelSize % 2 == 0)kernelSize += 1;
-    img = method.imageWaveletFilter(img,kernelSize);
+    img = method.imageWaveletFilter(img, Con_KernelSize);
     /*将图片转化为BGR格式*/
     //cvtColor(img, img, COLOR_BGR2RGB);
     Replace_Picture(img);

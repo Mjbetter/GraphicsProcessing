@@ -122,29 +122,6 @@ Mat ImageAlgorithm::imageEdgeExpand(Mat img, int size)
 }
 
 /*
-函数作用：图像加载函数，将传入的图片进行加载
-函数参数：1、imageName：传入需要处理的图像路径
-返回值：返回加载过后的像素矩阵
-*/
-Mat ImageAlgorithm::imageLoading_Show(string imageName)
-{
-	/*将图片加载后赋值到图像变量image中, 读入图像方式默认为彩色图像*/
-	Mat image = imread(imageName);  
-	/*检查文件是否打开（或是否为空数据），没打开时执行打印语句*/
-	if (image.empty())
-		cout << "Could not open or find the image" << std::endl;
-	/*显示图片*/
-    /*创建一个名为Image的可调节的窗口*/
-	//namedWindow("Image", WINDOW_AUTOSIZE);
-    /*创建一个窗口显示图像*/
-	imshow("Image", image);
-    /*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);    
-
-	return image;
-}
-
-/*
 函数作用：图像基本变换处理函数，根据option的不同，选择不同的变换方法
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 		  2、dx，dy：x轴和y轴方向上的偏移量
@@ -154,24 +131,24 @@ Mat ImageAlgorithm::imageLoading_Show(string imageName)
 		  5、option：表示基本变换的选择：1：图像平移，2：图像缩放，3：图像旋转，4：图像镜像
 返回值：返回经过基本变换后的像素矩阵
 */
-Mat ImageAlgorithm::imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
-{
-    /*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
-    switch (option)
-	{
-	case IMAGE_TRANSLATION :
-		return imageTranslation(img, dx, dy); /*图像平移*/
-	case IMAGE_RESIZING:
-		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
-	case IMAGE_ROTATING:
-		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
-	case IMAGE_REFLECTION:
-		return imageReflection(img, choice); /*图像镜像*/
-	default:
-		break;
-	}
-	return img;
-}
+//Mat ImageAlgorithm::imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
+//{
+//    /*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
+//    switch (option)
+//	{
+//	case IMAGE_TRANSLATION :
+//		return imageTranslation(img, dx, dy); /*图像平移*/
+//	case IMAGE_RESIZING:
+//		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
+//	case IMAGE_ROTATING:
+//		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
+//	case IMAGE_REFLECTION:
+//		return imageReflection(img, choice); /*图像镜像*/
+//	default:
+//		break;
+//	}
+//	return img;
+//}
 
 /*
 函数作用：图像平移函数，将图像按照输入的x方向和y方向上的偏移量进行平移，规定向右、向下时值为正数
@@ -192,9 +169,9 @@ Mat ImageAlgorithm::imageTranslation(Mat img, int dx, int dy)
 	/*创建一个名为Image的可调节的窗口*/
 	//namedWindow("translatedImage", WINDOW_AUTOSIZE);
 	/*创建一个窗口显示图像*/
-	imshow("translatedImage", translatedImage);
+	//imshow("translatedImage", translatedImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return translatedImage;
 }
@@ -208,14 +185,14 @@ Mat ImageAlgorithm::imageTranslation(Mat img, int dx, int dy)
 */
 Mat ImageAlgorithm::imageResizing(Mat img, double Scale_x, double Scale_y)
 {
-
+	/*创建一个用于存储缩放后的像素矩阵*/
 	Mat resizingImage;
 	/*按横向和纵向比例缩放图像*/
 	resize(img, resizingImage, Size(), Scale_x, Scale_y);
 	/*创建一个窗口显示图像*/
-	imshow("resizingImage", resizingImage);
+	//imshow("resizingImage", resizingImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return resizingImage;
 }
@@ -239,9 +216,9 @@ Mat ImageAlgorithm::imageRotating(Mat img/*, double img_cols, double img_rows*/,
 	/*将旋转矩阵应用于图像实现图像旋转*/
 	warpAffine(img, rotatingImage, rotatingMatrix, img.size());
 	/*创建一个窗口显示图像*/
-	imshow("rotatingImage", rotatingImage);
+	//imshow("rotatingImage", rotatingImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return rotatingImage;
 }
@@ -270,9 +247,9 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 			flip(img, reflectionImage, 1);
 	}
 	/*创建一个窗口显示图像*/
-	imshow("reflectionImage", reflectionImage);
+	//imshow("reflectionImage", reflectionImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return reflectionImage;
 }
@@ -310,9 +287,9 @@ Mat ImageAlgorithm::imageGrayScale(Mat img)
 	/*图像变灰度图像*/
 	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
 	/*创建一个窗口显示图像*/
-	imshow("grayScaleImage", grayScaleImage);
+	//imshow("grayScaleImage", grayScaleImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return grayScaleImage;
 }
@@ -335,9 +312,9 @@ Mat ImageAlgorithm::imageGrayBinary(Mat img)
 	并根据比较结果将像素值设置为两个给定的输出值（此处为0和255）*/
 	threshold(grayScaleImage, grayBinaryImage, 128, 255, THRESH_BINARY);
 	/*创建一个窗口显示图像*/
-	imshow("grayBinaryImage", grayBinaryImage);
+	//imshow("grayBinaryImage", grayBinaryImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return grayBinaryImage;
 }
@@ -369,9 +346,9 @@ Mat ImageAlgorithm::imageBlurring(Mat img)
 	blurringImage = grayScaleImage - laplacianImage;
 
 	/*创建一个窗口显示图像*/
-	imshow("blurringImage", blurringImage);
+	//imshow("blurringImage", blurringImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return blurringImage;
 }
@@ -410,9 +387,9 @@ Mat ImageAlgorithm::imageSharpening(Mat img)
 	//blurringImage = grayScaleImage - laplacianImage;
 
 	/*创建一个窗口显示图像*/
-	imshow("sharpeningImage", sharpeningImage);
+	//imshow("sharpeningImage", sharpeningImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return sharpeningImage;
 }
@@ -469,11 +446,11 @@ Mat ImageAlgorithm::imageGaussianNoise(Mat img)
 	//add(img, noise, gaussiannoiseImage, Mat(), CV_8UC3);
 
 	/*创建一个窗口显示原图像*/
-	imshow("Image", img);
+	//imshow("Image", img);
 	/*创建一个窗口显示加高斯噪声后的图像*/
-	imshow("gaussiannoiseImage", gaussiannoiseImage);
+	//imshow("gaussiannoiseImage", gaussiannoiseImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return gaussiannoiseImage;
 }
@@ -509,11 +486,11 @@ Mat ImageAlgorithm::imageSaltPepperNoise(Mat img)
 	}
 
 	/*创建一个窗口显示原图像*/
-	imshow("Image", img);
+	//imshow("Image", img);
 	/*创建一个窗口显示加高斯噪声后的图像*/
-	imshow("saltpeppernoiseImage", saltpeppernoiseImage);
+	//imshow("saltpeppernoiseImage", saltpeppernoiseImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return saltpeppernoiseImage;
 }
@@ -540,11 +517,11 @@ Mat ImageAlgorithm::imagePoissonNoise(Mat img)
 	poissonnoiseImage.convertTo(poissonnoiseImage, CV_8UC3);
 	
 	/*创建一个窗口显示原图像*/
-	imshow("Image", img);
+	//imshow("Image", img);
 	/*创建一个窗口显示加高斯噪声后的图像*/
-	imshow("poissonnoiseImage", poissonnoiseImage);
+	//imshow("poissonnoiseImage", poissonnoiseImage);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return poissonnoiseImage;
 }
@@ -642,11 +619,11 @@ Mat ImageAlgorithm::imageHistogram(Mat img)
 	}
 	
 	/*创建一个直方图窗口，并在其中绘制直方图*/
-	imshow("histogramImage", histogramImage);
+	//imshow("histogramImage", histogramImage);
 	/*创建一个窗口显示图像*/
-	imshow("Image", img);
+	//imshow("Image", img);
 	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	waitKey(0);
+	//waitKey(0);
 
 	return histogramImage;
 }

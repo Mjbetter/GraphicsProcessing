@@ -34,9 +34,11 @@ int main(int argc, char *argv[])
     w.show();
 
     //ImageAlgorithm s;
-    //Mat img, img0;
-    //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
-    //img0 = s.imageDenoising(img, 5, SMALLWAVE_FILTER);
+
+    //Mat img;
+    //img = imread("D:\\engineering practice_4\\cat.png");
+    //s.imageHistogram(img);
+
 
     return a.exec();
 }

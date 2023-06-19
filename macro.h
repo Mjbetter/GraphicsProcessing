@@ -43,15 +43,15 @@
 #define EXPONENTIAL_TRANSFORM 4
 
 
-/*图像的四种基本变换*/
-/*图像平移*/
-#define IMAGE_TRANSLATION 1
-/*图像缩放*/
-#define IMAGE_RESIZING 2
-/*图像旋转*/
-#define IMAGE_ROTATING 3
-/*图像镜像*/
-#define IMAGE_REFLECTION 4
+///*图像的四种基本变换*/
+///*图像平移*/
+//#define IMAGE_TRANSLATION 1
+///*图像缩放*/
+//#define IMAGE_RESIZING 2
+///*图像旋转*/
+//#define IMAGE_ROTATING 3
+///*图像镜像*/
+//#define IMAGE_REFLECTION 4
 
 /*彩色图像变灰度图像*/
 /*图像变为灰度图像*/

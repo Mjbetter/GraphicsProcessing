@@ -144,4 +144,6 @@ public:
 	/*其他功能*/
 	Mat imageSketch(Mat src);
 
+
+
 };

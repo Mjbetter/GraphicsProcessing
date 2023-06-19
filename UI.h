@@ -1,4 +1,3 @@
-
 #pragma
 #include <QMainWindow>
 #include <QMenuBar>

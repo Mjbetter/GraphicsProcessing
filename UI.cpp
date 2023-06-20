@@ -27,6 +27,7 @@ void UI::initmainwin(QMainWindow* mainwin)
 {
     mainwin->setWindowState(Qt::WindowMaximized); // 将主窗口最大化
     mainwin->setWindowFlags(Qt::Window | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint); // 显示最小化、最大化和关闭按钮
+    createUpMenu(mainwin);
     createCenterWin(mainwin);
     right_clickMenu(mainwin);
 }
@@ -395,11 +396,17 @@ void UI::panImage()
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
+    controlLayout->setSpacing(0);
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为200，最大高度为30
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     QLabel* labelPan = new QLabel("平移的x与y值，用空格间隔");
     labelPan->setAlignment(Qt::AlignCenter);
+    labelPan->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelPan->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelPan);
     controlLayout->addWidget(lineEdit);
@@ -455,14 +462,20 @@ void UI::zoomImage()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
+
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     //浮点数
     QDoubleValidator* validator = new QDoubleValidator(this); // 创建一个浮点数验证器
     lineEdit->setValidator(validator); // 将验证器设置给文本框
     QLabel* labelCon_Kernel = new QLabel("放缩数值");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -501,14 +514,18 @@ void UI::rotataImage()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80    
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("旋转角度");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -546,14 +563,18 @@ void UI::mirrorImage()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("镜像0/1");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -642,14 +663,18 @@ void UI::MeanF()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -702,14 +727,18 @@ void UI::MedianF()
 
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -766,13 +795,17 @@ void UI::GaussianF()
 
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
-    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
@@ -830,13 +863,18 @@ void UI::BilateralF()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
@@ -895,13 +933,18 @@ void UI::WaveletF()
 
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("滤波层级");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
@@ -1209,6 +1252,7 @@ void UI::ContrastE()
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     QSlider* sliderContrast = new QSlider(Qt::Horizontal, this); // 为ContrastNum创建水平滚动条
+    sliderContrast = setSliderStyle(sliderContrast);
     //ContrastNum
     sliderContrast->setMinimum(0); // 设置最小值
     sliderContrast->setMaximum(500); // 设置最大值
@@ -1247,6 +1291,7 @@ void UI::BrightnessE()
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
     QSlider* sliderBrightness = new QSlider(Qt::Horizontal, this); // 为BrightnessNum创建水平滚动条
+    sliderBrightness = setSliderStyle(sliderBrightness);
     //ContrastNum
     sliderBrightness->setMinimum(-100); // 设置最小值
     sliderBrightness->setMaximum(100); // 设置最大值
@@ -1298,6 +1343,7 @@ void UI::ExponentialTransformationEnhancement()
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
     QSlider* sliderETE1 = new QSlider(Qt::Horizontal, this); // 为Exponential1Num创建水平滚动条
+    sliderETE1 = setSliderStyle(sliderETE1);
 //Exponential1Num
     sliderETE1->setMinimum(-100); // 设置最小值
     sliderETE1->setMaximum(100); // 设置最大值
@@ -1306,6 +1352,7 @@ void UI::ExponentialTransformationEnhancement()
     QLabel* labelETE1 = new QLabel("指数变化指标2：" + QString::number(sliderETE1->value()), this);
 
     QSlider* sliderETE2 = new QSlider(Qt::Horizontal, this); // 为Exponential2Num创建水平滚动条
+    sliderETE2 = setSliderStyle(sliderETE2);
 //Exponential2Num
     sliderETE2->setMinimum(-100); // 设置最小值
     sliderETE2->setMaximum(100); // 设置最大值
@@ -1353,6 +1400,7 @@ void UI::Mosaic()
     else return;
 
     QSlider* sliderMosaic = new QSlider(Qt::Horizontal, this); // 为MosaicNum创建水平滚动条
+    sliderMosaic = setSliderStyle(sliderMosaic);
     //ContrastNum
     sliderMosaic->setMinimum(0); // 设置最小值
     sliderMosaic->setMaximum(50); // 设置最大值
@@ -1386,23 +1434,38 @@ void UI::mosaic()
 void UI::ConvolutionImage()
 {
     QLineEdit* lineEditSize = new QLineEdit(this); // 创建一个单行文本框控件
-    // 将输入限制为整数
+    lineEditSize->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEditSize->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
+
+// 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
+
     lineEditSize->setValidator(validator);
     QLabel* labelKernelSizeNum = new QLabel("卷积核大小：");
+    labelKernelSizeNum->setFixedSize(300, 90);
+
+    QFont font1("Arial", 15, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelKernelSizeNum->setFont(font1);  // 设置标签的字体
 
     //KernelNum
     QLineEdit* lineEditNum = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEditNum->setMinimumSize(700, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEditNum->setMaximumSize(700, 80);  // 设置文本框的最大宽度为100，最大高度为80
 
     // 其他控件和数据结构
     QPlainTextEdit* matrixTextEdit_ = new QPlainTextEdit(this);
     QLabel* labelKernelNum = new QLabel("卷积数组：");
+    labelKernelNum->setFixedSize(300, 90);
+
+    QFont font2("Arial", 15, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelKernelNum->setFont(font2);  // 设置标签的字体
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
     controlLayout->addWidget(labelKernelSizeNum);
     controlLayout->addWidget(lineEditSize);
+    controlLayout->addSpacing(50);//两个中间加一个50像素宽的间隙
     controlLayout->addWidget(labelKernelNum);
     controlLayout->addWidget(lineEditNum);
     // 定义一个变量来跟踪文本框数据是否完全输入
@@ -1649,6 +1712,30 @@ void UI::Replace_Picture(Mat img)
 -------------------------------------------页面布局---------------------------------------------------------------
 */
 /*
+函数作用：设置上方快捷菜单
+*/
+void UI::createUpMenu(QMainWindow* mainwin)
+{
+    menu = new QMenuBar(mainwin);
+    mainwin->setMenuBar(menu);
+
+    openimage = new QAction(" 打开图像 ", this);
+    menu->addAction(openimage);
+    connect(openimage, &QAction::triggered, this, &UI::openImage);
+
+    saveimage = new QAction(" 保存图像 ", this);
+    menu->addAction(saveimage);
+    connect(saveimage, &QAction::triggered, this, &UI::saveImage);
+
+    revokeac = new QAction(" 撤销操作 ", this);
+    menu->addAction(revokeac);
+    connect(revokeac, &QAction::triggered, this, &UI::Revoke_operation);
+
+    redoac = new QAction(" 反撤销操作 ", this);
+    menu->addAction(redoac);
+    connect(redoac, &QAction::triggered, this, &UI::Redo_Operatio);
+}
+/*
 函数作用:设置上方菜单栏
 函数参数:1、fileMenu:
          2、openAction：
@@ -1659,8 +1746,6 @@ QStandardItemModel* UI::createLeftMenu(QWidget* leftwidget)
     // 创建表头项
     QStandardItem* headerItem1 = new QStandardItem("功能菜单");
     menumodel->setHorizontalHeaderItem(0, headerItem1);
-
-    QStandardItem* rootItem = menumodel->invisibleRootItem(); // 获取根项
     //一级菜单
 
     fileOP = new QStandardItem(" 文件 ");
@@ -1844,6 +1929,70 @@ QStandardItemModel* UI::createLeftMenu(QWidget* leftwidget)
 
 }
 /*
+------------------------------------------------------------------装修---------------------------------------------------------------------------------------------
+*/
+/*
+函数作用：递归调用使遍历每一个item子部件更换字体与大小
+函数参数：itemFont：当前项的字体和大小
+          childItem：item部件的子item
+*/
+void UI::setFontAndSizeRecursive(QStandardItem* item, const QFont& font, int fontSize)
+{
+    // 设置当前项的字体和大小
+    QFont itemFont = item->data(Qt::FontRole).value<QFont>();
+    itemFont.setFamily(font.family());
+    itemFont.setPointSize(fontSize);
+    item->setData(itemFont, Qt::FontRole);
+
+    // 遍历子项并递归调用设置字体和大小
+    for (int row = 0; row < item->rowCount(); ++row) {
+        for (int column = 0; column < item->columnCount(); ++column) {
+            QStandardItem* childItem = item->child(row, column);
+            setFontAndSizeRecursive(childItem, font, fontSize);
+        }
+    }
+}
+QSlider* UI::setSliderStyle(QSlider* slider)
+{
+    // 设置滑块和滑槽的样式
+    slider->setStyleSheet(
+        "QSlider::groove:horizontal {"
+        "    background-color: #dddddd;"
+        "    height: 6px;"
+        "    border-radius: 3px;"
+        "}"
+
+        "QSlider::handle:horizontal {"
+        "    background-image: url(./images/catslider!!!.png);"
+        "    background-repeat: no-repeat;"
+        "    background-position: center;"
+        "    width: 100px;"
+        "    height: 100px;"
+        "    margin: -10px 0;"
+        "    border: none;"
+        "}"
+
+        "QSlider::add-page:horizontal {"
+        "    background-color: #dddddd;"
+        "    height: 6px;"
+        "    border-radius: 3px;"
+        "}"
+
+        "QSlider::sub-page:horizontal {"
+        "    background-color: #4CAF50;"
+        "    height: 6px;"
+        "    border-radius: 3px;"
+        "}"
+    );
+
+    return slider;
+}
+
+
+/*
+--------------------------------------------------------------------装修结束----------------------------------------------------------------------------------------------------
+*/
+/*
 函数作用:设置中心窗口
 函数参数:1、centralWidget
          2、layout
@@ -1858,6 +2007,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
 
     //将中心窗口设置成左右两个布局
     leftWidgetLayout = new QVBoxLayout();
+    leftWidgetLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
     rightWidgetLayout = new QVBoxLayout();
     //将两个布局加入中心窗口的布局
     mainlayout->addLayout(leftWidgetLayout);
@@ -1867,10 +2018,25 @@ void UI::createCenterWin(QMainWindow* mainwin)
     menubarLayout = new QVBoxLayout();
     leftWidgetLayout->addLayout(menubarLayout);
     MenuModel = createLeftMenu(leftWidget);
+    menubarLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+
+    QFont font("Arial");
+    int fontSize = 12;
+    //调用函数递归遍历每一个item
+    for (int row = 0; row < MenuModel->rowCount(); ++row) {
+        for (int column = 0; column < MenuModel->columnCount(); ++column) {
+            QStandardItem* item = MenuModel->item(row, column);
+            setFontAndSizeRecursive(item, font, fontSize);
+        }
+    }
+
     // 创建树视图
     treeView = new QTreeView();
 
     treeView->setModel(MenuModel);
+    treeView->setMinimumWidth(400);
+    treeView->setMaximumWidth(400);
     // 将树视图添加到布局中
     menubarLayout->addWidget(treeView);
     //将点击与槽函数相连
@@ -1893,6 +2059,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
     controlLayout = new QHBoxLayout(controlContainer);
     controlContainer->setLayout(controlLayout);
     rightWidgetLayout->addWidget(controlContainer);
+    controlLayout->setSpacing(0);
+    controlLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);//设置水平布局靠上且居中
 
 
     centralWidget->setLayout(mainlayout);
@@ -1920,6 +2088,9 @@ void UI::right_clickMenu(QWidget* centralWidget)
     // 反撤销
     QAction* reverse = clickmenu->addAction(" 反撤销 ");
     connect(reverse, &QAction::triggered, this, &UI::Redo_Operatio);
+    // 打开文件
+    QAction* openFile = clickmenu->addAction(" 打开文件 ");
+    connect(openFile, &QAction::triggered, this, &UI::openImage);
     // 保存文件
     QAction* saveFile = clickmenu->addAction(" 保存文件 ");
     connect(saveFile, &QAction::triggered, this, &UI::saveImage);

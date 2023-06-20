@@ -27,6 +27,7 @@ void UI::initmainwin(QMainWindow* mainwin)
 {
     mainwin->setWindowState(Qt::WindowMaximized); // 将主窗口最大化
     mainwin->setWindowFlags(Qt::Window | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint); // 显示最小化、最大化和关闭按钮
+    createUpMenu(mainwin);
     createCenterWin(mainwin);
     right_clickMenu(mainwin);
 }
@@ -388,156 +389,226 @@ void UI::imageRest()
 */
 void UI::panImage()
 {
-    QSlider* sliderX = new QSlider(Qt::Horizontal, this); // 为X创建水平滚动条
-    QSlider* sliderY = new QSlider(Qt::Horizontal, this); // 为Y创建水平滚动条
-    //X
-    sliderX->setMinimum(-100); // 设置最小值
-    sliderX->setMaximum(100); // 设置最大值
-    sliderX->setValue(0); // 设置初始值
-    sliderX->setSingleStep(1); // 设置步长
-    //Y
-    sliderY->setMinimum(-100); // 设置最小值
-    sliderY->setMaximum(100); // 设置最大值
-    sliderY->setValue(0); // 设置初始值
-    sliderY->setSingleStep(1); // 设置步长
-
-    QLabel* labelx = new QLabel("X平移量:" + QString::number(sliderX->value()), this);
-    QLabel* labely = new QLabel("Y平移量：" + QString::number(sliderY->value()), this);
-
-
-    //删除空间变换区域原有控件
-    deleteChildWidgets(controlContainer);
-
-    controlLayout->addWidget(labelx);
-    controlLayout->addWidget(sliderX);
-    controlLayout->addWidget(labely);
-    controlLayout->addWidget(sliderY);
-
-
-    connect(sliderX, &QSlider::valueChanged, this, [this, labelx](int value) {
-        xNum = value;
-        labelx->setText("X平移量：" + QString::number(value));
-        translateImage(xNum, yNum);//需修改
-        });
-
-    connect(sliderY, &QSlider::valueChanged, this, [this, labely](int value) {
-        yNum = value;
-        labely->setText("Y平移量：" + QString::number(value));
-        translateImage(xNum, yNum);//需修改
-        });
-
-    translateImage(xNum, yNum);//需修改
-}
-//-----------------------------------------------------------------------------------------------------------------------------
-void UI::translateImage(int dx, int dy)//需修改
-{
-    //QImage testimage = imageLabel->pixmap()->toImage(); // 获取当前图像
-    //QPixmap testpixmap = QPixmap::fromImage(testimage); // 将图像转换为 pixmap
-
-
-    //// 计算平移距离
-    //int dx = horizontalScrollBar->value() * (testpixmap->boundingRect().width() - viewport()->width()) / 100;
-    //int dy = verticalScrollBar->value() * (testpixmap->boundingRect().height() - viewport()->height()) / 100;
-    //// 平移图像
-    //pixmapItem->moveBy(-dx, -dy);
-
-    //// 创建一个平移后的图像副本
-    //QImage translatedImage(testpixmap.width(), testpixmap.height(), QImage::Format_RGB32);
-    //translatedImage.fill(Qt::white); // 使用白色填充作为背景色
-
-    //// 执行平移操作
-    //QPainter painter(&translatedImage);
-    //painter.drawImage(dx, dy, testimage);
-    //painter.end();
-
-    //// 更新图像显示
-    //QPixmap translatedPixmap = QPixmap::fromImage(translatedImage);
-    //imageLabel->setPixmap(translatedPixmap);
-}
-
-//----------------------------------------------------------------------------------------------------------------------------
-/*
-函数作用：通过窗口获取放大或缩小的数值来进行图像缩放
-函数参数：
-*/
-void UI::zoomImage()
-{
-    
-    QSlider* sliderZoom = new QSlider(Qt::Horizontal, this); // 为zoomNum创建水平滚动条
-    //zoomNum
-    sliderZoom->setMinimum(-100); // 设置最小值
-    sliderZoom->setMaximum(100); // 设置最大值
-    sliderZoom->setValue(0); // 设置初始值
-    sliderZoom->setSingleStep(1); // 设置步长
-    QLabel* labelZoom = new QLabel("缩放量：" + QString::number(sliderZoom->value()), this);
-    //删除空间变换区域原有控件
-    deleteChildWidgets(controlContainer);
-
-    controlLayout->addWidget(sliderZoom);
-    controlLayout->addWidget(labelZoom);
-    connect(sliderZoom, &QSlider::valueChanged, this, [this,labelZoom](int value) {
-        zoomNum = value;
-        labelZoom->setText("缩放量：" + QString::number(value));
-        //缩放函数位置
-        });
-    //缩放函数位置
-}
-/*
-函数作用：通过窗口获取旋转的数值来进行图像旋转
-函数参数：
-*/
-void UI::rotataImage()
-{
-
-    QSlider* sliderRotata = new QSlider(Qt::Horizontal, this); // 为zoomNum创建水平滚动条
-    //zoomNum
-    sliderRotata->setMinimum(-180); // 设置最小值
-    sliderRotata->setMaximum(180); // 设置最大值
-    sliderRotata->setValue(0); // 设置初始值
-    sliderRotata->setSingleStep(1); // 设置步长
-    QLabel* labelRotata = new QLabel("旋转角度：" + QString::number(sliderRotata->value()), this);
-
-    //删除空间变换区域原有控件
-    deleteChildWidgets(controlContainer);
-
-    controlLayout->addWidget(sliderRotata);
-    controlLayout->addWidget(labelRotata);
-    connect(sliderRotata, &QSlider::valueChanged, this, [this,labelRotata](int value) {
-        rotataNum = value;
-        labelRotata->setText("旋转角度：" + QString::number(value));
-        //旋转函数位置
-        });
-    //旋转函数位置
-}
-/*
-函数作用：直接调用函数进行图像镜像变换
-函数参数：
-*/
-void UI::mirrorImage()
-{
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
+    controlLayout->setSpacing(0);
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为200，最大高度为30
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    QLabel* labelPan = new QLabel("平移的x与y值，用空格间隔");
+    labelPan->setAlignment(Qt::AlignCenter);
+    labelPan->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelPan->setFont(font);  // 设置标签的字体
+
+    controlLayout->addWidget(labelPan);
+    controlLayout->addWidget(lineEdit);
+
+    // 连接文本框的returnPressed信号与槽函数进行处理
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text().trimmed();
+        QStringList stringList = inputText.split(" ", QString::SkipEmptyParts);  // 使用空格分隔字符串并跳过空部分
+        if (stringList.size() == 2) {
+            QString firstNumber = stringList[0].trimmed();  // 去除首尾空格
+            QString secondNumber = stringList[1].trimmed();  // 去除首尾空格
+            // 进一步处理这两个数值
+            bool conversion1OK, conversion2OK;
+            xNum += firstNumber.toInt(&conversion1OK);
+            yNum += secondNumber.toInt(&conversion2OK);
+            if (xNum > 1000) {
+                xNum = 0;
+            }
+            if (yNum > 600) {
+                yNum = 0;
+            }
+        }
+        else {
+            // 输入格式不正确，处理错误情况
+            QMessageBox::warning(this, "输入错误", "请输入正确的格式（x y）");
+        }
+        pan_Image();
+        });
+}
+/*
+函数作用：通过输入偏移量进行图片平移
+函数参数：
+*/
+void UI::pan_Image()
+{
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
-    /*进行图像镜像变换*/
-    Mat newImage = method.imageReflection(img, 0);
-    /*将图片转化为RGB格式*/
-    //cvtColor(newImage, newImage, COLOR_RGB2BGR);
+    /*进行图像平移*/
+    Mat newImage = method.imageTranslation(img, xNum, yNum);
+    Replace_Picture(newImage);
+}
+/*
+函数作用：通过窗口获取放大或缩小的数值来进行图像缩放
+函数参数：
+*/
+void UI::zoomImage()
+{
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
+
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    //浮点数
+    QDoubleValidator* validator = new QDoubleValidator(this); // 创建一个浮点数验证器
+    lineEdit->setValidator(validator); // 将验证器设置给文本框
+    QLabel* labelCon_Kernel = new QLabel("放缩数值");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
+    controlLayout->addWidget(labelCon_Kernel);
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        zoomNum = inputText.toDouble();
+        zoom_Image();
+        });
+}
+/*
+函数作用：通过窗口获取放大或缩小的数值来进行图像缩放
+函数参数：
+*/
+void UI::zoom_Image()
+{
+    /*将控件上的图片转化为img*/
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    /*进行图像缩放*/
+    Mat newImage = method.imageResizing(img, zoomNum, zoomNum);
     Replace_Picture(newImage);
 }
 
+/*
+函数作用：通过窗口获取旋转的数值来进行图像旋转
+函数参数：
+*/
+void UI::rotataImage()
+{
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80    
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("旋转角度");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
+    controlLayout->addWidget(labelCon_Kernel);
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        rotataNum += inputText.toInt();
+        rotata_Image();
+        });
+
+}
+/*
+函数作用：通过输入角度来进行图像旋转
+函数参数：
+*/
+void UI::rotata_Image()
+{
+    /*将控件上的图片转化为img*/
+    Mat img = convertQPixmapToMat(nowPixmap);
+    ImageAlgorithm method;
+    /*进行图像旋转*/
+    Mat newImage = method.imageRotating(img, rotataNum);
+    Replace_Picture(newImage);
+}
+
+/*
+函数作用：直接调用函数进行图像镜像变换
+函数参数：
+*/
+void UI::mirrorImage()
+{
+
+    //删除空间变换区域原有控件
+    deleteChildWidgets(controlContainer);
+
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("镜像0/1");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
+    controlLayout->addWidget(labelCon_Kernel);
+    controlLayout->addWidget(lineEdit);
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        MirrNum = inputText.toInt();
+        mirror_Image();
+        });
+}
+/*
+函数作用：接收键盘输入的值进行镜像变换
+函数参数：
+*/
+void UI::mirror_Image()
+{
+    const QPixmap* pixmap = imageLabel->pixmap();
+    QPixmap pix(*pixmap);
+
+    /*将控件上的图片转化为img*/
+    Mat img = convertQPixmapToMat(pix);
+    ImageAlgorithm method;
+
+    /*进行图像镜像变换*/
+    Mat newImage = method.imageReflection(img, MirrNum);
+    Replace_Picture(newImage);
+}
 /*
 ----------------------------------------------------细节处理-------------------------------------------------------
 */
 //变灰度
 //_灰度图
 /*
-函数作用：
+函数作用：将彩色图片变为灰度图
 函数参数：
 */
 void UI::GrayImage()
@@ -548,18 +619,17 @@ void UI::GrayImage()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*彩色图像变灰度图像*/
     Mat newImage = method.imageGray(img, IMAGE_GRAYSCALE);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 //_2值图
 /*
-函数作用：
+函数作用：将彩色图像变为2值图
 函数参数：
 */
 void UI::BinaryImage()
@@ -570,13 +640,12 @@ void UI::BinaryImage()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*彩色图像变2值图像*/
     Mat newImage = method.imageGray(img, IMAGE_GRAYBINARY);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 //去噪
@@ -594,14 +663,18 @@ void UI::MeanF()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -654,14 +727,18 @@ void UI::MedianF()
 
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
 
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
 
@@ -718,13 +795,17 @@ void UI::GaussianF()
 
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
-    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
@@ -782,13 +863,18 @@ void UI::BilateralF()
     deleteChildWidgets(controlContainer);
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("卷积核数量");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
@@ -847,13 +933,18 @@ void UI::WaveletF()
 
 
     QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
-    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEdit->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
     lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
     lineEdit->setValidator(validator);
     QLabel* labelCon_Kernel = new QLabel("滤波层级");
     labelCon_Kernel->setAlignment(Qt::AlignCenter);
+    labelCon_Kernel->setFixedSize(700, 90);
+
+    QFont font("Arial", 20, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelCon_Kernel->setFont(font);  // 设置标签的字体
 
     controlLayout->addWidget(labelCon_Kernel);
     controlLayout->addWidget(lineEdit);
@@ -895,7 +986,7 @@ void UI::wavelet_f()
 //加噪
 //高斯噪声
 /*
-函数作用：
+函数作用：给图片加高斯噪声
 函数参数：
 */
 void UI::GaussianN()
@@ -903,21 +994,19 @@ void UI::GaussianN()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
-
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*给图像加高斯噪声*/
     Mat newImage = method.imageAddNoise(img, GAUSSIANNOISE);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 //椒盐噪声
 /*
-函数作用：
+函数作用：给图片加椒盐噪声
 函数参数：
 */
 void UI::SaltAndPepperN()
@@ -928,18 +1017,17 @@ void UI::SaltAndPepperN()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*给图像加椒盐噪声*/
     Mat newImage = method.imageAddNoise(img, SALTPEPPERNOISE);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 //泊松噪声
 /*
-函数作用：
+函数作用：给图片加泊松噪声
 函数参数：
 */
 void UI::PoissonN()
@@ -950,18 +1038,17 @@ void UI::PoissonN()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*给图像加泊松噪声*/
     Mat newImage = method.imageAddNoise(img, POISSONNOISE);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 //钝化边缘
 /*
-函数作用：
+函数作用：实现图片的边缘钝化
 函数参数：
 */
 void UI::BluntE()
@@ -972,20 +1059,17 @@ void UI::BluntE()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*实现图像的边缘钝化*/
     Mat newImage = method.imageBlurring(img);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_BGR2RGB);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 //锐化边缘
 /*
-函数作用：
+函数作用：实现图片的边缘锐化
 函数参数：
 */
 void UI::SharpE()
@@ -996,19 +1080,18 @@ void UI::SharpE()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*实现图像的边缘锐化*/
     Mat newImage = method.imageSharpening(img);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 
 //绘制图像的直方图
 /*
-函数作用：
+函数作用：绘制图像直方图
 函数参数：
 */
 void UI::HistogramE()
@@ -1019,13 +1102,12 @@ void UI::HistogramE()
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
+
     /*将控件上的图片转化为img*/
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*实现图像的边缘锐化*/
     Mat newImage = method.imageHistogram(img);
-    /*将图片转化为RGB格式*/
-    cvtColor(newImage, newImage, COLOR_RGB2BGR);
     Replace_Picture(newImage);
 }
 
@@ -1170,6 +1252,7 @@ void UI::ContrastE()
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     QSlider* sliderContrast = new QSlider(Qt::Horizontal, this); // 为ContrastNum创建水平滚动条
+    sliderContrast = setSliderStyle(sliderContrast);
     //ContrastNum
     sliderContrast->setMinimum(0); // 设置最小值
     sliderContrast->setMaximum(500); // 设置最大值
@@ -1208,6 +1291,7 @@ void UI::BrightnessE()
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
     QSlider* sliderBrightness = new QSlider(Qt::Horizontal, this); // 为BrightnessNum创建水平滚动条
+    sliderBrightness = setSliderStyle(sliderBrightness);
     //ContrastNum
     sliderBrightness->setMinimum(-100); // 设置最小值
     sliderBrightness->setMaximum(100); // 设置最大值
@@ -1259,6 +1343,7 @@ void UI::ExponentialTransformationEnhancement()
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
     QSlider* sliderETE1 = new QSlider(Qt::Horizontal, this); // 为Exponential1Num创建水平滚动条
+    sliderETE1 = setSliderStyle(sliderETE1);
 //Exponential1Num
     sliderETE1->setMinimum(-100); // 设置最小值
     sliderETE1->setMaximum(100); // 设置最大值
@@ -1267,6 +1352,7 @@ void UI::ExponentialTransformationEnhancement()
     QLabel* labelETE1 = new QLabel("指数变化指标2：" + QString::number(sliderETE1->value()), this);
 
     QSlider* sliderETE2 = new QSlider(Qt::Horizontal, this); // 为Exponential2Num创建水平滚动条
+    sliderETE2 = setSliderStyle(sliderETE2);
 //Exponential2Num
     sliderETE2->setMinimum(-100); // 设置最小值
     sliderETE2->setMaximum(100); // 设置最大值
@@ -1314,6 +1400,7 @@ void UI::Mosaic()
     else return;
 
     QSlider* sliderMosaic = new QSlider(Qt::Horizontal, this); // 为MosaicNum创建水平滚动条
+    sliderMosaic = setSliderStyle(sliderMosaic);
     //ContrastNum
     sliderMosaic->setMinimum(0); // 设置最小值
     sliderMosaic->setMaximum(50); // 设置最大值
@@ -1347,23 +1434,38 @@ void UI::mosaic()
 void UI::ConvolutionImage()
 {
     QLineEdit* lineEditSize = new QLineEdit(this); // 创建一个单行文本框控件
-    // 将输入限制为整数
+    lineEditSize->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEditSize->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
+
+// 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
+
     lineEditSize->setValidator(validator);
     QLabel* labelKernelSizeNum = new QLabel("卷积核大小：");
+    labelKernelSizeNum->setFixedSize(300, 90);
+
+    QFont font1("Arial", 15, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelKernelSizeNum->setFont(font1);  // 设置标签的字体
 
     //KernelNum
     QLineEdit* lineEditNum = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEditNum->setMinimumSize(700, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEditNum->setMaximumSize(700, 80);  // 设置文本框的最大宽度为100，最大高度为80
 
     // 其他控件和数据结构
     QPlainTextEdit* matrixTextEdit_ = new QPlainTextEdit(this);
     QLabel* labelKernelNum = new QLabel("卷积数组：");
+    labelKernelNum->setFixedSize(300, 90);
+
+    QFont font2("Arial", 15, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelKernelNum->setFont(font2);  // 设置标签的字体
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
     controlLayout->addWidget(labelKernelSizeNum);
     controlLayout->addWidget(lineEditSize);
+    controlLayout->addSpacing(50);//两个中间加一个50像素宽的间隙
     controlLayout->addWidget(labelKernelNum);
     controlLayout->addWidget(lineEditNum);
     // 定义一个变量来跟踪文本框数据是否完全输入
@@ -1612,6 +1714,30 @@ void UI::Replace_Picture(Mat img)
 -------------------------------------------页面布局---------------------------------------------------------------
 */
 /*
+函数作用：设置上方快捷菜单
+*/
+void UI::createUpMenu(QMainWindow* mainwin)
+{
+    menu = new QMenuBar(mainwin);
+    mainwin->setMenuBar(menu);
+
+    openimage = new QAction(" 打开图像 ", this);
+    menu->addAction(openimage);
+    connect(openimage, &QAction::triggered, this, &UI::openImage);
+
+    saveimage = new QAction(" 保存图像 ", this);
+    menu->addAction(saveimage);
+    connect(saveimage, &QAction::triggered, this, &UI::saveImage);
+
+    revokeac = new QAction(" 撤销操作 ", this);
+    menu->addAction(revokeac);
+    connect(revokeac, &QAction::triggered, this, &UI::Revoke_operation);
+
+    redoac = new QAction(" 反撤销操作 ", this);
+    menu->addAction(redoac);
+    connect(redoac, &QAction::triggered, this, &UI::Redo_Operatio);
+}
+/*
 函数作用:设置上方菜单栏
 函数参数:1、fileMenu:
          2、openAction：
@@ -1623,7 +1749,7 @@ QStandardItemModel* UI::createLeftMenu(QWidget* leftwidget)
     // 创建表头项
     QStandardItem* headerItem1 = new QStandardItem("功能菜单");
     menumodel->setHorizontalHeaderItem(0, headerItem1);
-    QStandardItem* rootItem = menumodel->invisibleRootItem(); // 获取根项
+
     //一级菜单
 
     fileOP = new QStandardItem(" 文件 ");
@@ -1807,6 +1933,70 @@ QStandardItemModel* UI::createLeftMenu(QWidget* leftwidget)
 
 }
 /*
+------------------------------------------------------------------装修---------------------------------------------------------------------------------------------
+*/
+/*
+函数作用：递归调用使遍历每一个item子部件更换字体与大小
+函数参数：itemFont：当前项的字体和大小
+          childItem：item部件的子item
+*/
+void UI::setFontAndSizeRecursive(QStandardItem* item, const QFont& font, int fontSize)
+{
+    // 设置当前项的字体和大小
+    QFont itemFont = item->data(Qt::FontRole).value<QFont>();
+    itemFont.setFamily(font.family());
+    itemFont.setPointSize(fontSize);
+    item->setData(itemFont, Qt::FontRole);
+
+    // 遍历子项并递归调用设置字体和大小
+    for (int row = 0; row < item->rowCount(); ++row) {
+        for (int column = 0; column < item->columnCount(); ++column) {
+            QStandardItem* childItem = item->child(row, column);
+            setFontAndSizeRecursive(childItem, font, fontSize);
+        }
+    }
+}
+QSlider* UI::setSliderStyle(QSlider* slider)
+{
+    // 设置滑块和滑槽的样式
+    slider->setStyleSheet(
+        "QSlider::groove:horizontal {"
+        "    background-color: #dddddd;"
+        "    height: 6px;"
+        "    border-radius: 3px;"
+        "}"
+
+        "QSlider::handle:horizontal {"
+        "    background-image: url(./images/catslider!!!.png);"
+        "    background-repeat: no-repeat;"
+        "    background-position: center;"
+        "    width: 100px;"
+        "    height: 100px;"
+        "    margin: -10px 0;"
+        "    border: none;"
+        "}"
+
+        "QSlider::add-page:horizontal {"
+        "    background-color: #dddddd;"
+        "    height: 6px;"
+        "    border-radius: 3px;"
+        "}"
+
+        "QSlider::sub-page:horizontal {"
+        "    background-color: #4CAF50;"
+        "    height: 6px;"
+        "    border-radius: 3px;"
+        "}"
+    );
+
+    return slider;
+}
+
+
+/*
+--------------------------------------------------------------------装修结束----------------------------------------------------------------------------------------------------
+*/
+/*
 函数作用:设置中心窗口
 函数参数:1、centralWidget
          2、layout
@@ -1821,6 +2011,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
 
     //将中心窗口设置成左右两个布局
     leftWidgetLayout = new QVBoxLayout();
+    leftWidgetLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
     rightWidgetLayout = new QVBoxLayout();
     //将两个布局加入中心窗口的布局
     mainlayout->addLayout(leftWidgetLayout);
@@ -1830,10 +2022,25 @@ void UI::createCenterWin(QMainWindow* mainwin)
     menubarLayout = new QVBoxLayout();
     leftWidgetLayout->addLayout(menubarLayout);
     MenuModel = createLeftMenu(leftWidget);
+    menubarLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+
+    QFont font("Arial");
+    int fontSize = 12;
+    //调用函数递归遍历每一个item
+    for (int row = 0; row < MenuModel->rowCount(); ++row) {
+        for (int column = 0; column < MenuModel->columnCount(); ++column) {
+            QStandardItem* item = MenuModel->item(row, column);
+            setFontAndSizeRecursive(item, font, fontSize);
+        }
+    }
+
     // 创建树视图
     treeView = new QTreeView();
 
     treeView->setModel(MenuModel);
+    treeView->setMinimumWidth(400);
+    treeView->setMaximumWidth(400);
     // 将树视图添加到布局中
     menubarLayout->addWidget(treeView);
     //将点击与槽函数相连
@@ -1844,7 +2051,7 @@ void UI::createCenterWin(QMainWindow* mainwin)
     // 创建图像控件及其布局管理器
     imageLabel = new QLabel();
     // 设置图像控件的大小
-    imageLabel->setFixedSize(1700, 850); //2100,1200
+    imageLabel->setFixedSize(1650, 850); //2100,1200
     imageLabel->setParent(rightWidget);
     imageLayout = new QVBoxLayout(imageLabel);
     rightWidgetLayout->addWidget(imageLabel,0, Qt::AlignCenter | Qt::AlignHCenter);
@@ -1852,10 +2059,12 @@ void UI::createCenterWin(QMainWindow* mainwin)
 
     //控件容器
     controlContainer = new QWidget(rightWidget);
-    controlContainer->setFixedSize(1700, 100); //2100,100
+    controlContainer->setFixedSize(1650, 100); //2100,100
     controlLayout = new QHBoxLayout(controlContainer);
     controlContainer->setLayout(controlLayout);
     rightWidgetLayout->addWidget(controlContainer);
+    controlLayout->setSpacing(0);
+    controlLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);//设置水平布局靠上且居中
 
 
     centralWidget->setLayout(mainlayout);
@@ -1883,6 +2092,9 @@ void UI::right_clickMenu(QWidget* centralWidget)
     // 反撤销
     QAction* reverse = clickmenu->addAction(" 反撤销 ");
     connect(reverse, &QAction::triggered, this, &UI::Redo_Operatio);
+    // 打开文件
+    QAction* openFile = clickmenu->addAction(" 打开文件 ");
+    connect(openFile, &QAction::triggered, this, &UI::openImage);
     // 保存文件
     QAction* saveFile = clickmenu->addAction(" 保存文件 ");
     connect(saveFile, &QAction::triggered, this, &UI::saveImage);

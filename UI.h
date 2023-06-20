@@ -38,7 +38,11 @@ public:
 	void initmainwin(QMainWindow* mainwin);
 	//在主窗口设置一个菜单用于一些快捷键
 	void createUpMenu(QMainWindow* mainwin);
-
+	QMenuBar* menu;
+	QAction* openimage;
+	QAction* saveimage;
+	QAction* revokeac;
+	QAction* redoac;
 
 	//设置中心窗口
 	void createCenterWin(QMainWindow* mainwin);
@@ -84,6 +88,8 @@ public:
 	QVBoxLayout* menubarLayout;
 	//创建树视图
 	QTreeView* treeView;
+	//递归设置菜单
+	void setFontAndSizeRecursive(QStandardItem* item, const QFont& font, int fontSize);
 
 	/*
 -------------------------------------------左侧菜单----------------------------------------------------------------
@@ -115,7 +121,7 @@ public:
 	int xNum;
 	int yNum;
 	QStandardItem* ImaZoomAction;
-	int zoomNum;
+	double zoomNum;
 	QStandardItem* ImaRotAction;
 	int rotataNum;
 	QStandardItem* ImaMirrAction;
@@ -186,6 +192,8 @@ public:
 	//控件容器布局管理
 	QWidget* controlContainer;
 	QHBoxLayout* controlLayout;
+	//给slider的样貌变换一下
+	QSlider* setSliderStyle(QSlider* slider);
 	/*
 	----------------------------------------mat与label的互相转换--------------------------------------------------------
 	*/
@@ -217,12 +225,16 @@ public	slots:
 	//图像调整
 	//平移
 	void panImage();
+	void pan_Image();
 	//缩放
 	void zoomImage();
+	void zoom_Image();
 	//旋转
 	void rotataImage();
+	void rotata_Image();
 	//镜像
 	void mirrorImage();
+	void mirror_Image();
 
 	//细节处理
 	//变灰度

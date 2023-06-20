@@ -111,10 +111,11 @@ public:
 	int xNum;
 	int yNum;
 	QStandardItem* ImaZoomAction;
-	int zoomNum;
+	double zoomNum;
 	QStandardItem* ImaRotAction;
 	int rotataNum;
 	QStandardItem* ImaMirrAction;
+	int MirrNum;
 	//ImaDetail
 	QStandardItem* ImaGS;
 	QStandardItem* ImaNoiPro;
@@ -212,12 +213,16 @@ public	slots:
 	//图像调整
 	//平移
 	void panImage();
+	void pan_Image();
 	//缩放
 	void zoomImage();
+	void zoom_Image();
 	//旋转
 	void rotataImage();
+	void rotata_Image();
 	//镜像
 	void mirrorImage();
+	void mirror_Image();
 
 	//细节处理
 	//变灰度

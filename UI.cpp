@@ -297,6 +297,9 @@ void UI::openImage()
             image = image.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
             QPixmap pixmap = QPixmap::fromImage(image);
             imageLabel->setPixmap(pixmap);
+            while (revoke.size() != 0) {
+                revoke.pop();
+            }
             revoke.push(pixmap);
             //当前画布上的图片就是导入进来这张
             nowPixmap = pixmap;
@@ -538,6 +541,7 @@ void UI::rotata_Image()
 */
 void UI::mirrorImage()
 {
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -591,6 +595,7 @@ void UI::GrayImage()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -611,6 +616,7 @@ void UI::BinaryImage()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -624,35 +630,50 @@ void UI::BinaryImage()
 //去噪
 //均值滤波
 /*
-函数作用：
+函数作用：均值滤波
 函数参数：
 */
 void UI::MeanF()
 {
+    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
-    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
 
-    QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
-    //zoomNum
-    sliderCon_Kernel->setMinimum(0); // 设置最小值
-    sliderCon_Kernel->setMaximum(99); // 设置最大值
-    sliderCon_Kernel->setValue(0); // 设置初始值
-    sliderCon_Kernel->setSingleStep(3); // 设置步长
-    QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
-     
-    Con_KernelSize = sliderCon_Kernel->value();
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("卷积核数量");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
 
-
-    controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
-    connect(sliderCon_Kernel, &QSlider::valueChanged, this, [this, labelCon_Kernel](int value) {
-        Con_KernelSize = value;
-        labelCon_Kernel->setText("卷积核大小：" + QString::number(value));
-        mean_f();
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        Con_KernelSize = inputText.toInt();
+        executeMeanF(Con_KernelSize);
+        // 后续的函数
         });
+}
+void UI::executeMeanF(int value) {
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在进行对图片进行均值滤波...");
+
+    // 执行函数的代码...
     //函数
+    mean_f();
+
+    // 使用 QTimer 进行延迟关闭弹窗
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "均值滤波完成！");
+        });
 }
 void UI::mean_f()
 {
@@ -673,30 +694,46 @@ void UI::mean_f()
 void UI::MedianF()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
 
-    QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
-    //zoomNum
-    sliderCon_Kernel->setMinimum(0); // 设置最小值
-    sliderCon_Kernel->setMaximum(99); // 设置最大值
-    sliderCon_Kernel->setValue(0); // 设置初始值
-    sliderCon_Kernel->setSingleStep(3); // 设置步长
-    QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
-    Con_KernelSize = sliderCon_Kernel->value();
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("卷积核数量");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
 
-    controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
-    connect(sliderCon_Kernel, &QSlider::valueChanged, this, [this, labelCon_Kernel](int value) {
-        Con_KernelSize = value;
-        labelCon_Kernel->setText("卷积核大小：" + QString::number(value));
-        //函数
-        median_f();
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        Con_KernelSize = inputText.toInt();
+        executeMedianF(Con_KernelSize);
+        // 后续的函数
         });
+}
+void UI::executeMedianF(int value) {
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在对图片进行中值滤波...");
+
+    // 执行函数的代码...
     //函数
+    median_f();
+
+    // 使用 QTimer 进行延迟关闭弹窗
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "中值滤波完成!");
+        });
 }
 void UI::median_f()
 {
@@ -721,31 +758,48 @@ void UI::median_f()
 void UI::GaussianF()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
 
-    QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
-    //zoomNum
-    sliderCon_Kernel->setMinimum(0); // 设置最小值
-    sliderCon_Kernel->setMaximum(99); // 设置最大值
-    sliderCon_Kernel->setValue(0); // 设置初始值
-    sliderCon_Kernel->setSingleStep(3); // 设置步长
-    QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
-    Con_KernelSize = sliderCon_Kernel->value();
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("卷积核数量");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
 
-
-    controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
-    connect(sliderCon_Kernel, &QSlider::valueChanged, this, [this, labelCon_Kernel](int value) {
-        Con_KernelSize = value;
-        labelCon_Kernel->setText("卷积核大小：" + QString::number(value));
-        //函数
-        gaussian_f();
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        Con_KernelSize = inputText.toInt();
+        executeGaussianF(Con_KernelSize);
+        // 后续的函数
         });
     //函数
+}
+void UI::executeGaussianF(int value) {
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在对图片进行高斯滤波...");
+
+    // 执行函数的代码...
+    //函数
+    gaussian_f();
+
+    // 使用 QTimer 进行延迟关闭弹窗
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "高斯滤波完成！");
+        });
+
 }
 void UI::gaussian_f()
 {
@@ -769,29 +823,47 @@ void UI::gaussian_f()
 void UI::BilateralF()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
-    QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
-    //zoomNum
-    sliderCon_Kernel->setMinimum(0); // 设置最小值
-    sliderCon_Kernel->setMaximum(99); // 设置最大值
-    sliderCon_Kernel->setValue(0); // 设置初始值
-    sliderCon_Kernel->setSingleStep(3); // 设置步长
-    QLabel* labelCon_Kernel = new QLabel("卷积核大小：" + QString::number(sliderCon_Kernel->value()), this);
-    Con_KernelSize = sliderCon_Kernel->value();
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("卷积核数量");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
 
-    controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
-    connect(sliderCon_Kernel, &QSlider::valueChanged, this, [this, labelCon_Kernel](int value) {
-        Con_KernelSize = value;
-        labelCon_Kernel->setText("卷积核大小：" + QString::number(value));
-        //函数
-        bilateral_f();
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        Con_KernelSize = inputText.toInt();
+        executeBilateralF(Con_KernelSize);
+        // 后续的函数
         });
     //函数
+}
+void UI::executeBilateralF(int value) {
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在对图片进行双边滤波...");
+
+    // 执行函数的代码...
+    //函数
+    bilateral_f();
+
+    // 使用 QTimer 进行延迟关闭弹窗
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "双边滤波完成！");
+        });
+
 }
 void UI::bilateral_f()
 {
@@ -807,6 +879,7 @@ void UI::bilateral_f()
     //cvtColor(img, img, COLOR_BGR2RGB);
     Replace_Picture(img);
 }
+
 //小波滤波
 /*
 函数作用：
@@ -815,30 +888,46 @@ void UI::bilateral_f()
 void UI::WaveletF()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
 
-    QSlider* sliderCon_Kernel = new QSlider(Qt::Horizontal, this); // 为Con_KernelNum创建水平滚动条
-    //zoomNum
-    sliderCon_Kernel->setMinimum(0); // 设置最小值
-    sliderCon_Kernel->setMaximum(10); // 设置最大值
-    sliderCon_Kernel->setValue(0); // 设置初始值
-    sliderCon_Kernel->setSingleStep(3); // 设置步长
-    QLabel* labelCon_Kernel = new QLabel("滤波层级大小：" + QString::number(sliderCon_Kernel->value()), this);
-    Con_KernelSize = sliderCon_Kernel->value();
+    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEdit->setMinimumSize(200, 30);  // 设置文本框的最小宽度为200，最小高度为30
+    lineEdit->setAlignment(Qt::AlignCenter);  // 设置文本框内容的对齐方式为居中
+    // 将输入限制为整数
+    QIntValidator* validator = new QIntValidator(this);
+    lineEdit->setValidator(validator);
+    QLabel* labelCon_Kernel = new QLabel("滤波层级");
+    labelCon_Kernel->setAlignment(Qt::AlignCenter);
 
-
-    controlLayout->addWidget(sliderCon_Kernel);
     controlLayout->addWidget(labelCon_Kernel);
-    connect(sliderCon_Kernel, &QSlider::valueChanged, this, [this, labelCon_Kernel](int value) {
-        Con_KernelSize = value;
-        labelCon_Kernel->setText("滤波层级大小：" + QString::number(value));
-        //函数
-        wavelet_f();
+    controlLayout->addWidget(lineEdit);
+
+
+    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEdit, &QLineEdit::returnPressed, this, [this, lineEdit]() {
+        QString inputText = lineEdit->text();
+        Con_KernelSize = inputText.toInt();
+        executeWaveletF(Con_KernelSize);
+        // 后续的函数
         });
     //函数
+}
+void UI::executeWaveletF(int value) {
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在对图片进行小波滤波...");
+
+    // 执行函数的代码...
+    //函数
+    wavelet_f();
+
+    // 使用 QTimer 进行延迟关闭弹窗
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "小波滤波完成！");
+        });
 }
 void UI::wavelet_f()
 {
@@ -846,10 +935,7 @@ void UI::wavelet_f()
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
     /*进行小波滤波*/
-    int kernelSize = Con_KernelSize;
-    if (kernelSize < 3)kernelSize = 3;
-    if (kernelSize % 2 == 0)kernelSize += 1;
-    img = method.imageWaveletFilter(img,kernelSize);
+    img = method.imageWaveletFilter(img, Con_KernelSize);
     /*将图片转化为BGR格式*/
     //cvtColor(img, img, COLOR_BGR2RGB);
     Replace_Picture(img);
@@ -885,6 +971,7 @@ void UI::SaltAndPepperN()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -905,6 +992,7 @@ void UI::PoissonN()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -925,6 +1013,7 @@ void UI::BluntE()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -945,6 +1034,7 @@ void UI::SharpE()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -966,6 +1056,7 @@ void UI::HistogramE()
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -988,7 +1079,8 @@ void UI::HistogramE()
 void UI::RobertsE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
@@ -1006,7 +1098,8 @@ void UI::RobertsE()
 void UI::SobelE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     Mat img = convertQPixmapToMat(nowPixmap);
     //删除空间变换区域原有控件
@@ -1023,7 +1116,8 @@ void UI::SobelE()
 void UI::PrewittE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     Mat img = convertQPixmapToMat(nowPixmap);
     //删除空间变换区域原有控件
@@ -1040,7 +1134,8 @@ void UI::PrewittE()
 void UI::KirschE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     Mat img = convertQPixmapToMat(nowPixmap);
     //删除空间变换区域原有控件
@@ -1057,7 +1152,8 @@ void UI::KirschE()
 void UI::RobinsomE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     Mat img = convertQPixmapToMat(nowPixmap);
     //删除空间变换区域原有控件
@@ -1070,7 +1166,8 @@ void UI::RobinsomE()
 void  UI::LaplacianE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     Mat img = convertQPixmapToMat(nowPixmap);
     //删除空间变换区域原有控件
@@ -1083,7 +1180,8 @@ void  UI::LaplacianE()
 void UI::CannyE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     Mat img = convertQPixmapToMat(nowPixmap);
     //删除空间变换区域原有控件
@@ -1105,7 +1203,8 @@ void UI::CannyE()
 void UI::ContrastE()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
@@ -1145,7 +1244,8 @@ void UI::BrightnessE()
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     QSlider* sliderBrightness = new QSlider(Qt::Horizontal, this); // 为BrightnessNum创建水平滚动条
     //ContrastNum
     sliderBrightness->setMinimum(-100); // 设置最小值
@@ -1180,7 +1280,8 @@ void UI::brightness_e()
 void UI::HistogramEqualization()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
@@ -1194,7 +1295,8 @@ void UI::HistogramEqualization()
 void UI::ExponentialTransformationEnhancement()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     QSlider* sliderETE1 = new QSlider(Qt::Horizontal, this); // 为Exponential1Num创建水平滚动条
 //Exponential1Num
     sliderETE1->setMinimum(-100); // 设置最小值
@@ -1247,7 +1349,8 @@ void UI::Exponential_transformation_enhancement()
 void UI::Mosaic()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
 
     QSlider* sliderMosaic = new QSlider(Qt::Horizontal, this); // 为MosaicNum创建水平滚动条
     //ContrastNum
@@ -1282,58 +1385,113 @@ void UI::mosaic()
 */
 void UI::ConvolutionImage()
 {
-    //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
-    QSlider* sliderKernelSize = new QSlider(Qt::Horizontal, this); // 为KernelSize创建水平滚动条
-    //KernelSize
-    sliderKernelSize->setMinimum(0); // 设置最小值
-    sliderKernelSize->setMaximum(10); // 设置最大值
-    sliderKernelSize->setValue(0); // 设置初始值
-    sliderKernelSize->setSingleStep(1); // 设置步长
-    QLabel* labelKernelSize = new QLabel("卷积核大小：" + QString::number(sliderKernelSize->value()), this);
-    
-    //KernelNum
-    QLineEdit* lineEdit = new QLineEdit(this); // 创建一个单行文本框控件
+    QLineEdit* lineEditSize = new QLineEdit(this); // 创建一个单行文本框控件
     // 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
-    lineEdit->setValidator(validator);
-    QLabel* labelKernelNum = new QLabel("卷积核数量：");
+    lineEditSize->setValidator(validator);
+    QLabel* labelKernelSizeNum = new QLabel("卷积核大小：");
+
+    //KernelNum
+    QLineEdit* lineEditNum = new QLineEdit(this); // 创建一个单行文本框控件
+
+    // 其他控件和数据结构
+    QPlainTextEdit* matrixTextEdit_ = new QPlainTextEdit(this);
+    QLabel* labelKernelNum = new QLabel("卷积数组：");
+
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
-    controlLayout->addWidget(labelKernelSize);
-    controlLayout->addWidget(sliderKernelSize);
+    controlLayout->addWidget(labelKernelSizeNum);
+    controlLayout->addWidget(lineEditSize);
     controlLayout->addWidget(labelKernelNum);
-    controlLayout->addWidget(lineEdit);
-
-
-    connect(sliderKernelSize, &QSlider::valueChanged, this, [this,labelKernelSize](int value) {
-        KernelSize = value;
-        labelKernelSize->setText("卷积核大小：" + QString::number(value));
-        //函数
+    controlLayout->addWidget(lineEditNum);
+    // 定义一个变量来跟踪文本框数据是否完全输入
+    isInputComplete = false;
+    // 输入卷积核大小；连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
+    connect(lineEditSize, &QLineEdit::returnPressed, this, [this, lineEditSize]() {
+        QString inputText = lineEditSize->text();
+        KernelSize = inputText.toInt();
+        // 设置标志为true，表示数据已完全输入
+        this->isInputComplete = true;
+        // 弹出第一个提示框
+        QMessageBox::information(nullptr, "提示", "数据已输入完整！");
         });
-    // 连接文本框的textChanged信号与槽函数进行处理,当回车时文本传输
-    connect(lineEdit, &QLineEdit::returnPressed, this, [this,lineEdit]() {
-        QString inputText = lineEdit->text();
-        KernelNum = new int* [KernelSize];
-        for (int i = 0; i < KernelSize; ++i) {
-            KernelNum[i] = new int[KernelSize];
+
+    connect(lineEditNum, &QLineEdit::returnPressed, this, [this, matrixTextEdit_]() {
+        // 获取用户输入的矩阵大小
+        int matrixSize = KernelSize;
+
+        // 根据矩阵大小进行相应的操作
+
+        // 示例：将矩阵大小显示到 QPlainTextEdit 控件中
+        QString matrixData;
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
+                matrixData += QString::number(i + j) + ",";
+            }
         }
+        matrixData.chop(1); // 移除最后一个逗号
+        matrixTextEdit_->setPlainText(matrixData);
 
-        // 后续的函数
-        convolution();
+        // 如果数据未完全输入，则直接返回，不执行后续操作
+        if (!isInputComplete) {
+            QMessageBox::information(nullptr, "提示", "数据输入有误，重新输入");
+            return;
+        }
+        else {
+            QString text = matrixTextEdit_->toPlainText(); // 获取 QPlainTextEdit 的文本内容
+            QStringList rows = text.split('\n'); // 按换行符分割成行
+            matrix = new int* [rows.size()]; // 创建指针数组，每个指针指向一行数据
+
+            // 遍历每一行
+            for (int i = 0; i < rows.size(); i++) {
+                QStringList elements = rows[i].split(','); // 按逗号分割成元素
+                int rowSize = elements.size(); // 当前行的元素个数
+
+                 // 分配内存，创建当前行的数组
+                matrix[i] = new int[rowSize]; // 分配内存，创建当前行的数组
+
+             // 遍历当前行的元素，并将每个元素转换为数字
+                for (int j = 0; j < rowSize; j++) {
+                    bool ok;
+                    int value = elements[j].toInt(&ok); // 将元素转换为整数
+
+                    if (ok) {
+                        matrix[i][j] = value; // 将转换后的数字存储到二维数组中
+                    }
+                    else {
+                        // 处理转换失败的情况，例如非数字字符串的情况
+                        // 这里可以根据具体需求进行处理，比如跳过非数字的部分或给出错误提示
+                    }
+                }
+            }
+            // 在函数执行前弹出弹窗
+            QMessageBox::information(nullptr, "提示", "图像卷积即将执行...");
+            // 执行函数的代码...
+            //函数
+            convolution();
+
+            // 关闭第一个提示框
+            QMessageBox::information(nullptr, "提示", "图像卷积执行结束！", QMessageBox::Close);
+            // 使用 QTimer 进行延迟关闭弹窗
+
+            // 释放内存，逐行删除数组
+            for (int i = 0; i < rows.size(); i++) {
+                if (matrix[i] != nullptr) {
+                    delete[] matrix[i];
+                }
+            }
+            // 删除指针数组
+            delete[] matrix;
+        }
         });
-    //函数
+
 }
 void UI::convolution()
 {
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
-    img = method.imageCovolution(img, MosaicNum,KernelNum);
-    for (int i = 0; i < KernelSize; ++i) {
-        delete[] KernelNum[i];
-    }
-    delete[] KernelNum;
+    img = method.imageCovolution(img, MosaicNum,matrix);
     Replace_Picture(img);
 }
 //傅里叶变换
@@ -1344,7 +1502,8 @@ void UI::convolution()
 void UI::FourierTransform()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
@@ -1364,7 +1523,8 @@ void UI::FourierTransform()
 void UI::ImageSynthesis()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     QString OtherimagePath = QFileDialog::getOpenFileName(this, "Select Image", QString(), "Image Files (*.png *.jpg *.bmp)");
@@ -1403,7 +1563,8 @@ void UI::ImageSynthesis()
 void UI::ImageSegmentation()
 {
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
-    nowPixmap = revoke.top();
+    if (revoke.size() != 0)nowPixmap = revoke.top();
+    else return;
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
@@ -1457,24 +1618,24 @@ void UI::ImageSketching()
 //撤销
 void UI::Revoke_operation()
 {
-    if (revoke.size() != 1) {
+    if (revoke.size() > 1) {
         //取出栈顶元素
         QPixmap pixmap = revoke.top();
-        imageLabel->setPixmap(pixmap);
-        //将撤销操作压入发撤销操作
-        redo.push(pixmap);
         //弹出栈顶元素
         revoke.pop();
+        //将撤销操作压入发撤销操作
+        redo.push(pixmap);
+        imageLabel->setPixmap(pixmap);
     }
 }
 //反撤销
 void UI::Redo_Operatio()
 {
-    if (redo.size() != 1) {
+    if (redo.size() > 1) {
         QPixmap pixmap = redo.top();
-        imageLabel->setPixmap(pixmap);
         revoke.push(pixmap);
         redo.pop();
+        imageLabel->setPixmap(pixmap);
     }
 }
 void UI::Replace_Picture(Mat img)

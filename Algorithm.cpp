@@ -872,91 +872,159 @@ Mat ImageAlgorithm::imageBilateralFilter(Mat img, int kernel_size,double space_s
 	return imgRes;
 }
 
-/*
-函数作用：小波变换，将图像拆分成多个不同频带的子带，从而实现去噪的目的。
-参数：1、data：为要被拆分的频带，之所为为二维，是因为彩色图像是多通道
-	  2、lowPass：存储低频信号
-	  3、highPass：存储高频信号
-没有返回值，因为对data的改变会直接作用到data上，传入的是地址
-*/
-void ImageAlgorithm::waveLetTransform(double** data, double ** lowPass,double **highPass,int rows,int cols)
+
+// 一维离散小波变换
+void waveletTransform1D(vector<double>& input, vector<double>& output)
 {
-	/*分别通过平滑处理和差分处理得到aC和aD*/
-	for (int i = 0; i < cols/2; ++i) {
-		for (int j = 0; j < rows; ++j) {
-			/*通过移动平均进行平滑处理*/
-			lowPass[j][i] = (data[j][2 * i] + data[j][2 * i + 1]) / sqrt(2);
-			/*通过一阶差分进行平滑处理*/
-			highPass[j][i] = (data[j][2 * i] - data[j][2 * i + 1]) / sqrt(2);
-		}
+	int N = input.size();
+	output.resize(N);
+
+	int h = N / 2;
+	for (int i = 0; i < h; i++) {
+		output[i] = (input[2 * i] + input[2 * i + 1]) / 2;
+		output[i + h] = (input[2 * i] - input[2 * i + 1]) / 2;
 	}
 }
 
-/*
-函数作用：计算噪声方差
-函数参数：1、data：高频带信号
-		2、threashold:阈值数组，对应不同的通道
-*/
-void ImageAlgorithm::getThreashold(double** data,double *threashold,int rows, int cols)
+// 一维离散小波逆变换
+void inverseWaveletTransform1D(vector<double>& input, vector<double>& output)
 {
-	double** absData = new double* [rows];
-	for (int i = 0; i < rows; ++i) {
-		absData[i] = new double[cols];
-	}
+	int N = input.size();
+	output.resize(N);
 
-	for (int i = 0; i < rows; ++i) {
-		for (int j = 0; j < cols; ++j) {
-			absData[i][j] = abs(data[i][j]);
-		}
+	int h = N / 2;
+	for (int i = 0; i < h; i++) {
+		output[2 * i] = input[i] + input[i + h];
+		output[2 * i + 1] = input[i] - input[i + h];
 	}
-
-	/*对序列进行排序*/
-	for (int i = 0; i < rows; ++i) {
-		sort(absData[i], absData[i] + cols);
-		/*对序列去取中值*/
-		double median = absData[i][cols / 2];
-		double sigma = median / 0.6745;
-		threashold[i] = sigma * sigma;
-	}
-
-	for (int i = 0; i < rows; ++i) {
-		delete[] absData[i];
-	}
-	delete[] absData;
 }
-
-/*
-函数作用：进行阈值处理
-参数：1、data：需要进行处理的信号
-	  2、threadshold：阈值
-无返回值
-*/
-void ImageAlgorithm::doThreashold(double** data, double *threadshold,int rows,int cols)
+// 二维离散小波变换
+void waveletTransform2D(Mat& input, Mat& output, int levels)
 {
-	for (int i = 0; i < cols; ++i) {
-		for (int j = 0; j < rows; ++j) {
-			if (abs(data[j][i]) < threadshold[j]) {
-				data[j][i] = 0;
+	Mat temp = input.clone();
+
+	for (int level = 0; level < levels; level++) {
+		// 对每一行进行小波变换
+		for (int i = 0; i < temp.rows; i++) {
+			vector<double> rowInput, rowOutput;
+			for (int j = 0; j < temp.cols; j++) {
+				rowInput.push_back(temp.at<double>(i, j));
+			}
+			waveletTransform1D(rowInput, rowOutput);
+			for (int j = 0; j < temp.cols; j++) {
+				temp.at<double>(i, j) = rowOutput[j];
+			}
+		}
+
+		// 对每一列进行小波变换
+		for (int j = 0; j < temp.cols; j++) {
+			vector<double> colInput, colOutput;
+			for (int i = 0; i < temp.rows; i++) {
+				colInput.push_back(temp.at<double>(i, j));
+			}
+			waveletTransform1D(colInput, colOutput);
+			for (int i = 0; i < temp.rows; i++) {
+				temp.at<double>(i, j) = colOutput[i];
+			}
+		}
+
+		// 缩小图像尺寸
+		resize(temp, output, Size(temp.cols / 2, temp.rows / 2));
+
+		temp = output.clone();
+	}
+}
+// 二维离散小波逆变换
+void inverseWaveletTransform2D(Mat& input, Mat& output, int levels)
+{
+	Mat temp = input.clone();
+
+	for (int level = levels - 1; level >= 0; level--) {
+		// 还原图像尺寸
+		Mat temp2;
+		resize(temp, temp2, Size(temp.cols * 2, temp.rows * 2));
+
+		// 对每一列进行小波逆变换
+		for (int j = 0; j < temp2.cols; j++) {
+			vector<double> colInput, colOutput;
+			for (int i = 0; i < temp2.rows; i++) {
+				colInput.push_back(temp2.at<double>(i, j));
+			}
+			inverseWaveletTransform1D(colInput, colOutput);
+			for (int i = 0; i < temp2.rows; i++) {
+				temp2.at<double>(i, j) = colOutput[i];
+			}
+		}
+
+		// 对每一行进行小波逆变换
+		for (int i = 0; i < temp2.rows; i++) {
+			vector<double> rowInput, rowOutput;
+			for (int j = 0; j < temp2.cols; j++) {
+				rowInput.push_back(temp2.at<double>(i, j));
+			}
+			inverseWaveletTransform1D(rowInput, rowOutput);
+			for (int j = 0; j < temp2.cols; j++) {
+				temp2.at<double>(i, j) = rowOutput[j];
+			}
+		}
+
+		temp = temp2.clone();
+	}
+
+	output = temp.clone();
+}
+// 对小波系数进行阈值处理
+void thresholding(Mat& input, double threshold)
+{
+	for (int i = 0; i < input.rows; i++) {
+		for (int j = 0; j < input.cols; j++) {
+			if (input.at<double>(i, j) < threshold) {
+				input.at<double>(i, j) = 0;
 			}
 		}
 	}
 }
-
-/*
-函数作用：小波反变换，将多个不同频带的信号合在一起，重构图像
-参数：1、data：为要被拆分的频带，之所为为二维，是因为彩色图像是多通道
-	  2、lowPass：存储低频信号
-	  3、highPass：存储高频信号
-没有返回值，因为对data的改变会直接作用到data上，传入的是地址
-*/
-void ImageAlgorithm::inverseWaveLetTransform(double** data, double** lowPass, double** highPass, int rows, int cols)
+// 灰度图像小波滤波
+void waveletFilterGray(Mat& input, Mat& output, int levels, double threshold)
 {
-	for (int i = 0; i < cols/2; ++i) {
-		for (int j = 0; j < rows; ++j) {
-			data[j][i * 2] = (lowPass[j][i] + highPass[j][i]) / sqrt(2);
-			data[j][i * 2+1] = (lowPass[j][i] - highPass[j][i]) / sqrt(2);
-		}
+	// 将灰度图像转为双精度浮点型
+	Mat inputDouble;
+	input.convertTo(inputDouble, CV_64FC1);
+
+	// 进行小波变换
+	waveletTransform2D(inputDouble, output, levels);
+
+	// 对小波系数进行阈值处理
+	thresholding(output, threshold);
+
+	// 进行小波逆变换
+	inverseWaveletTransform2D(output, output, levels);
+
+	// 将结果转为灰度图像
+	output.convertTo(output, CV_8UC1);
+}
+
+// 彩色图像小波滤波
+void waveletFilterColor(Mat& input, Mat& output, int levels, double threshold)
+{
+	// 将彩色图像转为浮点型
+	Mat inputDouble;
+	input.convertTo(inputDouble, CV_64FC3);
+
+	// 分离通道
+	vector<Mat> channels;
+	split(inputDouble, channels);
+
+	// 对每个通道进行小波滤波
+	for (int i = 0; i < 3; i++) {
+		waveletFilterGray(channels[i], channels[i], levels, threshold);
 	}
+
+	// 合并通道
+	merge(channels, output);
+
+	// 将结果转为彩色图像
+	output.convertTo(output, CV_8UC3);
 }
 
 /*
@@ -967,106 +1035,14 @@ void ImageAlgorithm::inverseWaveLetTransform(double** data, double** lowPass, do
 */
 Mat ImageAlgorithm::imageWaveletFilter(Mat img, int level)
 {
-	Mat imgRes;
-	imgRes.create(img.size(), img.type());
-	/*得到图像的通道数*/
-	int channels = img.channels();
-	/*图片像素总数,只考虑单通道*/
-	int data_num = img.cols * img.rows;
-	/*将图像转化成一维数组,根据通道数量进行不同的处理*/
-	double** data = new double* [channels];
-	for (int i = 0; i < channels; ++i) {
-		data[i] = new double[data_num];
-	}
-	for (int i = 0; i < img.rows; ++i) {
-		for (int j = 0; j < img.cols; ++j) { 
-			for (int m = 0; m < channels; ++m) {
-				if (channels == 1) {
-					data[m][i * img.cols + j] = img.at<uchar>(i, j);
-				}
-				else if (channels > 1) {
-					data[m][i * img.cols + j] = img.at<Vec3b>(i, j)[m];
-				}
-			}
-		}
-	}
-	double *threashold = new double[channels];
+	// 灰度图像小波滤波
+	Mat filteredImageGray;
+	Mat filteredImageColor;
+	if(img.channels()==1) waveletFilterGray(img, filteredImageGray, level, 10);
+	else if (img.channels() == 3) waveletFilterColor(img, filteredImageColor, level, 10);
 
-	/*给高频和低频的存储开辟对应的内存空间*/
-	double** row = new double* [channels];
-	double** lowPass = new double* [channels];
-	double** highPass = new double* [channels];
-	for (int i = 0; i < channels; ++i) {
-		lowPass[i] = new double[data_num / 2];
-		highPass[i] = new double[data_num - data_num / 2];
-		row[i] = new double[data_num];
-
-	}
-
-	int size_i = img.rows;
-	int size_j = img.cols;
-
-	/*i循环是针对level进行小波变换的次数*/
-	for (int l = 0; l < level; ++l) {
-		/*进行小波变换*/
-		for (int i = 0; i < size_i; ++i) {
-			for (int j = 0; j < size_j; ++j) {
-				for (int m = 0; m < channels; ++m) {
-					row[m][i * size_i + j] = data[m][i * size_i + j];
-				}
-			}
-		}
-		/*进行小波变换*/
-		waveLetTransform(row, lowPass, highPass, channels, size_j * size_i);
-		/*获得阈值*/
-		getThreashold(highPass,threashold, channels, size_j * size_i/2);
-		for (int i = 0; i < channels; ++i) {
-			threashold[i] = threashold[i] * sqrt(2 * log(size_i * size_j));
-		}
-		/*进行阈值处理*/
-		doThreashold(highPass, threashold, channels, size_j * size_i/2);
-		/*进行小波反变换*/
-		inverseWaveLetTransform(row, lowPass, highPass, channels, size_j*size_i);
-		/*将这次处理后的值给原矩阵*/
-		for (int i = 0; i < size_i; ++i) {
-			for (int j = 0; j < size_j; ++j) {
-				for (int m = 0; m < channels; ++m) {
-					data[m][i * size_j + j] = row[m][i * size_j + j];
-				}
-			}
-		}
-		/*每多一层，那么cA就会减少一半*/
-		size_i /= 2;
-		size_j /= 2;
-	}
-
-	/*将一维数组重新转化成二维数组*/
-	for (int i = 0; i < img.rows; ++i) {
-		for (int j = 0; j < img.cols; ++j) {
-			for (int m = 0; m < channels; ++m) {
-				if (channels == 1) {
-					imgRes.at<uchar>(i, j) = data[m][i * img.cols + j];
-				}
-				else if (channels > 1) {
-					imgRes.at<Vec3b>(i, j)[m] = data[m][i * img.cols + j];
-				}
-			}
-		}
-	}
-
-	/*资源释放*/
-	for (int i = 0; i < channels; ++i) {
-		delete[] lowPass[i];
-		delete[] highPass[i];
-		delete[] data[i];
-	}
-	delete[] lowPass;
-	delete[] highPass;
-	delete[] row;
-	delete[] data;
-	delete[] threashold;
-
-	return imgRes;
+	if (img.channels() == 1)return filteredImageGray;
+	else return filteredImageColor;
 }
 
 /*

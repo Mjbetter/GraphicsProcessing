@@ -11,6 +11,7 @@
 #include <vector>
 #include "macro.h"
 #include <string.h>
+#include <qdebug.h>
 
 using namespace cv;
 using namespace std;

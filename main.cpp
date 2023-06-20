@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
 
     //ImageAlgorithm s;
     //Mat img;
-    //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\aver.jpg");
-    //img = s.imageWaveletFilter(img,3);
+    //img = imread("C:\\Users\\MJ\\Desktop\\testImg\\手写数字.jpg");
+    //img = s.imageDigitalIdentify(img);
 
 
     return a.exec();

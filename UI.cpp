@@ -1252,7 +1252,7 @@ void UI::ContrastE()
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     QSlider* sliderContrast = new QSlider(Qt::Horizontal, this); // 为ContrastNum创建水平滚动条
-    setSliderStyle(sliderContrast);
+    sliderContrast = setSliderStyle(sliderContrast);
     //ContrastNum
     sliderContrast->setMinimum(0); // 设置最小值
     sliderContrast->setMaximum(500); // 设置最大值
@@ -1291,6 +1291,7 @@ void UI::BrightnessE()
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
     QSlider* sliderBrightness = new QSlider(Qt::Horizontal, this); // 为BrightnessNum创建水平滚动条
+    sliderBrightness = setSliderStyle(sliderBrightness);
     //ContrastNum
     sliderBrightness->setMinimum(-100); // 设置最小值
     sliderBrightness->setMaximum(100); // 设置最大值
@@ -1342,6 +1343,7 @@ void UI::ExponentialTransformationEnhancement()
     if (revoke.size() != 0)nowPixmap = revoke.top();
     else return;
     QSlider* sliderETE1 = new QSlider(Qt::Horizontal, this); // 为Exponential1Num创建水平滚动条
+    sliderETE1 = setSliderStyle(sliderETE1);
 //Exponential1Num
     sliderETE1->setMinimum(-100); // 设置最小值
     sliderETE1->setMaximum(100); // 设置最大值
@@ -1350,6 +1352,7 @@ void UI::ExponentialTransformationEnhancement()
     QLabel* labelETE1 = new QLabel("指数变化指标2：" + QString::number(sliderETE1->value()), this);
 
     QSlider* sliderETE2 = new QSlider(Qt::Horizontal, this); // 为Exponential2Num创建水平滚动条
+    sliderETE2 = setSliderStyle(sliderETE2);
 //Exponential2Num
     sliderETE2->setMinimum(-100); // 设置最小值
     sliderETE2->setMaximum(100); // 设置最大值
@@ -1397,6 +1400,7 @@ void UI::Mosaic()
     else return;
 
     QSlider* sliderMosaic = new QSlider(Qt::Horizontal, this); // 为MosaicNum创建水平滚动条
+    sliderMosaic = setSliderStyle(sliderMosaic);
     //ContrastNum
     sliderMosaic->setMinimum(0); // 设置最小值
     sliderMosaic->setMaximum(50); // 设置最大值
@@ -1430,23 +1434,38 @@ void UI::mosaic()
 void UI::ConvolutionImage()
 {
     QLineEdit* lineEditSize = new QLineEdit(this); // 创建一个单行文本框控件
-    // 将输入限制为整数
+    lineEditSize->setMinimumSize(100, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEditSize->setMaximumSize(100, 80);  // 设置文本框的最大宽度为100，最大高度为80
+
+// 将输入限制为整数
     QIntValidator* validator = new QIntValidator(this);
+
     lineEditSize->setValidator(validator);
     QLabel* labelKernelSizeNum = new QLabel("卷积核大小：");
+    labelKernelSizeNum->setFixedSize(300, 90);
+
+    QFont font1("Arial", 15, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelKernelSizeNum->setFont(font1);  // 设置标签的字体
 
     //KernelNum
     QLineEdit* lineEditNum = new QLineEdit(this); // 创建一个单行文本框控件
+    lineEditNum->setMinimumSize(700, 80);  // 设置文本框的最小宽度为100，最小高度为80
+    lineEditNum->setMaximumSize(700, 80);  // 设置文本框的最大宽度为100，最大高度为80
 
     // 其他控件和数据结构
     QPlainTextEdit* matrixTextEdit_ = new QPlainTextEdit(this);
     QLabel* labelKernelNum = new QLabel("卷积数组：");
+    labelKernelNum->setFixedSize(300, 90);
+
+    QFont font2("Arial", 15, QFont::Bold);  // 创建一个字体对象，设置字体为Arial，字体大小为12，加粗
+    labelKernelNum->setFont(font2);  // 设置标签的字体
 
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
 
     controlLayout->addWidget(labelKernelSizeNum);
     controlLayout->addWidget(lineEditSize);
+    controlLayout->addSpacing(50);//两个中间加一个50像素宽的间隙
     controlLayout->addWidget(labelKernelNum);
     controlLayout->addWidget(lineEditNum);
     // 定义一个变量来跟踪文本框数据是否完全输入
@@ -1944,7 +1963,7 @@ QSlider* UI::setSliderStyle(QSlider* slider)
         "}"
 
         "QSlider::handle:horizontal {"
-        "    background-image: url(E:/school/Term/3_2/lastTime/images/Catslider.png);"
+        "    background-image: url(./images/Catslider.png);"
         "    background-repeat: no-repeat;"
         "    background-position: center;"
         "    width: 60px;"
@@ -1952,10 +1971,7 @@ QSlider* UI::setSliderStyle(QSlider* slider)
         "    margin: -10px 0;"
         "    border: none;"
         "}"
-    );
 
-    // 设置滑块区域的样式
-    slider->setStyleSheet(
         "QSlider::add-page:horizontal {"
         "    background-color: #dddddd;"
         "    height: 6px;"
@@ -1968,8 +1984,10 @@ QSlider* UI::setSliderStyle(QSlider* slider)
         "    border-radius: 3px;"
         "}"
     );
+
     return slider;
 }
+
 
 /*
 --------------------------------------------------------------------装修结束----------------------------------------------------------------------------------------------------
@@ -2070,6 +2088,9 @@ void UI::right_clickMenu(QWidget* centralWidget)
     // 反撤销
     QAction* reverse = clickmenu->addAction(" 反撤销 ");
     connect(reverse, &QAction::triggered, this, &UI::Redo_Operatio);
+    // 打开文件
+    QAction* openFile = clickmenu->addAction(" 打开文件 ");
+    connect(openFile, &QAction::triggered, this, &UI::openImage);
     // 保存文件
     QAction* saveFile = clickmenu->addAction(" 保存文件 ");
     connect(saveFile, &QAction::triggered, this, &UI::saveImage);

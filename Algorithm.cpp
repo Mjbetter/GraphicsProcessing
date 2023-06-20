@@ -122,35 +122,6 @@ Mat ImageAlgorithm::imageEdgeExpand(Mat img, int size)
 }
 
 /*
-函数作用：图像基本变换处理函数，根据option的不同，选择不同的变换方法
-函数参数：1、img：传入的需要处理的图像的像素矩阵
-		  2、dx，dy：x轴和y轴方向上的偏移量
-          3、Scale_x，Scale_y：横向及纵向缩放的比例大小
-		  4、angle：旋转角度
-		  5、choice：镜像变换的选择数
-		  5、option：表示基本变换的选择：1：图像平移，2：图像缩放，3：图像旋转，4：图像镜像
-返回值：返回经过基本变换后的像素矩阵
-*/
-//Mat ImageAlgorithm::imageNoiseAddition(Mat img, int dx, int dy, double Scale_x, double Scale_y, double angle, int choice, int option)
-//{
-//    /*处理逻辑：根据选择进行图像的基本变换，返回处理后的像素矩阵*/
-//    switch (option)
-//	{
-//	case IMAGE_TRANSLATION :
-//		return imageTranslation(img, dx, dy); /*图像平移*/
-//	case IMAGE_RESIZING:
-//		return imageResizing(img, Scale_x, Scale_y); /*图像缩放*/
-//	case IMAGE_ROTATING:
-//		return imageRotating(img,/* double img_cols, double img_rows,*/angle); /*图像旋转*/
-//	case IMAGE_REFLECTION:
-//		return imageReflection(img, choice); /*图像镜像*/
-//	default:
-//		break;
-//	}
-//	return img;
-//}
-
-/*
 函数作用：图像平移函数，将图像按照输入的x方向和y方向上的偏移量进行平移，规定向右、向下时值为正数
 函数参数：1、img：传入的像素矩阵
 		  2、dx：在x轴方向上的位移，dx>0时，向右平移X个单位
@@ -163,15 +134,9 @@ Mat ImageAlgorithm::imageTranslation(Mat img, int dx, int dy)
 	Size imageSize = img.size();
 	/*创建一个2X3的浮点型仿射变换矩阵以及一个存储平移后的像素矩阵*/
 	Mat translationMatrix = (Mat_<float>(2, 3) << 1, 0, dx, 0, 1, dy);
-	Mat translatedImage;
-	warpAffine(img, translatedImage,translationMatrix, img.size());
-	//translatedImage = warpAffine(img, translationMatrix, img.size());
-	/*创建一个名为Image的可调节的窗口*/
-	//namedWindow("translatedImage", WINDOW_AUTOSIZE);
-	/*创建一个窗口显示图像*/
-	//imshow("translatedImage", translatedImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
+	Mat translatedImage(img.rows, img.cols, img.type(), Scalar(255, 255, 255));;
+	/*进行图像平移，平移过后的背景为白色*/
+	warpAffine(img, translatedImage, translationMatrix, translatedImage.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar(255, 255, 255));
 
 	return translatedImage;
 }
@@ -187,12 +152,12 @@ Mat ImageAlgorithm::imageResizing(Mat img, double Scale_x, double Scale_y)
 {
 	/*创建一个用于存储缩放后的像素矩阵*/
 	Mat resizingImage;
-	/*按横向和纵向比例缩放图像*/
-	resize(img, resizingImage, Size(), Scale_x, Scale_y);
-	/*创建一个窗口显示图像*/
-	//imshow("resizingImage", resizingImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
+	/*输入比例的值合法*/
+	if (Scale_x > 0 && Scale_y > 0) {
+		/*按横向和纵向比例缩放图像*/
+		resize(img, resizingImage, Size(), Scale_x, Scale_y);
+	}
+	else return img;
 
 	return resizingImage;
 }
@@ -205,20 +170,16 @@ Mat ImageAlgorithm::imageResizing(Mat img, double Scale_x, double Scale_y)
 		  4、angle：输入的旋转角度（以逆时针方向为正）
 返回值：返回旋转过后的像素矩阵
 */
-Mat ImageAlgorithm::imageRotating(Mat img/*, double img_cols, double img_rows*/, double angle)
+Mat ImageAlgorithm::imageRotating(Mat img, int angle)
 {
 	/*创建用于存储旋转后的像素矩阵*/
 	Mat rotatingImage;
 	/*图像中心点*/
-	//Point2f center(img_cols / 2.0, img_rows / 2.0);
+    Point2f center(img.cols / 2.0, img.rows / 2.0);
 	/*创建旋转矩阵，参数分别为旋转点坐标，旋转角度，缩放因子（设置为1.0，表示不进行缩放）*/
-	Mat rotatingMatrix = getRotationMatrix2D(Point2f(img.cols / 2.0, img.rows / 2.0), angle, 1.0);
+	Mat rotatingMatrix = getRotationMatrix2D(center, angle, 1.0);
 	/*将旋转矩阵应用于图像实现图像旋转*/
-	warpAffine(img, rotatingImage, rotatingMatrix, img.size());
-	/*创建一个窗口显示图像*/
-	//imshow("rotatingImage", rotatingImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
+	warpAffine(img, rotatingImage, rotatingMatrix, rotatingImage.size(), INTER_LINEAR, BORDER_CONSTANT, Scalar(255, 255, 255));
 
 	return rotatingImage;
 }
@@ -235,7 +196,7 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 	Mat reflectionImage;
     /*判断choice值是否合法*/
 	if (choice != 1 && choice != 0) {
-		return reflectionImage;
+		return img;
 	}
 	/*若choice值合法*/
 	else {
@@ -246,10 +207,6 @@ Mat ImageAlgorithm::imageReflection(Mat img, int choice)
 		else if (choice == 1)
 			flip(img, reflectionImage, 1);
 	}
-	/*创建一个窗口显示图像*/
-	//imshow("reflectionImage", reflectionImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
 
 	return reflectionImage;
 }
@@ -311,10 +268,6 @@ Mat ImageAlgorithm::imageGrayBinary(Mat img)
 	/*再将灰度矩阵变为2值矩阵，将图像中的像素值与阈值（此处为128）进行比较，
 	并根据比较结果将像素值设置为两个给定的输出值（此处为0和255）*/
 	threshold(grayScaleImage, grayBinaryImage, 128, 255, THRESH_BINARY);
-	/*创建一个窗口显示图像*/
-	//imshow("grayBinaryImage", grayBinaryImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
 
 	return grayBinaryImage;
 }
@@ -344,11 +297,6 @@ Mat ImageAlgorithm::imageBlurring(Mat img)
 	Mat blurringImage;
 	/*将原始灰度图像减去拉普拉斯边缘图像，实现图像的边缘钝化*/
 	blurringImage = grayScaleImage - laplacianImage;
-
-	/*创建一个窗口显示图像*/
-	//imshow("blurringImage", blurringImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
 
 	return blurringImage;
 }
@@ -380,16 +328,6 @@ Mat ImageAlgorithm::imageSharpening(Mat img)
 	/*参数1.5表示第一个图像（即灰度图像）的权重，参数-0.5表示第二个图像（即拉普拉斯边缘检测后的图像）的权重，
 	  参数0用于调整结果图像的亮度*/
 	addWeighted(grayScaleImage, 1.5, laplacianImage, -0.5, 0, sharpeningImage);
-
-	///*创建用于存储图像的边缘钝化后的像素矩阵*/
-	//Mat blurringImage;
-	///*将原始灰度图像减去拉普拉斯边缘图像，实现图像的边缘钝化*/
-	//blurringImage = grayScaleImage - laplacianImage;
-
-	/*创建一个窗口显示图像*/
-	//imshow("sharpeningImage", sharpeningImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
 
 	return sharpeningImage;
 }
@@ -442,16 +380,6 @@ Mat ImageAlgorithm::imageGaussianNoise(Mat img)
 	/*将 gaussiannoiseImage 矩阵的数据类型将从 CV_32FC3 转换为每个像素由3个8位无符号整数数组成的图像*/
 	gaussiannoiseImage.convertTo(gaussiannoiseImage, CV_8UC3);
 
-	// 添加高斯噪声到图像
-	//add(img, noise, gaussiannoiseImage, Mat(), CV_8UC3);
-
-	/*创建一个窗口显示原图像*/
-	//imshow("Image", img);
-	/*创建一个窗口显示加高斯噪声后的图像*/
-	//imshow("gaussiannoiseImage", gaussiannoiseImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
-
 	return gaussiannoiseImage;
 }
 
@@ -485,13 +413,6 @@ Mat ImageAlgorithm::imageSaltPepperNoise(Mat img)
 		}
 	}
 
-	/*创建一个窗口显示原图像*/
-	//imshow("Image", img);
-	/*创建一个窗口显示加高斯噪声后的图像*/
-	//imshow("saltpeppernoiseImage", saltpeppernoiseImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
-
 	return saltpeppernoiseImage;
 }
 
@@ -515,13 +436,6 @@ Mat ImageAlgorithm::imagePoissonNoise(Mat img)
 	poissonnoiseImage += noise;
 	/*将 poissonnoiseImage 矩阵的数据类型将从 CV_32FC3 转换为每个像素由3个8位无符号整数数组成的图像*/
 	poissonnoiseImage.convertTo(poissonnoiseImage, CV_8UC3);
-	
-	/*创建一个窗口显示原图像*/
-	//imshow("Image", img);
-	/*创建一个窗口显示加高斯噪声后的图像*/
-	//imshow("poissonnoiseImage", poissonnoiseImage);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
 
 	return poissonnoiseImage;
 }
@@ -539,35 +453,6 @@ Mat ImageAlgorithm::imageHistogram(Mat img)
 	/*分割HSV图像的通道*/
 	vector<Mat> channels;
 	split(hsvImage, channels);
-
-	/*灰度图像的直方图实现:
-    //图像变灰度图像
-	Mat grayScaleImage;
-	cvtColor(img, grayScaleImage, COLOR_BGR2GRAY);
-	//计算图像的直方图
-	int histSize = 256; //直方图尺寸
-	float range[] = { 0, 256 }; //像素值范围
-	const float* histRange = { range };
-	//bool uniform = true; //直方图是否均匀
-	//bool accumulate = false; //直方图是否累积
-	
-	Mat hist;
-	calcHist(&img, 1, 0, Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
-	//创建直方图窗口并绘制直方图
-	int histWidth = 512;
-	int histHeight = 400;
-	int binWidth = cvRound((double)histWidth / histSize);
-    //创建一个用于绘制直方图的图像矩阵
-	Mat histogramImage(histHeight, histWidth, CV_8UC3, Scalar(0, 0, 0));
-
-	normalize(hist, hist, 0, histogramImage.rows, NORM_MINMAX, -1, Mat());
-
-	for (int i = 1; i < histSize; i++)
-	{
-		line(histogramImage, Point(binWidth * (i - 1), histHeight - cvRound(hist.at<float>(i - 1))),
-			Point(binWidth * (i), histHeight - cvRound(hist.at<float>(i))),
-			Scalar(255, 255, 255), 2, 8, 0);
-	}*/
 	
 	/*计算每个通道的直方图*/
 	int histSize = 256;         //直方图尺寸
@@ -617,13 +502,6 @@ Mat ImageAlgorithm::imageHistogram(Mat img)
 			Point(binWidth * (i), histHeight - cvRound(hist_v.at<float>(i))),
 			Scalar(0, 0, 255), 2, 8, 0);
 	}
-	
-	/*创建一个直方图窗口，并在其中绘制直方图*/
-	//imshow("histogramImage", histogramImage);
-	/*创建一个窗口显示图像*/
-	//imshow("Image", img);
-	/*图像显示的时间，为系统结束前的阻塞时间，如果想要看到图片显示效果，建议此值设置在（3000以上，单位ms）*/
-	//waitKey(0);
 
 	return histogramImage;
 }

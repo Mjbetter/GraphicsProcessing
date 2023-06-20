@@ -41,7 +41,7 @@ public:
 	/*图像缩放*/
 	Mat imageResizing(Mat img, double Scale_x, double Scale_y);
 	/*图像旋转*/
-	Mat imageRotating(Mat img/*, double img_cols, double img_rows*/, double angle);
+	Mat imageRotating(Mat img, int angle);
 	/*图像镜像*/
 	Mat imageReflection(Mat img, int choice);
 

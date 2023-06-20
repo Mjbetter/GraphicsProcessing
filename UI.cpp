@@ -1933,7 +1933,7 @@ void UI::setFontAndSizeRecursive(QStandardItem* item, const QFont& font, int fon
         }
     }
 }
-void UI::setSliderStyle(QSlider* slider)
+QSlider* UI::setSliderStyle(QSlider* slider)
 {
     // 设置滑块和滑槽的样式
     slider->setStyleSheet(
@@ -1944,12 +1944,13 @@ void UI::setSliderStyle(QSlider* slider)
         "}"
 
         "QSlider::handle:horizontal {"
-        "    background-color: #ffffff;"
-        "    border: 1px solid #bbbbbb;"
-        "    width: 10px;"
-        "    height: 10px;"
-        "    margin: -5px 0;"
-        "    border-radius: 5px;"
+        "    background-image: url(E:/school/Term/3_2/lastTime/images/Catslider.png);"
+        "    background-repeat: no-repeat;"
+        "    background-position: center;"
+        "    width: 60px;"
+        "    height: 60px;"
+        "    margin: -10px 0;"
+        "    border: none;"
         "}"
     );
 
@@ -1967,7 +1968,9 @@ void UI::setSliderStyle(QSlider* slider)
         "    border-radius: 3px;"
         "}"
     );
+    return slider;
 }
+
 /*
 --------------------------------------------------------------------装修结束----------------------------------------------------------------------------------------------------
 */
@@ -1986,6 +1989,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
 
     //将中心窗口设置成左右两个布局
     leftWidgetLayout = new QVBoxLayout();
+    leftWidgetLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
     rightWidgetLayout = new QVBoxLayout();
     //将两个布局加入中心窗口的布局
     mainlayout->addLayout(leftWidgetLayout);
@@ -1995,6 +2000,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
     menubarLayout = new QVBoxLayout();
     leftWidgetLayout->addLayout(menubarLayout);
     MenuModel = createLeftMenu(leftWidget);
+    menubarLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
 
     QFont font("Arial");
     int fontSize = 12;
@@ -2010,7 +2017,7 @@ void UI::createCenterWin(QMainWindow* mainwin)
     treeView = new QTreeView();
 
     treeView->setModel(MenuModel);
-    treeView->setMinimumWidth(300);
+    treeView->setMinimumWidth(400);
     treeView->setMaximumWidth(400);
     // 将树视图添加到布局中
     menubarLayout->addWidget(treeView);

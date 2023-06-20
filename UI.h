@@ -193,7 +193,7 @@ public:
 	QWidget* controlContainer;
 	QHBoxLayout* controlLayout;
 	//给slider的样貌变换一下
-	void setSliderStyle(QSlider* slider);
+	QSlider* setSliderStyle(QSlider* slider);
 	/*
 	----------------------------------------mat与label的互相转换--------------------------------------------------------
 	*/

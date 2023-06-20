@@ -1570,6 +1570,7 @@ void UI::FourierTransform()
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
+    //Mat img = imread(imagePath.toStdString());
     //cvtColor(img, img, COLOR_RGB2BGR);
     ImageAlgorithm method;
     img = method.imageFourierTransform(img);
@@ -1651,6 +1652,7 @@ void UI::ImageDigitRecognition()
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
+    cvtColor(img, img, COLOR_RGB2BGR);
     img = method.imageDigitalIdentify(img);
     Replace_Picture(img);
 }
@@ -1743,9 +1745,11 @@ void UI::createUpMenu(QMainWindow* mainwin)
 QStandardItemModel* UI::createLeftMenu(QWidget* leftwidget)
 {
     QStandardItemModel* menumodel = new QStandardItemModel();
+
     // 创建表头项
     QStandardItem* headerItem1 = new QStandardItem("功能菜单");
     menumodel->setHorizontalHeaderItem(0, headerItem1);
+
     //一级菜单
 
     fileOP = new QStandardItem(" 文件 ");

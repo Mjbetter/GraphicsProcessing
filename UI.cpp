@@ -1646,15 +1646,22 @@ void UI::ImageSegmentation()
 */
 void UI::ImageDigitRecognition()
 {
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在进行数字识别...");
+
     //当进入一个新的功能时，我们要把当前画布上的图片替换成，上一个功能处理好的图片
     nowPixmap = revoke.top();
     //删除空间变换区域原有控件
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
-    cvtColor(img, img, COLOR_RGB2BGR);
+    //cvtColor(img, img, COLOR_RGB2BGR);
     img = method.imageDigitalIdentify(img);
     Replace_Picture(img);
+    // 使用 QTimer 进行延迟关闭弹窗
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "数字识别完成！");
+        });
 }
 /*
 ---------------------------------------------图像素描化-------------------------------------------------------------------
@@ -2039,8 +2046,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
     treeView = new QTreeView();
 
     treeView->setModel(MenuModel);
-    treeView->setMinimumWidth(400);
-    treeView->setMaximumWidth(400);
+    treeView->setMinimumWidth(300);
+    treeView->setMaximumWidth(300);
     // 将树视图添加到布局中
     menubarLayout->addWidget(treeView);
     //将点击与槽函数相连
@@ -2053,6 +2060,7 @@ void UI::createCenterWin(QMainWindow* mainwin)
     // 设置图像控件的大小
     imageLabel->setFixedSize(1650, 850); //2100,1200
     imageLabel->setParent(rightWidget);
+    imageLabel->setAlignment(Qt::AlignHCenter);
     imageLayout = new QVBoxLayout(imageLabel);
     rightWidgetLayout->addWidget(imageLabel,0, Qt::AlignCenter | Qt::AlignHCenter);
 

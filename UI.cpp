@@ -1611,8 +1611,13 @@ void UI::ImageSynthesis()
             Mat Othermat = convertQPixmapToMat(pixmap);
             Mat img = convertQPixmapToMat(nowPixmap);
             ImageAlgorithm method;
+            // 在函数执行前弹出弹窗
+            QMessageBox::information(nullptr, "提示", "正在进行图像合成...");
             Mat newImage = method.imageSynthesis(Othermat, img);
             Replace_Picture(newImage);
+            QTimer::singleShot(10, []() {
+                QMessageBox::information(nullptr, "提示", "图像合成完成！");
+                });
         }
     }
 
@@ -1633,7 +1638,12 @@ void UI::ImageSegmentation()
     deleteChildWidgets(controlContainer);
     Mat img = convertQPixmapToMat(nowPixmap);
     ImageAlgorithm method;
+    // 在函数执行前弹出弹窗
+    QMessageBox::information(nullptr, "提示", "正在进行图像分割...");
     img = method.imageSegmentation(img);
+    QTimer::singleShot(10, []() {
+        QMessageBox::information(nullptr, "提示", "图像分割完成！");
+        });
     Replace_Picture(img);
 }
 
@@ -2046,8 +2056,8 @@ void UI::createCenterWin(QMainWindow* mainwin)
     treeView = new QTreeView();
 
     treeView->setModel(MenuModel);
-    treeView->setMinimumWidth(300);
-    treeView->setMaximumWidth(300);
+    treeView->setMinimumWidth(200);
+    treeView->setMaximumWidth(200);
     // 将树视图添加到布局中
     menubarLayout->addWidget(treeView);
     //将点击与槽函数相连

@@ -88,6 +88,7 @@ public:
 	QVBoxLayout* menubarLayout;
 	//创建树视图
 	QTreeView* treeView;
+	
 	//递归设置菜单
 	void setFontAndSizeRecursive(QStandardItem* item, const QFont& font, int fontSize);
 

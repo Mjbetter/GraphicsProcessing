@@ -1,6 +1,11 @@
 #include "Algorithm.h"
 
 
+ImageAlgorithm::ImageAlgorithm()
+{
+	knn = Algorithm::load<cv::ml::KNearest>("KnnTest.xml");
+}
+
 void ImageAlgorithm::GetIntegralImage(Mat img,double **integralImage)
 {
 	int channels = img.channels();
@@ -1942,52 +1947,54 @@ Mat ImageAlgorithm::imageSegmentation(Mat src)
 函数参数：1、img：传入的需要处理的图像的像素矩阵
 返回值：返回处理过后的像素矩阵，图像能够呈现被识别出来的数字
 */
-Mat ImageAlgorithm::imageDigitalIdentify(Mat src)
+Mat ImageAlgorithm::imageDigitalIdentify(Mat src_test)
 {
 
-	//// 加载已经训练好的KNN模型
-	cv::Ptr<cv::ml::KNearest> knn = cv::ml::KNearest::create();
-	knn = cv::Algorithm::load<cv::ml::KNearest>("knn_model.xml");
-	Mat tmp = src;
-
-	Mat gray_frame, thres_img, blur_img;
-	cvtColor(src, gray_frame, COLOR_BGR2GRAY);//对图像进行预处理（图像去燥二值化）
-	GaussianBlur(gray_frame, blur_img, Size(3, 3), 3, 3);
-	adaptiveThreshold(blur_img, thres_img, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 151, 10);
-	Mat morph_img, tmp2, tmp3;
+	Mat tmp,tmp3;
+	Mat gray_test, thres_test, blur_test;
+	Mat morph_test, predict_mat;
 	Mat kernerl = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
-	morphologyEx(thres_img, morph_img, MORPH_OPEN, kernerl, Point(-1, -1));
-	int k = 5;
-	// 查找图像中的轮廓
-	vector<vector<Point>> contours;
-	vector<Vec4i> hiearachy;
-	findContours(morph_img, contours, hiearachy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-	for (int i = 0; i < contours.size(); i++) {
-		Rect boundingBox = boundingRect(contours[i]);
+	if (src_test.channels() == 3) {
+		cvtColor(src_test, gray_test, COLOR_BGR2GRAY);
+		GaussianBlur(gray_test, blur_test, Size(3, 3), 3, 3);
+		adaptiveThreshold(blur_test, thres_test, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 151, 10);
+		morphologyEx(thres_test, morph_test, MORPH_OPEN, kernerl, Point(-1, -1));
+	}
+	else {
+		morphologyEx(src_test, morph_test, MORPH_OPEN, kernerl, Point(-1, -1));
+	}
+	vector<vector<Point>> contours_test;
+	vector<Vec4i> hiearachy_test;
+	findContours(morph_test, contours_test, hiearachy_test, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	int count = 0;
+	for (int i = 0; i < contours_test.size(); ++i)
+	{
 
-		float area = contourArea(contours[i]);
-		float ckbi = boundingBox.width / boundingBox.height;
-
-		if (ckbi < 4 && area>50) {
-			// 调整数字图像的大小
-			Mat digit = morph_img(boundingBox);
-			resize(digit, digit, Size(28, 28));
-
-			// 对数字图像进行预处理，与训练数据保持一致
-			digit = digit.reshape(0, 1);
-			digit.convertTo(digit, CV_32FC1);
-			Mat sample = digit(Range(0, digit.rows), Range::all());
-
-			// 使用KNN模型进行预测
-			int response = knn->predict(sample);
-
-			// 在原图上绘制分割出的数字
-			rectangle(tmp, boundingBox, Scalar(0, 255, 0),1, 8);
-			putText(tmp, to_string(response), boundingBox.tl(), FONT_HERSHEY_SIMPLEX, 2, Scalar(0, 0, 255), 4);
+		Rect minrect_test = boundingRect(contours_test[i]);
+		float area_test = contourArea(contours_test[i]);
+		float ckbi_test = minrect_test.width / minrect_test.height;
+		if (ckbi_test < 4 && area_test>60)
+		{
+			rectangle(src_test, minrect_test, Scalar(0, 255, 0), 1, 8);
+			Rect ROI_test = minrect_test;
+			Mat ROI_img_test = morph_test(ROI_test);
+			resize(ROI_img_test, ROI_img_test, Size(20, 20));
+			ROI_img_test.convertTo(ROI_img_test, CV_32F);
+			ROI_img_test.copyTo(tmp3);
+			predict_mat.push_back(tmp3.reshape(0, 1));
+			count++;
+			Mat predict_simple = predict_mat.row(count - 1);
+			float r = knn->predict(predict_simple);
+			stringstream stream;
+			stream << r;
+			string str;
+			stream >> str;
+			putText(src_test, str, ROI_test.tl(), FONT_HERSHEY_PLAIN, 1, Scalar(255, 0, 0), 1, 8);
 		}
+
 	}
 
-	return tmp;
+	return src_test;
 }
 
 

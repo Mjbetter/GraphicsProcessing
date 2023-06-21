@@ -111,7 +111,7 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="knn_model.xml" />
+    <Xml Include="KnnTest.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

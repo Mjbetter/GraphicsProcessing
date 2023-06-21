@@ -29,6 +29,8 @@ class ImageAlgorithm
 {
 public:
 
+	ImageAlgorithm();
+
 	/*构造积分图*/
 	void GetIntegralImage(Mat img, double **integralImage);
 	/*扩充图像边缘*/
@@ -145,6 +147,6 @@ public:
 	/*其他功能*/
 	Mat imageSketch(Mat src);
 
-
+	cv::Ptr<cv::ml::KNearest> knn = cv::ml::KNearest::create();
 
 };
